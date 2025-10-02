@@ -24,3 +24,7 @@ spring:
             required: true
           auth: true
           timeout: 5000
+
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
