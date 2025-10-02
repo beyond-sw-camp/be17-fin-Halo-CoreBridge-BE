@@ -1,6 +1,5 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
-import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,5 +19,5 @@ public class JobPostingSkill extends BaseEntity {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private JobPosting jobPosting;
 }

@@ -1,10 +1,9 @@
 package com.halo.core_bridge.api.resume.model.entity;
 
+import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.common.model.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,4 +23,10 @@ public class Resume extends BaseEntity {
 
     private LocalDateTime applied_at;
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private JobPosting jobPosting;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 }
