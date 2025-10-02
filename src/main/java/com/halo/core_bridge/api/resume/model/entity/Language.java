@@ -1,0 +1,31 @@
+package com.halo.core_bridge.api.resume.model.entity;
+
+import com.halo.core_bridge.common.model.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+
+@Entity
+@Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Language extends BaseEntity {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String testName;
+    private String languageName;
+    private String grade;
+    private String speakingLevel;
+    private LocalDate testDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Resume resume;
+}
