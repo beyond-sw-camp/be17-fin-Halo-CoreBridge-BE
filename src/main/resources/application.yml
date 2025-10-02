@@ -2,26 +2,11 @@ spring:
   application:
     name: core-bridge
 
-  datasource:
+  profiles:
+    active: dev
 
+  datasource:
     url: ${DB_URL}
     driver-class-name: org.mariadb.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
-  jpa:
-    show-sql: true
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        hbm2ddl.drop-cascade: true
-    defer-datasource-initialization: true
-    database-platform: org.hibernate.dialect.MariaDBDialect
-
-  sql:
-    init:
-      mode: never
-      data-locations: classpath:db/data.sql
