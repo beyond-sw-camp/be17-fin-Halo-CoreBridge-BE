@@ -18,6 +18,7 @@ public enum BaseResponseStatus {
      * 30000 : Request 오류, Validation 오류
      */
     // Common
+    FIELD_VALIDATE_ERROR(false, 20000, "입력값 예외가 발생했습니다. 올바른 값을 입력하세요."),
     INVALID_JWT(false, 20002, "유효하지 않은 JWT입니다."),
     INVALID_USER_ROLE(false,20003,"권한이 없는 유저의 접근입니다."),
     INVALID_USER_INFO(false,20004,"이메일 또는 비밀번호를 확인해주세요."),
