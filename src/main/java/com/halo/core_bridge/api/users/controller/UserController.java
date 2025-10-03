@@ -19,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<Object>> login(@Valid @RequestBody UserDto.Create create) {
+    public ResponseEntity<BaseResponse<Object>> createUser(@Valid @RequestBody UserDto.Create create) {
         userService.save(create);
 
         return ResponseEntity.ok(BaseResponse.success("회원 가입 성공"));
