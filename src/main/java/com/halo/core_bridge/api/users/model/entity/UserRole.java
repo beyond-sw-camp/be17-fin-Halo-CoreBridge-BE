@@ -16,5 +16,10 @@ public class UserRole extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(nullable = false)
+    private String code;
+
+    @Column(nullable = false)
     private String name;
 }
