@@ -13,5 +13,5 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
       data-locations: classpath:db/data.sql
