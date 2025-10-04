@@ -32,4 +32,15 @@ public class UserService {
             throw e;
         }
     }
+
+    /**
+     * 이메일 중복을 검사한다.
+     * @param email 중복인지 확인할 이메일
+     * @throws BaseException 이메일 중복 예외 발생
+     */
+    public void existByEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw BaseException.from(BaseResponseStatus.DUPLICATE_USER_EMAIL);
+        }
+    }
 }
