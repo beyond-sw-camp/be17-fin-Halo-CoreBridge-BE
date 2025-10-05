@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="docs/assets/imgs/CoreBridge-icon.png" alt="CoreBridge 아이콘" width="45" height="45">
+    <img src="docs/assets/imgs/CoreBridge-icon.png" alt="CoreBridge 아이콘" width="35" height="35">
     CoreBridge
 </h1>
 
