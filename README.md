@@ -199,6 +199,9 @@
 
 ### 📅 3. WBS
 
+[일정 관리를 위한 WBS 바로가기](./docs/WBS.pdf)
+
+
 <details>
 <summary>WBS 상세보기</summary>
 <div markdown="1">
@@ -207,8 +210,6 @@
 
 </div>
 </details>
-
-[일정 관리를 위한 WBS 바로가기](./docs/WBS.pdf)
 
 ### 🔧 4. 시스템 아키텍처
 
