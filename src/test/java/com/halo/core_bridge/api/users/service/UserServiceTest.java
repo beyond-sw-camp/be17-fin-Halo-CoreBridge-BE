@@ -11,6 +11,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +33,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordService passwordService;
 
     @InjectMocks
     private UserService userService;
@@ -55,6 +59,7 @@ class UserServiceTest {
                 .build();
 
         given(userRepository.save(any(User.class))).willReturn(willReturnUser);
+        BDDMockito.willDoNothing().given(passwordService).encodePassword(any(User.class), any(String.class));
 
         UserDto.Create createUser = UserDto.Create.builder()
                 .email("test01@test.com")
@@ -88,6 +93,7 @@ class UserServiceTest {
                 new DataIntegrityViolationException("무결성 위반", hibernateEx);
 
         given(userRepository.save(any(User.class))).willThrow(springEx);
+        BDDMockito.willDoNothing().given(passwordService).encodePassword(any(User.class), any(String.class));
 
         UserDto.Create createUser = UserDto.Create.builder()
                 .email("test01@test.com")
