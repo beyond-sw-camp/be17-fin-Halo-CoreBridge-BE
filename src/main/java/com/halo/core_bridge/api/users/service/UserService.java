@@ -15,11 +15,15 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordService passwordService;
 
     public Long save(UserDto.Create createUser) {
         try {
 
-            User savedUser = userRepository.save(createUser.toEntity());
+            User userEntity = createUser.toEntity();
+            passwordService.encodePassword(userEntity, createUser.getPassword());
+
+            User savedUser = userRepository.save(userEntity);
             return savedUser.getId();
 
         } catch (DataIntegrityViolationException e) {

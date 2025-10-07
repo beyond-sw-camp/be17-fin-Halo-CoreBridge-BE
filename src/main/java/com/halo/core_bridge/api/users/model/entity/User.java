@@ -51,4 +51,8 @@ public class User extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserRole userRole;
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
