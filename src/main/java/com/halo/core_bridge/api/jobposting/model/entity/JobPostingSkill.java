@@ -2,10 +2,7 @@ package com.halo.core_bridge.api.jobposting.model.entity;
 
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Builder
@@ -20,4 +17,8 @@ public class JobPostingSkill extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private JobPosting jobPosting;
+
+    public void setJobPosting(JobPosting jobPosting) {
+        this.jobPosting = jobPosting;
+    }
 }

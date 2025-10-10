@@ -3,12 +3,11 @@ package com.halo.core_bridge.api.jobposting.model.entity;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -19,16 +18,29 @@ public class JobPosting extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
 
     private String description;
+
     private LocalDateTime applyStartDate;
     private LocalDateTime applyEndDate;
     private LocalDateTime hireEndDate;
+
     private int minExperience;
     private int maxExperience;
+
     private String employmentType;
     private String careerType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
+
+    @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<JobPostingSkill> skills = new ArrayList<>();
+
+    public void addSkill(JobPostingSkill skill) {
+        this.skills.add(skill);
+        skill.setJobPosting(this);
+    }
 }
