@@ -118,6 +118,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // 쿠키 삭제
         CookieUtil.deleteCookie(response, jwtTokenService.getTokenName());
         CookieUtil.deleteCookie(response, refreshTokenService.getTokenName());
+        SecurityContextHolder.clearContext();
 
         response.setContentType("application/json; charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
