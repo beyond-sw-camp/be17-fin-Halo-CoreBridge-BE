@@ -29,7 +29,9 @@ public enum BaseResponseStatus {
     REQUEST_ERROR(false, 30001, "입력값을 확인해주세요."),
     INVALID_AUTH_CODE(false, 30002, "유효하지 않은 인증번호 입니다."),
     EXPIRED_JWT(false, 30008, "JWT 토큰이 만료되었습니다."),
-
+    JSON_PARSER(false, 30009 , "JSON Parsing 실패"),
+    INVALID_REFRESH_TOKEN(false, 30010, "유효하지 않는 토큰입니다."),
+    EXCEPTION_CREATE_ACCESS_TOKEN(false, 30011, "토큰 생성 중 예기지 못한 오류가 발생하였습니다."),
     /**
      * 40000 : Response 오류
      */
@@ -45,7 +47,6 @@ public enum BaseResponseStatus {
      * 60000 : Server 오류
      */
     SERVER_ERROR(false, 60001, "서버와의 연결에 실패하였습니다.");
-
 
 
     /**
