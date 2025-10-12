@@ -5,6 +5,10 @@ spring:
   profiles:
     active: dev
 
+  config:
+    import:
+      - "classpath:application-token.yml"
+
   datasource:
     url: ${DB_URL}
     driver-class-name: org.mariadb.jdbc.Driver
