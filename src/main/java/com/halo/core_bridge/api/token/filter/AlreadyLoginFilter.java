@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.token.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.halo.core_bridge.api.token.jwt.JwtTokenService;
 import com.halo.core_bridge.api.token.refresh.service.RefreshTokenService;
+import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponse;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import com.halo.core_bridge.utils.CookieUtil;
@@ -28,31 +29,31 @@ public class AlreadyLoginFilter extends OncePerRequestFilter {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (request.getRequestURI().equals("/login") && authentication != null) {
+        try {
+            if (request.getRequestURI().equals("/login") && authentication != null) {
 
-            String refreshToken = CookieUtil.getCookieValue(request, refreshTokenService.getTokenName());
-
-            if (refreshToken == null) {
-
-                // 쿠키 삭제
-                CookieUtil.deleteCookie(response, jwtTokenService.getTokenName());
-                CookieUtil.deleteCookie(response, refreshTokenService.getTokenName());
-
-                response.setContentType("application/json; charset=UTF-8");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write(
-                        new ObjectMapper().writeValueAsString(
-                                BaseResponse.error(BaseResponseStatus.INVALID_REFRESH_TOKEN)
-                        )
-                );
-
-                return;
+                String refreshToken = CookieUtil.getCookieValue(request, refreshTokenService.getTokenName());
+                refreshTokenService.delete(refreshToken);
             }
-
-            refreshTokenService.delete(refreshToken);
-
+        } catch (BaseException e) {
+            handleException(response);
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void handleException(HttpServletResponse response) throws IOException {
+        CookieUtil.deleteCookie(response, jwtTokenService.getTokenName());
+        CookieUtil.deleteCookie(response, refreshTokenService.getTokenName());
+        SecurityContextHolder.clearContext();
+
+        response.setContentType("application/json; charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(
+                new ObjectMapper().writeValueAsString(
+                        BaseResponse.error(BaseResponseStatus.INVALID_REFRESH_TOKEN)
+                )
+        );
     }
 }
