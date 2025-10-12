@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.users.service;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.api.users.repository.UserRepository;
+import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,6 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                     .build();
         }
 
-        return null;
+        throw new UsernameNotFoundException(BaseResponseStatus.INVALID_USER_INFO.getMessage());
     }
 }
