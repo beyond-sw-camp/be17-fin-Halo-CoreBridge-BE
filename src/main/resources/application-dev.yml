@@ -15,3 +15,7 @@ spring:
     init:
       mode: always
       data-locations: classpath:db/data.sql
+
+app:
+  cookie:
+    secure: false
