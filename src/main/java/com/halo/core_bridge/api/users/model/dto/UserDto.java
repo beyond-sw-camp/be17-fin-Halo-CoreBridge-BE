@@ -4,11 +4,18 @@ import com.halo.core_bridge.api.users.model.Gender;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.api.users.model.entity.UserRole;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 public class UserDto {
 
@@ -54,5 +61,43 @@ public class UserDto {
                     )
                     .build();
         }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Auth implements UserDetails {
+
+        private Long id;
+        private String email;
+        private String password;
+        private String name;
+        private String role;
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return List.of(new SimpleGrantedAuthority(role));
+        }
+
+        @Override
+        public String getPassword() {
+            return password;
+        }
+
+        @Override
+        public String getUsername() {
+            return email;
+        }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Login {
+
+        private String email;
+        private String password;
     }
 }
