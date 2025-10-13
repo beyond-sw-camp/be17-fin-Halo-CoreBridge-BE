@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -26,6 +27,7 @@ public class Language extends BaseEntity {
     private String speakingLevel;
     private LocalDate testDate;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Resume resume;
 }

@@ -35,6 +35,7 @@ public enum BaseResponseStatus {
      */
     // Common
     RESPONSE_ERROR(false, 40001, "값을 불러오는데 실패하였습니다."),
+    RESUME_NOT_FOUND(false, 40002, "이력서를 찾을 수 없습니다."),
 
     /**
      * 50000 : Database 오류

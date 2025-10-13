@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -25,6 +26,7 @@ public class OverseasExperience extends BaseEntity {
     private LocalDate endDate;
     private String note;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Resume resume;
 }

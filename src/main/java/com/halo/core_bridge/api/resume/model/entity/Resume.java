@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -29,4 +31,56 @@ public class Resume extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Career> careers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Certificate> certificates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Education> educations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Language> languages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OverseasExperience> overseasExperiences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResumeSkill> resumeSkills = new ArrayList<>();
+
+    public void addCareer(Career career) {
+        this.careers.add(career);
+        career.setResume(this);
+    }
+
+    public void addCertificate(Certificate certificate) {
+        this.certificates.add(certificate);
+        certificate.setResume(this);
+    }
+
+    public void addEducation(Education education) {
+        this.educations.add(education);
+        education.setResume(this);
+    }
+
+    public void addLanguage(Language language) {
+        this.languages.add(language);
+        language.setResume(this);
+    }
+
+    public void addOverseasExperience(OverseasExperience overseasExperience) {
+        this.overseasExperiences.add(overseasExperience);
+        overseasExperience.setResume(this);
+    }
+
+    public void addResumeSkill(ResumeSkill resumeSkill) {
+        this.resumeSkills.add(resumeSkill);
+        resumeSkill.setResume(this);
+    }
+    
+    public void updateDescription(String description) {
+        this.description = description;
+    }
 }
