@@ -20,6 +20,7 @@ public class JobPosting extends BaseEntity {
     private Long id;
     private String title;
 
+    @Column(length = 2000)
     private String description;
 
     private LocalDateTime applyStartDate;
@@ -38,11 +39,11 @@ public class JobPosting extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 
-    @OneToMany(mappedBy = "jobPosting", fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "jobPosting",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,       // 부모 저장/수정 시 자식 함께 반영
+            orphanRemoval = true             // 부모에서 제거되면 고아 삭제
+    )
     private List<JobPostingSkill> skills = new ArrayList<>();
-
-    public void addSkill(JobPostingSkill skill) {
-        this.skills.add(skill);
-        skill.setJobPosting(this);
-    }
 }

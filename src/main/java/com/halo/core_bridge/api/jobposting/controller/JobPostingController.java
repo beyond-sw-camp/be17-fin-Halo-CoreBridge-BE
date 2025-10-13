@@ -5,7 +5,6 @@ import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +20,16 @@ public class JobPostingController {
 
     //채용공고 등록
     @PostMapping
-    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> createJobPosting(
+    public ResponseEntity<BaseResponse<String>> createJobPosting(
             @RequestBody @Validated JobPostingDto.CreateRequest request) {
-
-        JobPostingDto.DetailResponse result = jobPostingService.save(request);
-
+        Long savedId = jobPostingService.save(request);
         // 생성된 리소스의 URI 생성
-        URI location = URI.create("/job-postings/" + result.getId());
+        URI location = URI.create("/job-postings/" + savedId);
 
         // 201 Created + Location 헤더 포함
         return ResponseEntity
                 .created(location)
-                .body(BaseResponse.success(result));
+                .body(BaseResponse.success("저장완료"));
     }
 
     //채용공고 전체 목록 조회

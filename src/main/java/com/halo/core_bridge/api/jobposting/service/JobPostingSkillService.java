@@ -5,8 +5,6 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Service
@@ -14,7 +12,6 @@ import java.util.*;
 public class JobPostingSkillService {
     private final JobPostingSkillRepository jobPostingSkillRepository;
 
-    @Transactional
     public void saveAll(JobPosting jobPosting, List<String> skillNames) {
         if(skillNames == null || skillNames.isEmpty()) return;
 

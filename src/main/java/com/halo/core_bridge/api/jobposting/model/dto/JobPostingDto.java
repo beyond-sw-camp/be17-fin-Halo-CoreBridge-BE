@@ -1,16 +1,18 @@
 package com.halo.core_bridge.api.jobposting.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 public class JobPostingDto {
+
+
 
     @Getter
     @Setter
@@ -48,12 +50,15 @@ public class JobPostingDto {
         @Positive(message = "부서 ID는 양수여야 합니다.")
         private Long departmentId;
 
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         @NotNull(message = "지원 시작일은 필수 입력값입니다.")
         private LocalDateTime applyStartDate;
 
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         @NotNull(message = "지원 마감일은 필수 입력값입니다.")
         private LocalDateTime applyEndDate;
 
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         @NotNull(message = "채용 마감일은 필수 입력값입니다.")
         private LocalDateTime hireEndDate;
 
@@ -115,7 +120,11 @@ public class JobPostingDto {
         private String department;
         private String employmentType;
         private List<String> skills;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyStartDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyEndDate;
 
         public static DetailResponse fromEntity(JobPosting entity) {
@@ -125,9 +134,13 @@ public class JobPostingDto {
                     .description(entity.getDescription())
                     .department(entity.getDepartment().getName())
                     .employmentType(entity.getEmploymentType())
-                    .skills(entity.getSkills().stream()
-                            .map(JobPostingSkill::getName)
-                            .collect(Collectors.toList()))
+                    .skills(
+                            entity.getSkills() == null
+                                    ? List.of()  // null일 경우 빈 리스트로 대체
+                                    : entity.getSkills().stream()
+                                    .map(JobPostingSkill::getName)
+                                    .toList()
+                    )
                     .applyStartDate(entity.getApplyStartDate())
                     .applyEndDate(entity.getApplyEndDate())
                     .build();
