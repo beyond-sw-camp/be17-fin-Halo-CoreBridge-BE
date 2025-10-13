@@ -5,8 +5,12 @@ import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -17,21 +21,36 @@ public class JobPostingController {
 
     //채용공고 등록
     @PostMapping
-    public BaseResponse<JobPostingDto.DetailResponse> createJobPosting(
-            @RequestBody JobPostingDto.CreateRequest request
-    ) {
-       return BaseResponse.success(jobPostingService.save(request));
+    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> createJobPosting(
+            @RequestBody @Validated JobPostingDto.CreateRequest request) {
+
+        JobPostingDto.DetailResponse result = jobPostingService.save(request);
+
+        // 생성된 리소스의 URI 생성
+        URI location = URI.create("/job-postings/" + result.getId());
+
+        // 201 Created + Location 헤더 포함
+        return ResponseEntity
+                .created(location)
+                .body(BaseResponse.success(result));
     }
 
     //채용공고 전체 목록 조회
     @GetMapping
-    public BaseResponse<List<JobPostingDto.ListResponse>> getAllJobPostings() {
-        return BaseResponse.success(jobPostingService.getList());
+    public ResponseEntity
+            <BaseResponse<List<JobPostingDto.ListResponse>>> getAllJobPostings() {
+        List<JobPostingDto.ListResponse> list = jobPostingService.getList();
+        return ResponseEntity.ok(BaseResponse.success(list));
     }
 
     //채용공고 상세 조회
     @GetMapping("/{id}")
-    public BaseResponse<JobPostingDto.DetailResponse> getJobPostingDetail(@PathVariable Long id) {
-        return BaseResponse.success(jobPostingService.getDetail(id));
+    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> getJobPostingDetail(
+            @PathVariable Long id
+    ) {
+        JobPostingDto.DetailResponse detail = jobPostingService.getDetail(id);
+
+        return ResponseEntity
+                .ok(BaseResponse.success(detail)); // HTTP 200 OK
     }
 }

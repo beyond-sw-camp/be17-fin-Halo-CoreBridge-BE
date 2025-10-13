@@ -26,7 +26,10 @@ public class JobPosting extends BaseEntity {
     private LocalDateTime applyEndDate;
     private LocalDateTime hireEndDate;
 
+    @Column(nullable = true)
     private int minExperience;
+
+    @Column(nullable = true)
     private int maxExperience;
 
     private String employmentType;
@@ -35,8 +38,7 @@ public class JobPosting extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
 
-    @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
+    @OneToMany(mappedBy = "jobPosting", fetch = FetchType.LAZY)
     private List<JobPostingSkill> skills = new ArrayList<>();
 
     public void addSkill(JobPostingSkill skill) {

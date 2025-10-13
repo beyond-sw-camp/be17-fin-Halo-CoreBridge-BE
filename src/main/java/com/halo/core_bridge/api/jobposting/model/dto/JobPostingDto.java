@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.jobposting.model.dto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.organization.model.entity.Department;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,44 +18,73 @@ public class JobPostingDto {
     @AllArgsConstructor
     @Builder
     public static class CreateRequest {
+
+        @NotBlank(message = "제목은 필수 입력값입니다.")
+        @Size(max = 100, message = "제목은 100자 이하로 입력해주세요")
         private String title;
+
+        @NotBlank(message = "채용공고 내용은 필수 입력값입니다.")
+        @Size(max = 2000, message = "채용공고 내용은 2000자 이하로 입력해주세요.")
         private String description;
+
+        @NotBlank(message = "고용형태는 필수 입력값입니다.")
+        @Pattern(regexp= "^(정규직|계약직)$", message = "고용형태는 정규직 계약직 중 하나입니다.")
         private String employmentType;
+
+        @NotBlank(message = "경력 구분은 필수 입력값입니다.")
+        @Pattern(regexp = "^(신입|경력|무관)$", message = "경력 구분은 신입, 경력, 무관 중 하나여야 합니다.")
         private String careerType;
+
         private int minExperience;
-        private int maxExperience;
-        private Long departmentId;
-        private LocalDateTime applyStartDate;
-        private LocalDateTime applyEndDate;
-        private LocalDateTime hireEndDate;
-        private List<String> skills;
 
-        public JobPosting toEntity(Department department) {
-            JobPosting posting = JobPosting.builder()
-                    .title(this.title)
-                    .description(this.description)
-                    .employmentType(this.employmentType)
-                    .careerType(this.careerType)
-                    .minExperience(this.minExperience)
-                    .maxExperience(this.maxExperience)
-                    .applyStartDate(this.applyStartDate)
-                    .applyEndDate(this.applyEndDate)
-                    .hireEndDate(this.hireEndDate)
-                    .department(department)
-                    .build();
-
-            if (skills != null) {
-                this.skills.forEach(skillName ->
-                        posting.addSkill(JobPostingSkill.builder().name(skillName).build()));
-            }
-            return posting;
+        @AssertTrue(message = "최대 경력은 최소 경력 이상이어야 합니다.")
+        private boolean isValidExperience() {
+            return maxExperience >= minExperience;
         }
 
+        private int maxExperience;
+
+        @NotNull(message = "부서 ID는 필수 입력값입니다.")
+        @Positive(message = "부서 ID는 양수여야 합니다.")
+        private Long departmentId;
+
+        @NotNull(message = "지원 시작일은 필수 입력값입니다.")
+        private LocalDateTime applyStartDate;
+
+        @NotNull(message = "지원 마감일은 필수 입력값입니다.")
+        private LocalDateTime applyEndDate;
+
+        @NotNull(message = "채용 마감일은 필수 입력값입니다.")
+        private LocalDateTime hireEndDate;
+
+        @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
+        private List<
+                @NotBlank(message = "기술 이름은 비어 있을 수 없습니다.")
+                @Size(max = 50, message = "기술 이름은 50자 이하로 입력해주세요.")
+                        String
+                > skills;
+
+        public JobPosting toEntity(Department department) {
+            return JobPosting.builder()
+                    .title(title)
+                    .description(description)
+                    .employmentType(employmentType)
+                    .careerType(careerType)
+                    .minExperience(minExperience)
+                    .maxExperience(maxExperience)
+                    .applyStartDate(applyStartDate)
+                    .applyEndDate(applyEndDate)
+                    .hireEndDate(hireEndDate)
+                    .department(department)
+                    .build();
+        }
     }
 
     // 공고 목록 응답
     @Getter
-    @NoArgsConstructor @AllArgsConstructor @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class ListResponse {
         private Long id;
         private String title;
@@ -75,7 +105,9 @@ public class JobPostingDto {
     }
 
     @Getter
-    @NoArgsConstructor @AllArgsConstructor @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class DetailResponse {
         private Long id;
         private String title;

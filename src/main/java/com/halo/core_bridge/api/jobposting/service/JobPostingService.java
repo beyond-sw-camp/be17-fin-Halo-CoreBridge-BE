@@ -2,9 +2,11 @@ package com.halo.core_bridge.api.jobposting.service;
 
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
-import com.halo.core_bridge.api.jobposting.repository.DepartmentRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
+import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.organization.model.entity.Department;
+import com.halo.core_bridge.api.organization.repository.DepartmentRepository;
+import com.halo.core_bridge.api.organization.service.DepartmentService;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -16,26 +18,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
-    private final DepartmentRepository departmentRepository;
+    private final DepartmentService departmentService;
+    private final JobPostingSkillService jobPostingSkillService;
 
     // 채용공고 등록
     public JobPostingDto.DetailResponse save(JobPostingDto.CreateRequest dto) {
-        Department dept = departmentRepository.findById(dto.getDepartmentId())
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.DEPARTMENT_NOT_FOUND));
 
-        var entity = dto.toEntity(dept);
-        var saved = jobPostingRepository.save(entity);
+        Department department = departmentService.getReference(dto.getDepartmentId());
 
-        return JobPostingDto.DetailResponse.fromEntity(saved);
+        JobPosting jobPosting = jobPostingRepository.save(dto.toEntity(department));
+
+        jobPostingSkillService.saveAll(jobPosting, dto.getSkills());
+
+        return JobPostingDto.DetailResponse.fromEntity(jobPosting);
     }
 
     // 전체 목록 조회
     public List<JobPostingDto.ListResponse> getList() {
-        List<JobPosting> list = jobPostingRepository.findAll();
-        if (list.isEmpty()) {
+        List<JobPosting> jobPostings = jobPostingRepository.findAll();
+        if (jobPostings.isEmpty()) {
             throw BaseException.from(BaseResponseStatus.JOB_POSTING_EMPTY);
         }
-        return list.stream().map(JobPostingDto.ListResponse::fromEntity).toList();
+        return jobPostings.stream().map(JobPostingDto.ListResponse::fromEntity).toList();
     }
 
     // 상세조회
