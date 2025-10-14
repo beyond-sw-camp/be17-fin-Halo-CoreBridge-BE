@@ -2,27 +2,24 @@ package com.halo.core_bridge.api.resume.model.dto;
 
 import com.halo.core_bridge.api.resume.model.entity.Career;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class CareerDto {
-
     private Long id;
     private String companyName;
     private String position;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    private Resume resume;
-
-
-    public Career toEntity() {
+    public Career toEntity(Resume resume) {
         return Career.builder()
                 .companyName(this.companyName)
                 .position(this.position)
@@ -39,7 +36,6 @@ public class CareerDto {
                 .position(career.getPosition())
                 .startDate(career.getStartDate())
                 .endDate(career.getEndDate())
-                .resume(career.getResume())
                 .build();
     }
 }

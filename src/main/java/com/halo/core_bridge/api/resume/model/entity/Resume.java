@@ -50,37 +50,4 @@ public class Resume extends BaseEntity {
     @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResumeSkill> resumeSkills = new ArrayList<>();
 
-    public void addCareer(Career career) {
-        this.careers.add(career);
-        career.setResume(this);
-    }
-
-    public void addCertificate(Certificate certificate) {
-        this.certificates.add(certificate);
-        certificate.setResume(this);
-    }
-
-    public void addEducation(Education education) {
-        this.educations.add(education);
-        education.setResume(this);
-    }
-
-    public void addLanguage(Language language) {
-        this.languages.add(language);
-        language.setResume(this);
-    }
-
-    public void addOverseasExperience(OverseasExperience overseasExperience) {
-        this.overseasExperiences.add(overseasExperience);
-        overseasExperience.setResume(this);
-    }
-
-    public void addResumeSkill(ResumeSkill resumeSkill) {
-        this.resumeSkills.add(resumeSkill);
-        resumeSkill.setResume(this);
-    }
-    
-    public void updateDescription(String description) {
-        this.description = description;
-    }
 }

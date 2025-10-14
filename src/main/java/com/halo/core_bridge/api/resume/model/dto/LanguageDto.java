@@ -2,17 +2,17 @@ package com.halo.core_bridge.api.resume.model.dto;
 
 import com.halo.core_bridge.api.resume.model.entity.Language;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class LanguageDto {
-
     private Long id;
     private String name;
     private String testName;
@@ -21,18 +21,15 @@ public class LanguageDto {
     private String speakingLevel;
     private LocalDate testDate;
 
-    private Resume resume;
-
-    public Language toEntity() {
+    public Language toEntity(Resume resume) {
         return Language.builder()
-                .id(this.id)
                 .name(this.name)
                 .testName(this.testName)
                 .languageName(this.languageName)
                 .grade(this.grade)
                 .speakingLevel(this.speakingLevel)
                 .testDate(this.testDate)
-                .resume(this.resume)
+                .resume(resume)
                 .build();
     }
 
@@ -45,7 +42,6 @@ public class LanguageDto {
                 .grade(language.getGrade())
                 .speakingLevel(language.getSpeakingLevel())
                 .testDate(language.getTestDate())
-                .resume(language.getResume())
                 .build();
     }
 }

@@ -10,17 +10,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResumeSkillDto {
-
     private Long id;
     private String name;
 
-    private Resume resume;
-
-    public ResumeSkill toEntity() {
+    public ResumeSkill toEntity(Resume resume) {
         return ResumeSkill.builder()
-                .id(this.id)
                 .name(this.name)
-                .resume(this.resume)
+                .resume(resume)
                 .build();
     }
 
@@ -28,7 +24,6 @@ public class ResumeSkillDto {
         return ResumeSkillDto.builder()
                 .id(resumeSkill.getId())
                 .name(resumeSkill.getName())
-                .resume(resumeSkill.getResume())
                 .build();
     }
 }

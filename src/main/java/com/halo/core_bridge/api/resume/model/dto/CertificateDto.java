@@ -2,27 +2,24 @@ package com.halo.core_bridge.api.resume.model.dto;
 
 import com.halo.core_bridge.api.resume.model.entity.Certificate;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class CertificateDto {
-
     private Long id;
     private String name;
     private String acquiredDate;
 
-    private Resume resume;
-
-    public Certificate toEntity() {
+    public Certificate toEntity(Resume resume) {
         return Certificate.builder()
-                .id(this.id)
                 .name(this.name)
                 .acquiredDate(this.acquiredDate)
-                .resume(this.resume)
+                .resume(resume)
                 .build();
     }
 
@@ -31,7 +28,6 @@ public class CertificateDto {
                 .id(certificate.getId())
                 .name(certificate.getName())
                 .acquiredDate(certificate.getAcquiredDate())
-                .resume(certificate.getResume())
                 .build();
     }
 }

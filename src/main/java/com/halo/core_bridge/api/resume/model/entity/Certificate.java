@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Builder
@@ -21,7 +20,6 @@ public class Certificate extends BaseEntity {
     private String name;
     private String acquiredDate;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Resume resume;
 }

@@ -2,29 +2,26 @@ package com.halo.core_bridge.api.resume.model.dto;
 
 import com.halo.core_bridge.api.resume.model.entity.Education;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class EducationDto {
-
     private Long id;
     private String schoolName;
     private String major;
     private String degree;
 
-    private Resume resume;
-
-    public Education toEntity() {
+    public Education toEntity(Resume resume) {
         return Education.builder()
-                .id(this.id)
                 .schoolName(this.schoolName)
                 .major(this.major)
                 .degree(this.degree)
-                .resume(this.resume)
+                .resume(resume)
                 .build();
     }
 
@@ -34,7 +31,6 @@ public class EducationDto {
                 .schoolName(education.getSchoolName())
                 .major(education.getMajor())
                 .degree(education.getDegree())
-                .resume(education.getResume())
                 .build();
     }
 }

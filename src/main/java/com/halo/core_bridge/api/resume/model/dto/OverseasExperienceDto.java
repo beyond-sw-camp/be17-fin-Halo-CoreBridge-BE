@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OverseasExperienceDto {
-
     private Long id;
     private String type;
     private String country;
@@ -20,17 +19,14 @@ public class OverseasExperienceDto {
     private LocalDate endDate;
     private String note;
 
-    private Resume resume;
-
-    public OverseasExperience toEntity() {
+    public OverseasExperience toEntity(Resume resume) {
         return OverseasExperience.builder()
-                .id(this.id)
                 .type(this.type)
                 .country(this.country)
                 .startDate(this.startDate)
                 .endDate(this.endDate)
                 .note(this.note)
-                .resume(this.resume)
+                .resume(resume)
                 .build();
     }
 
@@ -42,7 +38,6 @@ public class OverseasExperienceDto {
                 .startDate(overseasExperience.getStartDate())
                 .endDate(overseasExperience.getEndDate())
                 .note(overseasExperience.getNote())
-                .resume(overseasExperience.getResume())
                 .build();
     }
 }

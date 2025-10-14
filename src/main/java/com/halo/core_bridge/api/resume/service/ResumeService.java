@@ -1,98 +1,160 @@
 package com.halo.core_bridge.api.resume.service;
 
-import com.halo.core_bridge.api.resume.model.dto.*;
-import com.halo.core_bridge.api.resume.model.dto.ResumeDto.*;
-import com.halo.core_bridge.api.resume.model.dto.ResumeResponseDto.*;
+import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
-import com.halo.core_bridge.common.exception.BaseException;
-import com.halo.core_bridge.common.model.BaseResponseStatus;
+//import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.users.service.UserService;
+import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import com.halo.core_bridge.api.users.model.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ResumeService {
-
     private final ResumeRepository resumeRepository;
+//    private final JobPostingService jobPostingService;
+    private final UserService userService;
+
+    private final CareerService careerService;
+    private final CertificateService certificateService;
+    private final EducationService educationService;
+    private final LanguageService languageService;
+    private final OverseasExperienceService overseasExperienceService;
+    private final ResumeSkillService resumeSkillService;
 
     @Transactional
-    public Long register(Create requestDto, Long userId, Long jobPostingId) {
+    public Long create(ResumeDto.Create dto, Long userId) {
+//        JobPosting jobPosting = jobPostingService.read(dto.getJobPostingId());
+//        User user = userService.read(userId);
 
-        Resume resume = requestDto.toEntity(null, null);
+        Resume resume = Resume.builder()
+                .applied_at(LocalDateTime.now())  // 서버에서 현재 시각 자동 설정
+                .description(dto.getDescription())
+//                .jobPosting(jobPosting)
+//                .user(user)
+                .build();
 
-        Resume savedResume = resumeRepository.save(resume);
-        log.info("새로운 이력서가 등록되었습니다. ID: {}", savedResume.getId());
-        return savedResume.getId();
+        Resume saved = resumeRepository.save(resume);
+        log.info("Resume created: {}", saved.getId());
+
+        if (dto.getCareers() != null) {
+            dto.getCareers().forEach(careerDto ->
+                    careerService.create(careerDto, saved.getId())
+            );
+        }
+
+        if (dto.getCertificates() != null) {
+            dto.getCertificates().forEach(certificateDto ->
+                    certificateService.create(certificateDto, saved.getId())
+            );
+        }
+
+        if (dto.getEducations() != null) {
+            dto.getEducations().forEach(educationDto ->
+                    educationService.create(educationDto, saved.getId())
+            );
+        }
+
+        if (dto.getLanguages() != null) {
+            dto.getLanguages().forEach(languageDto ->
+                    languageService.create(languageDto, saved.getId())
+            );
+        }
+
+        if (dto.getOverseasExperiences() != null) {
+            dto.getOverseasExperiences().forEach(overseasDto ->
+                    overseasExperienceService.create(overseasDto, saved.getId())
+            );
+        }
+
+        if (dto.getResumeSkills() != null) {
+            dto.getResumeSkills().forEach(skillDto ->
+                    resumeSkillService.create(skillDto, saved.getId())
+            );
+        }
+
+        return saved.getId();
     }
 
-    public Detail read(Long resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.RESUME_NOT_FOUND));
-        return Detail.from(resume);
-    }
+    public ResumeDto.Response read(Long id) {
+        Resume resume = resumeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
 
-    public Slice<Detail> list(Pageable pageable) {
-        Slice<Resume> resumes = resumeRepository.findAll(pageable);
-
-        return resumes.map(Detail::from);
+        return ResumeDto.Response.from(resume);
     }
 
     @Transactional
-    public Long update(Long resumeId, Update requestDto) {
-        Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.RESUME_NOT_FOUND));
+    public void update(Long id, ResumeDto.Update dto) {
+        Resume resume = resumeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
 
-        resume.updateDescription(requestDto.getDescription());
+        // Resume 기본 정보는 유지하고 자식 엔티티들만 갱신
+        // 기존 자식 엔티티들 삭제
+        resume.getCareers().forEach(career -> careerService.delete(career.getId()));
+        resume.getCertificates().forEach(certificate -> certificateService.delete(certificate.getId()));
+        resume.getEducations().forEach(education -> educationService.delete(education.getId()));
+        resume.getLanguages().forEach(language -> languageService.delete(language.getId()));
+        resume.getOverseasExperiences().forEach(overseas -> overseasExperienceService.delete(overseas.getId()));
+        resume.getResumeSkills().forEach(skill -> resumeSkillService.delete(skill.getId()));
 
-        resume.getCareers().clear();
-        requestDto.getCareers().stream()
-                .map(CareerDto::toEntity)
-                .forEach(resume::addCareer);
+        // 새로운 자식 엔티티들 추가
+        if (dto.getCareers() != null) {
+            dto.getCareers().forEach(careerDto ->
+                    careerService.create(careerDto, id)
+            );
+        }
 
-        resume.getEducations().clear();
-        requestDto.getEducations().stream()
-                .map(EducationDto::toEntity)
-                .forEach(resume::addEducation);
+        if (dto.getCertificates() != null) {
+            dto.getCertificates().forEach(certificateDto ->
+                    certificateService.create(certificateDto, id)
+            );
+        }
 
-        resume.getCertificates().clear();
-        requestDto.getCertificates().stream()
-                .map(CertificateDto::toEntity)
-                .forEach(resume::addCertificate);
+        if (dto.getEducations() != null) {
+            dto.getEducations().forEach(educationDto ->
+                    educationService.create(educationDto, id)
+            );
+        }
 
-        resume.getLanguages().clear();
-        requestDto.getLanguages().stream()
-                .map(LanguageDto::toEntity)
-                .forEach(resume::addLanguage);
+        if (dto.getLanguages() != null) {
+            dto.getLanguages().forEach(languageDto ->
+                    languageService.create(languageDto, id)
+            );
+        }
 
-        resume.getOverseasExperiences().clear();
-        requestDto.getOverseasExperiences().stream()
-                .map(OverseasExperienceDto::toEntity)
-                .forEach(resume::addOverseasExperience);
+        if (dto.getOverseasExperiences() != null) {
+            dto.getOverseasExperiences().forEach(overseasDto ->
+                    overseasExperienceService.create(overseasDto, id)
+            );
+        }
 
-        resume.getResumeSkills().clear();
-        requestDto.getResumeSkills().stream()
-                .map(ResumeSkillDto::toEntity)
-                .forEach(resume::addResumeSkill);
+        if (dto.getResumeSkills() != null) {
+            dto.getResumeSkills().forEach(skillDto ->
+                    resumeSkillService.create(skillDto, id)
+            );
+        }
 
-        log.info("이력서 정보가 수정되었습니다. ID: {}", resume.getId());
-        return resume.getId();
+        log.info("Resume updated: {}", id);
+    }
+
+    public List<ResumeDto.Response> list() {
+        return resumeRepository.findAll().stream()
+                .map(ResumeDto.Response::from)
+                .toList();
     }
 
     @Transactional
-    public void deleted(Long resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.RESUME_NOT_FOUND));
-        resumeRepository.delete(resume);
-        log.info("이력서가 삭제되었습니다. ID: {}", resumeId);
+    public void delete(Long id) {
+        resumeRepository.deleteById(id);
+        log.info("Resume deleted: {}", id);
     }
 }

@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Builder
@@ -22,7 +21,6 @@ public class Education extends BaseEntity {
     private String major;
     private String degree;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Resume resume;
 }

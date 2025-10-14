@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -17,8 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Career extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String companyName;
@@ -26,7 +24,6 @@ public class Career extends BaseEntity {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private Resume resume;
 }
