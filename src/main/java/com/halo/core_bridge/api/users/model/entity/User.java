@@ -1,6 +1,6 @@
 package com.halo.core_bridge.api.users.model.entity;
 
-import com.halo.core_bridge.api.board.model.entity.board;
+import com.halo.core_bridge.api.board.model.entity.Board;
 import com.halo.core_bridge.api.users.model.Gender;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
@@ -47,7 +47,7 @@ public class User extends BaseEntity {
     private String phone;
 
     @OneToMany(mappedBy = "user")
-    private List<board> boards;
+    private List<Board> Boards;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserRole userRole;
