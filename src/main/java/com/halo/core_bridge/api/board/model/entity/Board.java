@@ -13,15 +13,35 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class board extends BaseEntity {
+public class Board extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /** 게시글 제목 */
+    @Column(length = 100, nullable = false)
     private String title;
-    private String content;
+
+    /** 게시글 내용 (긴 텍스트 가능) */
+    @Lob
+    private String contents;
+
+    /** 좋아요 수 */
+    @Column(name = "like_count")
     private Long likeCount;
+
+    /** 조회수 */
+    @Column(name = "view_count")
     private Long viewCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContents(String contents) {
+        this.contents = contents;
+    }
 }

@@ -32,6 +32,10 @@ public enum BaseResponseStatus {
     JSON_PARSER(false, 30009 , "JSON Parsing 실패"),
     INVALID_REFRESH_TOKEN(false, 30010, "유효하지 않는 토큰입니다."),
     EXCEPTION_CREATE_ACCESS_TOKEN(false, 30011, "토큰 생성 중 예기지 못한 오류가 발생하였습니다."),
+
+    // 게시판
+    NOT_FOUNT_BOARD(false, 31000, "해당 게시글이 존재하지 않습니다."),
+
     /**
      * 40000 : Response 오류
      */
