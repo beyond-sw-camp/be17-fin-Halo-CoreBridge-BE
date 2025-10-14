@@ -1,6 +1,5 @@
 package com.halo.core_bridge.api.users.model.entity;
 
-import com.halo.core_bridge.api.board.model.entity.Board;
 import com.halo.core_bridge.api.users.model.Gender;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
@@ -10,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Builder
@@ -45,9 +43,6 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String phone;
-
-    @OneToMany(mappedBy = "user")
-    private List<Board> Boards;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserRole userRole;
