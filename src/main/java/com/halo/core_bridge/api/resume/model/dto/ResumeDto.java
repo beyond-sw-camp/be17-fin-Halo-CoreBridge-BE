@@ -37,11 +37,11 @@ public class ResumeDto {
         private List<ResumeSkillDto> resumeSkills;
     }
 
-    @Getter @Setter @Builder
-    @NoArgsConstructor @AllArgsConstructor
-    public static class Delete {
-        // 필요한 경우 추가 필드
-    }
+//    @Getter @Setter @Builder
+//    @NoArgsConstructor @AllArgsConstructor
+//    public static class Delete {
+//        // 필요한 경우 추가 필드
+//    }
 
     @Getter @Setter @Builder
     @NoArgsConstructor @AllArgsConstructor
