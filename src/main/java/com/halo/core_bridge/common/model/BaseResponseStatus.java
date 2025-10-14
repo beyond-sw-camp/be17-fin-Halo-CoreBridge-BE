@@ -46,12 +46,15 @@ public enum BaseResponseStatus {
     /**
      * 60000 : Server 오류
      */
-    SERVER_ERROR(false, 60001, "서버와의 연결에 실패하였습니다.");
+    SERVER_ERROR(false, 60001, "서버와의 연결에 실패하였습니다."),
 
 
     /**
      * 70000 : 커스텀
      */
+    JOB_POSTING_NOT_FOUND(false, 70001, "존재하지 않는 채용공고입니다."),
+    JOB_POSTING_EMPTY(false, 70002, "등록된 채용공고가 없습니다."),
+    DEPARTMENT_NOT_FOUND(false, 70003, "존재하지 않는 부서 정보입니다.");
 
     private final boolean isSuccess;
     private final int code;
