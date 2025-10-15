@@ -128,7 +128,7 @@ public class JobPostingController {
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "Not Found Response",
-                                    value = SwaggerJobPostingContents.JOB_POSTINGS_NOT_FOUND_RESPONSE
+                                    value = SwaggerJobPostingContents.JOB_POSTING_NOT_FOUND_RESPONSE
                             )
                     )
             )
