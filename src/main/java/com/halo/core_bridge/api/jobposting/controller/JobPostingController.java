@@ -4,6 +4,7 @@ package com.halo.core_bridge.api.jobposting.controller;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.common.model.BaseResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/job-postings")
+@RequestMapping("/api/job-postings")
 public class JobPostingController {
     private final JobPostingService jobPostingService;
 
