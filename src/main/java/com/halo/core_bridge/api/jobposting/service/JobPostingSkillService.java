@@ -12,12 +12,16 @@ import java.util.*;
 public class JobPostingSkillService {
     private final JobPostingSkillRepository jobPostingSkillRepository;
 
-    public void saveAll(JobPosting jobPosting, List<String> skillNames) {
-        if(skillNames == null || skillNames.isEmpty()) return;
+    public List<JobPostingSkill> saveAll(JobPosting jobPosting, List<String> skillNames) {
+        if(skillNames == null || skillNames.isEmpty()) return Collections.emptyList();
 
         List<JobPostingSkill> jobPostingSkills = skillNames.stream()
-                .map(name -> JobPostingSkill.builder().name(name).jobPosting(jobPosting).build()).toList();
+                .map(name -> JobPostingSkill.builder()
+                        .name(name)
+                        .jobPosting(jobPosting)
+                        .build())
+                .toList();
 
-        jobPostingSkillRepository.saveAll(jobPostingSkills);
+        return jobPostingSkillRepository.saveAll(jobPostingSkills);
     }
 }

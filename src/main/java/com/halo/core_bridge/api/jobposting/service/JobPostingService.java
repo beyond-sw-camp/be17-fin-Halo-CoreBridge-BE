@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.jobposting.service;
 
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.organization.service.DepartmentService;
@@ -46,5 +47,29 @@ public class JobPostingService {
         JobPosting job = jobPostingRepository.findById(id)
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
         return JobPostingDto.DetailResponse.fromEntity(job);
+    }
+
+    @Transactional
+    public void updateJobPosting(Long id, JobPostingDto.UpdateRequest dto) {
+        JobPosting jobPosting = jobPostingRepository.findById(id)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+
+        Department department = departmentService.getReference(dto.getDepartmentId());
+
+        jobPosting.update(dto, department);
+
+        if(dto.getSkills() != null) {
+            List<JobPostingSkill> newSkills = jobPostingSkillService.saveAll(jobPosting, dto.getSkills());
+            jobPosting.updateSkills(newSkills);
+        }
+
+    }
+
+    @Transactional
+    public void deleteJobPosting(Long id) {
+        JobPosting jobPosting = jobPostingRepository.findById(id)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+
+        jobPostingRepository.delete(jobPosting);
     }
 }

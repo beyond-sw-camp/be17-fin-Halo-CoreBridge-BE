@@ -113,4 +113,43 @@ public class SwaggerJobPostingContents {
               }
             }
             """;
+
+    public static final String JOB_POSTING_UPDATE_REQUEST = """
+            {
+              "title": "백엔드 개발자 (Spring Boot)",
+              "description": "Spring Boot 기반 REST API 개발 및 운영 업무를 담당합니다.",
+              "employmentType": "정규직",
+              "careerType": "경력",
+              "minExperience": 3,
+              "maxExperience": 7,
+              "departmentId": 2,
+              "applyStartDate": "2025-10-20 09:00:00",
+              "applyEndDate": "2025-11-30 18:00:00",
+              "hireEndDate": "2025-12-10 18:00:00",
+              "skills": [
+                "Java",
+                "Spring Boot",
+                "AWS",
+                "Docker"
+              ]
+            }
+            """;
+
+    public static final String JOB_POSTING_UPDATE_RESPONSE = """
+                {
+                "success": true,
+                "code": 20000,
+                "message": "요청에 성공하였습니다.",
+                "results": "수정 완료"
+                }
+            """;
+
+    public static final String JOB_POSTING_DELETE_RESPONSE = """
+        {
+          "success": true,
+          "code": 20000,
+          "message": "채용공고 삭제 완료",
+          "result": null
+        }
+        """;
 }
