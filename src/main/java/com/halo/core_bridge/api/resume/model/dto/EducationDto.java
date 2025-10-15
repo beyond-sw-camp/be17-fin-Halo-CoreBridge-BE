@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.resume.model.dto;
 
 import com.halo.core_bridge.api.resume.model.entity.Education;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,9 +12,13 @@ import lombok.Setter;
 @Getter @Setter @Builder
 @NoArgsConstructor @AllArgsConstructor
 public class EducationDto {
+    @Schema(description = "학력 ID", example = "1")
     private Long id;
+    @Schema(description = "학교명", example = "한국대학교")
     private String schoolName;
+    @Schema(description = "전공", example = "컴퓨터공학")
     private String major;
+    @Schema(description = "학위", example = "학사")
     private String degree;
 
     public Education toEntity(Resume resume) {

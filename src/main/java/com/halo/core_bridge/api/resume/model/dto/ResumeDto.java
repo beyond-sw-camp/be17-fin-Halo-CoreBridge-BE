@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,25 +16,40 @@ public class ResumeDto {
     @Getter @Setter @Builder
     @NoArgsConstructor @AllArgsConstructor
     public static class Create {
+        @Schema(description = "이력서 설명", example = "저는 백엔드 개발자로서 5년간의 경력을 가지고 있습니다.")
         private String description;
+        @Schema(description = "채용 공고 ID", example = "1")
         private Long jobPostingId;
+        @Schema(description = "경력 목록")
         private List<CareerDto> careers;
+        @Schema(description = "자격증 목록")
         private List<CertificateDto> certificates;
+        @Schema(description = "학력 목록")
         private List<EducationDto> educations;
+        @Schema(description = "어학 목록")
         private List<LanguageDto> languages;
+        @Schema(description = "해외 경험 목록")
         private List<OverseasExperienceDto> overseasExperiences;
+        @Schema(description = "이력서 기술 스택 목록")
         private List<ResumeSkillDto> resumeSkills;
     }
 
     @Getter @Setter @Builder
     @NoArgsConstructor @AllArgsConstructor
     public static class Update {
+        @Schema(description = "이력서 설명", example = "업데이트된 이력서 설명입니다.")
         private String description;
+        @Schema(description = "경력 목록")
         private List<CareerDto> careers;
+        @Schema(description = "자격증 목록")
         private List<CertificateDto> certificates;
+        @Schema(description = "학력 목록")
         private List<EducationDto> educations;
+        @Schema(description = "어학 목록")
         private List<LanguageDto> languages;
+        @Schema(description = "해외 경험 목록")
         private List<OverseasExperienceDto> overseasExperiences;
+        @Schema(description = "이력서 기술 스택 목록")
         private List<ResumeSkillDto> resumeSkills;
     }
 
@@ -46,16 +62,27 @@ public class ResumeDto {
     @Getter @Setter @Builder
     @NoArgsConstructor @AllArgsConstructor
     public static class Response {
+        @Schema(description = "이력서 ID", example = "1")
         private Long id;
+        @Schema(description = "지원일", example = "2025-10-14T10:00:00")
         private LocalDateTime appliedAt;
+        @Schema(description = "이력서 설명", example = "저는 백엔드 개발자로서 5년간의 경력을 가지고 있습니다.")
         private String description;
+        @Schema(description = "채용 공고 ID", example = "1")
         private Long jobPostingId;
+        @Schema(description = "사용자 ID", example = "10")
         private Long userId;
+        @Schema(description = "경력 목록")
         private List<CareerDto> careers;
+        @Schema(description = "자격증 목록")
         private List<CertificateDto> certificates;
+        @Schema(description = "학력 목록")
         private List<EducationDto> educations;
+        @Schema(description = "어학 목록")
         private List<LanguageDto> languages;
+        @Schema(description = "해외 경험 목록")
         private List<OverseasExperienceDto> overseasExperiences;
+        @Schema(description = "이력서 기술 스택 목록")
         private List<ResumeSkillDto> resumeSkills;
 
         public static Response from(Resume resume) {
