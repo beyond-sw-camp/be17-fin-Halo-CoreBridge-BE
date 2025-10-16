@@ -146,4 +146,29 @@ public class JobPostingDto {
                     .build();
         }
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UpdateRequest {
+        private String title;
+        private String description;
+        private String employmentType;
+        private String careerType;
+        private Integer minExperience;
+        private Integer maxExperience;
+        private Long departmentId;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyStartDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyEndDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime hireEndDate;
+        private List<String> skills;
+    }
 }
