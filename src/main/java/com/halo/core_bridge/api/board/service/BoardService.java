@@ -24,11 +24,11 @@ public class BoardService {
     }
 
     /** 특정 게시글 조회 */
-    public Board findById(Long id) {
+    public BoardDto.Read findById(Long id) {
         Optional<Board> findBoard = boardRepository.findById(id);
 
         if (findBoard.isPresent()) {
-            return findBoard.get();
+            return BoardDto.Read.from(findBoard.get());
         }
 
         throw BaseException.from(BaseResponseStatus.NOT_FOUNT_BOARD);
@@ -50,8 +50,12 @@ public class BoardService {
     /** 게시글 수정 */
     @Transactional
     public void updateById(Long id, BoardDto.Update updateBoard) {
-        Board findBoard = findById(id);
-        findBoard.updateTitle(updateBoard.getTitle());
-        findBoard.updateContents(updateBoard.getContents());
+        Optional<Board> result = boardRepository.findById(id);
+
+        if (result.isPresent()) {
+            Board findBoard = result.get();
+            findBoard.updateTitle(updateBoard.getTitle());
+            findBoard.updateContents(updateBoard.getContents());
+        }
     }
 }
