@@ -32,3 +32,8 @@ spring:
 redis:
   host: ${REDIS_HOST}
   port: ${REDIS_PORT}
+
+password:
+  reset:
+    redirect:
+      url: ${PWD_RESET_REDIRECT_URL}
