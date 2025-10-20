@@ -1,6 +1,9 @@
 package com.halo.core_bridge.api.auth.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class AuthDto {
 
@@ -10,6 +13,9 @@ public class AuthDto {
     }
 
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ResetPassword {
         private String email;
         private String password;

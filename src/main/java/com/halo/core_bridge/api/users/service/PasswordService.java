@@ -16,4 +16,8 @@ public class PasswordService {
 
         entity.updatePassword(encodedPassword);
     }
+
+    public void changePassword(User entity, String newPassword) {
+        this.encodePassword(entity, newPassword);
+    }
 }

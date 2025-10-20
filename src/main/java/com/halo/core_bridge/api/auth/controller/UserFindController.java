@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.auth.controller;
 
 import com.halo.core_bridge.api.auth.model.AuthDto;
+import com.halo.core_bridge.api.auth.service.UserFindService;
 import com.halo.core_bridge.api.mail.service.PasswordResetMailService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserFindController {
 
     private final PasswordResetMailService passwordResetMailService;
+    private final UserFindService userFindService;
 
     @PostMapping("/find-password/link")
     public ResponseEntity<BaseResponse<Object>> sendAuthCodeForResetPassword(@RequestBody AuthDto.SendEmail emailForPwdRest) {
@@ -25,5 +27,13 @@ public class UserFindController {
         passwordResetMailService.sendToEmail(email);
 
         return ResponseEntity.ok(BaseResponse.success("비밀번호 재설정 링크 전송 성공"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<BaseResponse<Object>> resetPassword(@RequestBody AuthDto.ResetPassword resetPassword) {
+
+        userFindService.resetPassword(resetPassword);
+
+        return ResponseEntity.ok(BaseResponse.success("재설정 성공"));
     }
 }
