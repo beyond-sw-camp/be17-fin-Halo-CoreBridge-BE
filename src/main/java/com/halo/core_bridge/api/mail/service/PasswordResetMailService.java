@@ -29,7 +29,7 @@ public class PasswordResetMailService extends BaseMailService {
         uuid = createUuid();
         MimeMessage mimeMessage = createMimeMessage(email);
 
-        redisTemplate.opsForValue().set(createRedisKey(), email, Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(createRedisKey(email), uuid, Duration.ofMinutes(5));
 
         mailSender.send(mimeMessage);
     }
@@ -67,7 +67,7 @@ public class PasswordResetMailService extends BaseMailService {
         return REDIRECT_LINK.concat("?token=").concat(uuid);
     }
 
-    private String createRedisKey() {
-        return MailSend.PASSWORD_RESET_MAIL.createRedisKey(uuid);
+    private String createRedisKey(String email) {
+        return MailSend.PASSWORD_RESET_MAIL.createRedisKey(email);
     }
 }

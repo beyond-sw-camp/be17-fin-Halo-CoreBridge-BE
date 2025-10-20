@@ -4,6 +4,8 @@ import com.halo.core_bridge.api.auth.model.AuthDto;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.api.users.repository.UserRepository;
 import com.halo.core_bridge.api.users.service.PasswordService;
+import com.halo.core_bridge.common.exception.BaseException;
+import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,20 +22,18 @@ public class UserFindService {
 
     /**
      * 비밀번호를 초기화 한다.
-     * @param resetPassword
+     * @param resetPassword 비밀번호 재설정 DTO
      */
     @Transactional
     public void resetPassword(AuthDto.ResetPassword resetPassword) {
         String newPassword = resetPassword.getPassword();
 
-        String token = resetPassword.getToken();
+        authService.verifyUserPasswordReset(resetPassword);
 
-        AuthDto.ResetPassword findEmail = authService.verifyUserPasswordReset(token);
-
-        Optional<User> result = userRepository.findByEmail(findEmail.getEmail());
+        Optional<User> result = userRepository.findByEmail(resetPassword.getEmail());
 
         if (result.isEmpty()) {
-            throw new IllegalArgumentException("유효하지 않은 이메일");
+            throw BaseException.from(BaseResponseStatus.NOT_FOUND_USER);
         }
 
         User findUser = result.get();

@@ -34,24 +34,25 @@ public class AuthService {
 
     /**
      * 비밀번호를 재설정 하기 전 올바른 인증 토큰인지 확인.
-     * @param uuid 인증이 필요한 토큰
-     * @return <code>AuthDto.ResetPassword</code>
+     * @param resetPassword 비밀번호 재설정을 위한 DTO
      * @throws BaseException 유효하지 않은 토큰인 경우 예외 발생
      */
-    public AuthDto.ResetPassword verifyUserPasswordReset(String uuid) {
+    public void verifyUserPasswordReset(AuthDto.ResetPassword resetPassword) {
 
-        String redisKey = MailSend.PASSWORD_RESET_MAIL.createRedisKey(uuid);
-        String findEmail = getValue(redisKey);
+        String redisKey = MailSend.PASSWORD_RESET_MAIL.createRedisKey(resetPassword.getEmail());
+        String findUuidByEmail = getValue(redisKey);
 
-        if (findEmail == null) {
+        // redisKey로 조회한 값이 null이라면 예외 처리
+        if (findUuidByEmail == null) {
+            throw BaseException.from(BaseResponseStatus.INVALID_REFRESH_TOKEN);
+        }
+
+        // uuid가 일치하지 않는 경우 예외처리
+        if (!resetPassword.getToken().equals(findUuidByEmail)) {
             throw BaseException.from(BaseResponseStatus.INVALID_REFRESH_TOKEN);
         }
 
         deleteByRedisKey(redisKey);
-
-        return AuthDto.ResetPassword.builder()
-                .email(findEmail)
-                .build();
     }
 
     private String getValue(String redisKey) {
