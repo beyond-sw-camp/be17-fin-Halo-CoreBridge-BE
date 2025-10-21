@@ -39,4 +39,15 @@ public class UserFindService {
         User findUser = result.get();
         passwordService.changePassword(findUser, newPassword);
     }
+
+    public AuthDto.FindEmailResp findEmailByNameAndPhoneNumber(AuthDto.FindEmailReq findEmailInfo) {
+        Optional<User> result = userRepository.findByNameAndPhone(findEmailInfo.getName(), findEmailInfo.getPhone());
+
+        if (result.isPresent()) {
+            User findUser = result.get();
+            return AuthDto.FindEmailResp.from(findUser);
+        }
+
+        throw BaseException.from(BaseResponseStatus.NOT_FOUND_USER);
+    }
 }
