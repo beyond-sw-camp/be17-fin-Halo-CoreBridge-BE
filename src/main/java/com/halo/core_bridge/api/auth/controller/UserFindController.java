@@ -36,4 +36,12 @@ public class UserFindController {
 
         return ResponseEntity.ok(BaseResponse.success("재설정 성공"));
     }
+
+    @PostMapping("/find-email")
+    public ResponseEntity<BaseResponse<Object>> findEmail(@RequestBody AuthDto.FindEmailReq findEmailInfo) {
+
+        AuthDto.FindEmailResp findUser = userFindService.findEmailByNameAndPhoneNumber(findEmailInfo);
+
+        return ResponseEntity.ok(BaseResponse.success(findUser));
+    }
 }
