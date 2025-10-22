@@ -40,3 +40,8 @@ redis:
 
 upload:
   path: ${UPLOAD_PATH}
+
+password:
+  reset:
+    redirect:
+      url: ${PWD_RESET_REDIRECT_URL}

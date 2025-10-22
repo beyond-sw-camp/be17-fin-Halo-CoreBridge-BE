@@ -24,6 +24,7 @@ public enum BaseResponseStatus {
     INVALID_USER_INFO(false,20004,"이메일 또는 비밀번호를 확인해주세요."),
     INVALID_USER_DISABLED(false,20005,"이메일 인증이 필요합니다. 이메일을 확인해주세요."),
     DUPLICATE_USER_EMAIL(false,20006,"중복된 이메일입니다. 다른 이메일을 사용해주세요."),
+    NOT_FOUND_USER(false, 20007, "존재하지 않는 사용자입니다."),
 
     GLOBAL_EXCEPTION(false, 30000, "요청을 처리하는 과정에서 문제가 발생하였습니다."),
     REQUEST_ERROR(false, 30001, "입력값을 확인해주세요."),

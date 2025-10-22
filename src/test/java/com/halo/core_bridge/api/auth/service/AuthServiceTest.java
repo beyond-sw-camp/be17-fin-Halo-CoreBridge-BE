@@ -46,7 +46,7 @@ class AuthServiceTest {
         given(stringRedisTemplate.opsForValue()).willReturn(valueOperations);
         given(valueOperations.get(any(String.class))).willReturn("123456");
 
-        willDoNothing().given(userService).existByEmail(any(String.class));
+//        willDoNothing().given(userService).existByEmail(any(String.class));
 
         // when
         // then
@@ -65,7 +65,7 @@ class AuthServiceTest {
         given(stringRedisTemplate.opsForValue()).willReturn(valueOperations);
         given(valueOperations.get(any(String.class))).willReturn("123456");
 
-        willDoNothing().given(userService).existByEmail(any(String.class));
+//        willDoNothing().given(userService).existByEmail(any(String.class));
 
         // when
         // then
