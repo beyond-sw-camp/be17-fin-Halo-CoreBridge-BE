@@ -34,6 +34,8 @@ public enum BaseResponseStatus {
     INVALID_REFRESH_TOKEN(false, 30010, "유효하지 않는 토큰입니다."),
     EXCEPTION_CREATE_ACCESS_TOKEN(false, 30011, "토큰 생성 중 예기지 못한 오류가 발생하였습니다."),
 
+    FILE_UPLOAD_ERROR(false, 30012, "파일 업로드에 실패했습니다"),
+
     // 게시판
     NOT_FOUNT_BOARD(false, 31000, "해당 게시글이 존재하지 않습니다."),
 
@@ -62,7 +64,10 @@ public enum BaseResponseStatus {
      */
     JOB_POSTING_NOT_FOUND(false, 70001, "존재하지 않는 채용공고입니다."),
     JOB_POSTING_EMPTY(false, 70002, "등록된 채용공고가 없습니다."),
-    DEPARTMENT_NOT_FOUND(false, 70003, "존재하지 않는 부서 정보입니다.");
+    DEPARTMENT_NOT_FOUND(false, 70003, "존재하지 않는 부서 정보입니다."),
+    IMAGE_NOT_FOUND(false, 70004, "이미지를 찾을 수 없습니다."),
+    INVALID_IMAGE_FILE(false, 70005, "유효하지 않은 이미지 파일입니다."),
+    IMAGE_UPLOAD_FAILED(false, 70006, "이미지 업로드에 실패했습니다.");
 
     private final boolean isSuccess;
     private final int code;
