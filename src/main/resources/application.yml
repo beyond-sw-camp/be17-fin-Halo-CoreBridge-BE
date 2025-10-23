@@ -1,20 +1,16 @@
 spring:
   application:
     name: core-bridge
-
   profiles:
     active: dev
-
   config:
     import:
       - "classpath:application-token.yml"
-
   datasource:
     url: ${DB_URL}
     driver-class-name: org.mariadb.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
   mail:
     host: smtp.gmail.com
     port: 587
@@ -33,6 +29,9 @@ spring:
       enabled: true
       max-file-size: 1GB
       max-request-size: 1GB
+  web:
+    resources:
+      static-locations: file:${upload.path}/PDF/
 
 redis:
   host: ${REDIS_HOST}
