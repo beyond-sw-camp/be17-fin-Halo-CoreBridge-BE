@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.image.model.entity;
 
+import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,22 +9,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "image")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idx;
-
+    private Long id;
     private String originalFilename;
     private String savedPath;
     private String contentType;
     private Long fileSize;
     private Boolean isDeleted;
 
-    private Long userIdx;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder
     public Image(String originalFilename, String savedPath, String contentType, Long fileSize, Long userIdx) {
@@ -31,7 +31,6 @@ public class Image extends BaseEntity {
         this.savedPath = savedPath;
         this.contentType = contentType;
         this.fileSize = fileSize;
-        this.userIdx = userIdx;
         this.isDeleted = false;
     }
 

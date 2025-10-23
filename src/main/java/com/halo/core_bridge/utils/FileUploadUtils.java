@@ -45,7 +45,7 @@ public class FileUploadUtils {
 
 
     // 이미지 파일 유효성 검사
-    public static void validateImageFile(MultipartFile file) {
+    public static void validateImage(MultipartFile file) {
         // 파일이 비어있는지 확인
         if (file.isEmpty()) {
             throw BaseException.from(INVALID_IMAGE_FILE);

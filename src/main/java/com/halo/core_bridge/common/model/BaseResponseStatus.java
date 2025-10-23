@@ -70,7 +70,9 @@ public enum BaseResponseStatus {
     IMAGE_UPLOAD_FAILED(false, 70006, "이미지 업로드에 실패했습니다."),
     INVALID_PDF_FILE(false, 70007, "유효하지 않은 PDF파일 입니다"),
     PDF_UPLOAD_FAILED(false, 70008, "PDF 업로드에 실패했습니다."),
-    PDF_NOT_FOUND(false, 70009, "PDF를 찾을 수 없습니다.");
+    PDF_NOT_FOUND(false, 70009, "PDF를 찾을 수 없습니다."),
+    UNSUPPORTED_FILE_TYPE(false, 70009, "지원하지 않는 형식입니다."),
+    FILE_TOO_LARGE(false, 700010, "용량을 초과하였습니다.");
 
     private final boolean isSuccess;
     private final int code;
