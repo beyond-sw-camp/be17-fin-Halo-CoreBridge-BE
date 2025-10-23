@@ -47,7 +47,7 @@ public class LocalImageService implements ImageService {
             imageRepository.save(entity);
 
             return ImageDto.UploadResponseDto.builder()
-                    .idx(entity.getIdx())
+                    .id(entity.getId())
                     .originalName(entity.getOriginalFilename())
                     .imageName(imageName)
                     .imagePath(savedPath)

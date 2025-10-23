@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Image extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idx;
+    private Long id;
     private String originalFilename;
     private String savedPath;
     private String contentType;

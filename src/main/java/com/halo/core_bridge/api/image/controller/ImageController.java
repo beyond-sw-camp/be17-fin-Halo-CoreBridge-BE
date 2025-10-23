@@ -1,7 +1,7 @@
 package com.halo.core_bridge.api.image.controller;
 
 import com.halo.core_bridge.api.image.model.dto.ImageDto;
-import com.halo.core_bridge.api.image.service.LocalImageService;
+import com.halo.core_bridge.api.image.service.ImageService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import com.halo.core_bridge.api.users.model.dto.UserDto;
 @RequiredArgsConstructor
 public class ImageController {
 
-    private final LocalImageService imageService;
+    private final ImageService imageService;
 
     @PostMapping("/upload")
     public ResponseEntity<BaseResponse> register(
