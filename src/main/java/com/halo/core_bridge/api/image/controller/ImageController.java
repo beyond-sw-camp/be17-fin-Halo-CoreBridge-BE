@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.image.controller;
 import com.halo.core_bridge.api.image.model.dto.ImageDto;
 import com.halo.core_bridge.api.image.service.ImageService;
 import com.halo.core_bridge.common.model.BaseResponse;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class ImageController {
 //    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<BaseResponse<Long>> uploadResumeImage(
+    public ResponseEntity<BaseResponse<Long>> uploadImage(
             @RequestPart("file") MultipartFile file,  // RequestPart로 변경
             @RequestParam("userIdx") Long userIdx
     ) {
@@ -38,7 +39,7 @@ public class ImageController {
     }
 
     @GetMapping
-    public ResponseEntity<BaseResponse<ImageDto.ImageResponseDto>> getResumeImage(
+    public ResponseEntity<BaseResponse<ImageDto.ImageResponseDto>> getImage(
             @AuthenticationPrincipal UserDto.Auth loginUser
     ) {
         ImageDto.ImageResponseDto response = imageService.findImage(loginUser.getId());
@@ -46,10 +47,10 @@ public class ImageController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteResumeImage(
+    public ResponseEntity<BaseResponse<Void>> deleteImage(
             @AuthenticationPrincipal UserDto.Auth loginUser
     ) {
         imageService.deleteImage(loginUser.getId());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(BaseResponse.success(null));
     }
 }

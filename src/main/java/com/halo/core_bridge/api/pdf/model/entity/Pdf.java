@@ -1,38 +1,37 @@
-package com.halo.core_bridge.api.image.model.entity;
+package com.halo.core_bridge.api.pdf.model.entity;
 
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "image")
+@Table
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Image extends BaseEntity {
+@NoArgsConstructor
+public class Pdf extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idx;
+    private Long id;
 
     private String originalFilename;
     private String savedPath;
-    private String contentType;
     private Long fileSize;
-    private Boolean isDeleted;
 
-    private Long userIdx;
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
+    private Long resumeId;
 
     @Builder
-    public Image(String originalFilename, String savedPath, String contentType, Long fileSize, Long userIdx) {
+    public Pdf(String originalFilename, String savedPath, Long fileSize, Long resumeId) {
         this.originalFilename = originalFilename;
         this.savedPath = savedPath;
-        this.contentType = contentType;
         this.fileSize = fileSize;
-        this.userIdx = userIdx;
         this.isDeleted = false;
+        this.resumeId = resumeId;
     }
 
     public void safeDelete() {

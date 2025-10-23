@@ -67,7 +67,10 @@ public enum BaseResponseStatus {
     DEPARTMENT_NOT_FOUND(false, 70003, "존재하지 않는 부서 정보입니다."),
     IMAGE_NOT_FOUND(false, 70004, "이미지를 찾을 수 없습니다."),
     INVALID_IMAGE_FILE(false, 70005, "유효하지 않은 이미지 파일입니다."),
-    IMAGE_UPLOAD_FAILED(false, 70006, "이미지 업로드에 실패했습니다.");
+    IMAGE_UPLOAD_FAILED(false, 70006, "이미지 업로드에 실패했습니다."),
+    INVALID_PDF_FILE(false, 70007, "유효하지 않은 PDF파일 입니다"),
+    PDF_UPLOAD_FAILED(false, 70008, "PDF 업로드에 실패했습니다."),
+    PDF_NOT_FOUND(false, 70009, "PDF를 찾을 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;

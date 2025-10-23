@@ -1,6 +1,6 @@
 package com.halo.core_bridge.api.image.service;
 
-import com.halo.core_bridge.api.image.Utils.ImageUtils;
+import com.halo.core_bridge.utils.FileUploadUtils;
 import com.halo.core_bridge.api.image.model.dto.ImageDto;
 import com.halo.core_bridge.api.image.model.entity.Image;
 import com.halo.core_bridge.api.image.repository.ImageRepository;
@@ -21,7 +21,7 @@ import static com.halo.core_bridge.common.model.BaseResponseStatus.*;
 @RequiredArgsConstructor
 public class ImageService {
 
-    private static final String RESUME_DIRECTORY = "profile";
+    private static final String IMAGE_DIRECTORY = "profile";
 
     private final ImageRepository imageRepository;
 
@@ -31,7 +31,7 @@ public class ImageService {
     @Transactional
     public Long uploadImage(MultipartFile file, Long userIdx) {
         // 파일 유효성 검사
-        ImageUtils.validateResumeFile(file);
+        FileUploadUtils.validateImageFile(file);
 
         // 기존 이력서가 있다면 삭제 처리
         imageRepository.findByUserIdx(userIdx)
@@ -41,12 +41,12 @@ public class ImageService {
                 });
 
         // 파일명 생성 및 저장 경로 설정
-        String savedFileName = ImageUtils.generateFileName(file.getOriginalFilename());
-        String savedPath = uploadPath + File.separator + RESUME_DIRECTORY + File.separator + savedFileName;
+        String savedFileName = FileUploadUtils.generateFileName(file.getOriginalFilename());
+        String savedPath = uploadPath + File.separator + IMAGE_DIRECTORY + File.separator + savedFileName;
 
         try {
             // 디렉토리 생성
-            ImageUtils.createDirectoryIfNotExists(uploadPath + File.separator + RESUME_DIRECTORY);
+            FileUploadUtils.createDirectoryIfNotExists(uploadPath + File.separator + IMAGE_DIRECTORY);
 
             // 파일 저장
             file.transferTo(new File(savedPath));
@@ -73,7 +73,7 @@ public class ImageService {
     @Transactional(readOnly = true)
     public ImageDto.ImageResponseDto findImage(Long userIdx) {
         Image image = imageRepository.findByUserIdx(userIdx)
-                .orElseThrow(() -> BaseException.from(RESUME_NOT_FOUND));
+                .orElseThrow(() -> BaseException.from(IMAGE_NOT_FOUND));
 
         return ImageDto.ImageResponseDto.from(image);
     }
@@ -84,7 +84,7 @@ public class ImageService {
     @Transactional
     public void deleteImage(Long userIdx) {
         Image image = imageRepository.findByUserIdx(userIdx)
-                .orElseThrow(() -> BaseException.from(RESUME_NOT_FOUND));
+                .orElseThrow(() -> BaseException.from(IMAGE_NOT_FOUND));
 
         image.safeDelete();
         deleteFileFromDisk(image.getSavedPath());
@@ -92,7 +92,7 @@ public class ImageService {
 
     private void deleteFileFromDisk(String savedFileName) {
         try {
-            String filePath = uploadPath + File.separator + RESUME_DIRECTORY + File.separator + savedFileName;
+            String filePath = uploadPath + File.separator + IMAGE_DIRECTORY + File.separator + savedFileName;
             File file = new File(filePath);
             if (file.exists()) {
                 file.delete();
