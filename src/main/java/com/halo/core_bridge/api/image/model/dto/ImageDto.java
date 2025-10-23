@@ -11,7 +11,7 @@ public class ImageDto {
     @Builder
     public static class UploadResponseDto {
 
-        private Integer idx;
+        private Long idx;
         private String originalName;
         private String imageName;
         private String imagePath;
@@ -20,7 +20,9 @@ public class ImageDto {
 
         public static UploadResponseDto from(Image entity) {
             return UploadResponseDto.builder()
+                    .idx(entity.getIdx())
                     .originalName(entity.getOriginalFilename())
+                    .imageName(entity.getSavedPath())
                     .imagePath(entity.getSavedPath())
                     .imageSize(entity.getFileSize())
                     .build();

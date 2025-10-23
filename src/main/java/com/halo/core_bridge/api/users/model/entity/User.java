@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.users.model.entity;
 
+import com.halo.core_bridge.api.image.model.entity.Image;
 import com.halo.core_bridge.api.users.model.Gender;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
@@ -46,6 +47,9 @@ public class User extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserRole userRole;
+
+    @OneToOne(mappedBy = "user")
+    private Image profileImage;
 
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
