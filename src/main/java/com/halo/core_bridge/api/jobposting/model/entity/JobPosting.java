@@ -58,7 +58,7 @@ public class JobPosting extends BaseEntity {
 
     //연관된 채용 프로세스
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RecruitProcess> recruitProcesses = new ArrayList<>();
+    private List<RecruitProcess> RecruitmentStage = new ArrayList<>();
 
     public void update(JobPostingDto.UpdateRequest dto, Department department) {
         this.title = dto.getTitle();

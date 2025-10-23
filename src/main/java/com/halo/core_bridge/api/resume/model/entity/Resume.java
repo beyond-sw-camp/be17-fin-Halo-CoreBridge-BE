@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.resume.model.entity;
 
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
@@ -49,5 +50,15 @@ public class Resume extends BaseEntity {
 
     @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResumeSkill> resumeSkills = new ArrayList<>();
+
+
+    // 채용공고관리(칸반) 데이터 불러오기 위해 다대일 연결
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "process_id")
+    private RecruitProcess process;
+
+    public void updateProcess(RecruitProcess process) {
+        this.process = process;
+    }
 
 }
