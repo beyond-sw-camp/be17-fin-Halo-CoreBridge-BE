@@ -43,8 +43,9 @@ public enum BaseResponseStatus {
     // Common
     RESPONSE_ERROR(false, 40001, "값을 불러오는데 실패하였습니다."),
     RESUME_NOT_FOUND(false, 40002, "이력서를 찾을 수 없습니다."),
-    FAILD_FOUND_USER(false, 40003, "사용자를 찾을 수 없습니다."),
-    FAILD_FOUND_JOBPOST(false, 40003, "공고를 찾을 수 없습니다."),
+    PROCESS_NOT_FOUND(false, 40003, "이력서를 찾을 수 없습니다."),
+    FAILD_FOUND_USER(false, 40004, "사용자를 찾을 수 없습니다."),
+    FAILD_FOUND_JOBPOST(false, 40005, "공고를 찾을 수 없습니다."),
 
     /**
      * 50000 : Database 오류
