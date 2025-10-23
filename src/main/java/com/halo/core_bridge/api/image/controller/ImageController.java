@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.image.controller;
 import com.halo.core_bridge.api.image.model.dto.ImageDto;
 import com.halo.core_bridge.api.image.service.ImageService;
 import com.halo.core_bridge.common.model.BaseResponse;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,10 +47,10 @@ public class ImageController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteImage(
+    public ResponseEntity<BaseResponse<Void>> deleteImage(
             @AuthenticationPrincipal UserDto.Auth loginUser
     ) {
         imageService.deleteImage(loginUser.getId());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(BaseResponse.success(null));
     }
 }

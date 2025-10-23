@@ -44,9 +44,9 @@ public class PdfContorller {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deletePdf(@RequestParam("resumeId") Long resumeId) {
+    public ResponseEntity<BaseResponse<Void>> deletePdf(@RequestParam("resumeId") Long resumeId) {
         pdfService.deletePdf(resumeId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(BaseResponse.success(null));
     }
 
     @GetMapping("/download/{id}")
