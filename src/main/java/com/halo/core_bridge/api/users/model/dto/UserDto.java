@@ -107,7 +107,7 @@ public class UserDto {
 
         private String name;
         private String email;
-        private Gender gender;
+        private String gender;
         private String phone;
         private LocalDate birth;
 
@@ -115,7 +115,7 @@ public class UserDto {
             return ResumeUserInfo.builder()
                     .name(entity.getName())
                     .email(entity.getEmail())
-                    .gender(entity.getGender())
+                    .gender(entity.getGender().getName())
                     .birth(entity.getBirth())
                     .phone(entity.getPhone())
                     .build();
