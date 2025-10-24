@@ -8,7 +8,7 @@ public enum ColorCode {
     RED("빨강", "red-300"),
     ORANGE("주황", "orange-300"),
     PURPLE("보라", "purple-300"),
-    pink("분홍", "pink-300")
+    pink("분홍", "pink-300");
 
     private final String colorName;
     private final String colorCode;
