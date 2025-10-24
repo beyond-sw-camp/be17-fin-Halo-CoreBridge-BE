@@ -9,6 +9,7 @@ public enum RoomType {
     ONLINE("화상");
 
     private final  String name;
+
     RoomType(String name) {
         this.name = name;
     }
