@@ -164,4 +164,29 @@ class UserServiceTest {
         assertThat(findResumeUserInfo.getGender()).isEqualTo(willReturnUser.getGender().getName());
         assertThat(findResumeUserInfo.getPhone()).isEqualTo(willReturnUser.getPhone());
     }
+
+    @Test
+    @DisplayName("지원서 작성 시 필요한 지원자 정보 조회 중 존재하지 않는 사용자일 때 예외 발생")
+    void findResumeUserInfoFailed() {
+
+        // given
+        User willReturnUser = User.builder()
+                .id(1L)
+                .email("test01@test.com")
+                .birth(LocalDate.of(1996, 12, 16))
+                .password("12345678")
+                .phone("010-1234-5678")
+                .gender(Gender.Male)
+                .name("test")
+                .userRole(
+                        UserRole.builder().id(1).build()
+                )
+                .build();
+
+        given(userRepository.findById(any(Long.class))).willReturn(Optional.empty());
+
+        // when
+        // then
+        assertThrows(BaseException.class, () -> userService.findForResumeInfo(willReturnUser.getId()));
+    }
 }
