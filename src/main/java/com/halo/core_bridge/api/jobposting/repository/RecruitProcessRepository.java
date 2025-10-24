@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface RecruitProcessRepository extends JpaRepository<RecruitProcess,Long> {
-    List<RecruitProcess> findByJobPostingIdOrderByIdAsc(Long jobPostingId);
+public interface RecruitProcessRepository extends JpaRepository<RecruitProcess, Long> {
+
+    List<RecruitProcess> findByJobPosting_IdOrderByOrderIdxAsc(Long jobPostingId);
 
 }

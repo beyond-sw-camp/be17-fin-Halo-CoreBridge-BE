@@ -24,7 +24,7 @@ public class ManagementService {
     @Transactional(readOnly = true)
     public ManagementDto getManagement(Long jobPostingId) {
         // 해당 공고의 채용 프로세스 조회
-        List<RecruitProcess> processes = recruitProcessRepository.findByJobPostingIdOrderByIdAsc(jobPostingId);
+        List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(jobPostingId);
 
         // 각 단계별 지원자 조회
         List<ManagementDto.StageDto> stageDtos = processes.stream()
