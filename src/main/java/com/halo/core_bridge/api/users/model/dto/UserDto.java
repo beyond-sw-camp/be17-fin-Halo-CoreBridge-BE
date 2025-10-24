@@ -100,4 +100,25 @@ public class UserDto {
         private String email;
         private String password;
     }
+
+    @Getter
+    @Builder
+    public static class ResumeUserInfo  {
+
+        private String name;
+        private String email;
+        private Gender gender;
+        private String phone;
+        private LocalDate birth;
+
+        public static ResumeUserInfo from(User entity) {
+            return ResumeUserInfo.builder()
+                    .name(entity.getName())
+                    .email(entity.getEmail())
+                    .gender(entity.getGender())
+                    .birth(entity.getBirth())
+                    .phone(entity.getPhone())
+                    .build();
+        }
+    }
 }
