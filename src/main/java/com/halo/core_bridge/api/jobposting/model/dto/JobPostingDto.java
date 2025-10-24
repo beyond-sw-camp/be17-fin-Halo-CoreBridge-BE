@@ -25,8 +25,6 @@ public class JobPostingDto {
         @Size(max = 100, message = "제목은 100자 이하로 입력해주세요")
         private String title;
 
-        private Long createdByUserId;
-
         @NotNull(message = "고용 형태는 필수 입력값입니다.")
         private EmploymentType employmentType; // Enum(정규직,계약직,인턴)
 
@@ -35,7 +33,7 @@ public class JobPostingDto {
 
         @Min(value = 1, message ="최소 경력은 1년 이상이어야 합니다")
         private Integer minExperience;
-        @Max(value = 1, message ="최대 경력은 1년 이상이어야 합니다")
+        @Min(value = 1, message ="최대 경력은 1년 이상이어야 합니다")
         private Integer maxExperience;
 
         @AssertTrue(message = "최대 경력은 최소경력 이상이어야 합니다.")
@@ -167,4 +165,72 @@ public class JobPostingDto {
 
     }
 
+     // 공고 목록 응답
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class JobPostingListResponseDto {
+        // 식별자
+        private Long id;
+
+        //타이틀 영역
+        private String title;  // ex) "시니어 프론트엔트 개발자"
+        private String subtitle; // ex) "5년 이상 · 정규직" (experience + employmentType 라벨)
+
+        // 부서/상태
+        private String department; //ex) "개발팀"
+        private String status; // ex)
+
+
+
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DetailResponse {
+        private Long id;
+        private String title;
+        private String description;
+        private String department;
+        private String employmentType;
+        private List<String> skills;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyStartDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyEndDate;
+
+        public static DetailResponse fromEntity(JobPosting entity) {
+           return null;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UpdateRequest {
+        private String title;
+        private String description;
+        private String employmentType;
+        private String careerType;
+        private Integer minExperience;
+        private Integer maxExperience;
+        private Long departmentId;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyStartDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyEndDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime hireEndDate;
+        private List<String> skills;
+    }
 }

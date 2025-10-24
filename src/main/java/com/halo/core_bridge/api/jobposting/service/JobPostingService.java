@@ -18,58 +18,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
-    private final DepartmentService departmentService;
     private final JobPostingSkillService jobPostingSkillService;
 
     // 채용공고 등록
     @Transactional
-    public Long save(JobPostingDto.CreateRequest dto) {
+    public Long save(JobPostingDto.CreateRequest dto, Long UserId) {
 
-        Department department = departmentService.getReference(dto.getDepartmentId());
-        JobPosting jobPosting = jobPostingRepository.save(dto.toEntity(department));
-        jobPostingSkillService.saveAll(jobPosting, dto.getSkills());
+        JobPosting jobPosting = jobPostingRepository.save(dto.toEntity(UserId));
 
         return jobPosting.getId();
     }
 
     // 전체 목록 조회
     public List<JobPostingDto.ListResponse> getList() {
-        List<JobPosting> jobPostings = jobPostingRepository.findAll();
-        if (jobPostings.isEmpty()) {
-            throw BaseException.from(BaseResponseStatus.JOB_POSTING_EMPTY);
-        }
-        return jobPostings.stream().map(JobPostingDto.ListResponse::fromEntity).toList();
+        return null;
     }
 
     // 상세조회
     @Transactional(readOnly = true)
     public JobPostingDto.DetailResponse getDetail(Long id) {
-        JobPosting job = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
-        return JobPostingDto.DetailResponse.fromEntity(job);
+        return null;
     }
 
     @Transactional
     public void updateJobPosting(Long id, JobPostingDto.UpdateRequest dto) {
-        JobPosting jobPosting = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
-
-        Department department = departmentService.getReference(dto.getDepartmentId());
-
-        jobPosting.update(dto, department);
-
-        if(dto.getSkills() != null) {
-            List<JobPostingSkill> newSkills = jobPostingSkillService.saveAll(jobPosting, dto.getSkills());
-            jobPosting.updateSkills(newSkills);
-        }
 
     }
 
     @Transactional
     public void deleteJobPosting(Long id) {
-        JobPosting jobPosting = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
 
-        jobPostingRepository.delete(jobPosting);
     }
 }

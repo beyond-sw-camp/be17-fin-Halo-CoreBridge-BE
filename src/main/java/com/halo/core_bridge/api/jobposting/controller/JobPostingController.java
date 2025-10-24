@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,135 +67,132 @@ public class JobPostingController {
     })
     @PostMapping
     public ResponseEntity<BaseResponse<String>> createJobPosting(
+//     실제로는 인증객체에서 id가져올 것       @AuthenticationPrincipal AuthenticationPrincipal CustomUserDetails,
             @RequestBody @Validated JobPostingDto.CreateRequest request) {
-        Long savedId = jobPostingService.save(request);
-        // 생성된 리소스의 URI 생성
-        URI location = URI.create("/job-postings/" + savedId);
+        Long userId = 1L;
+        jobPostingService.save(request, userId);
 
-        // 201 Created + Location 헤더 포함
-        return ResponseEntity
-                .created(location)
-                .body(BaseResponse.success("저장완료"));
+        return ResponseEntity.ok(BaseResponse.success("저장 완료"));
     }
 
-    //채용공고 전체 목록 조회
-    @Operation(
-            summary = "채용공고 전체 목록 조회",
-            description = "등록된 모든 채용공고를 조회합니다."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "List Response Example",
-                                    value = SwaggerJobPostingContents.JOB_POSTING_LIST_RESPONSE
-                            )
-                    )
-            ),
-            @ApiResponse(responseCode = "404", description = "등록된 채용공고가 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "JobPostings Not Found Response",
-                                    value = SwaggerJobPostingContents.JOB_POSTINGS_NOT_FOUND_RESPONSE
-                            )
-                    )
-            )
-    })
-    @GetMapping
-    public ResponseEntity
-            <BaseResponse<List<JobPostingDto.ListResponse>>> getAllJobPostings() {
-        List<JobPostingDto.ListResponse> list = jobPostingService.getList();
-        return ResponseEntity.ok(BaseResponse.success(list));
-    }
-
-    //채용공고 상세 조회
-    @Operation(
-            summary = "채용공고 상세 조회",
-            description = "특정 ID의 채용공고를 상세 조회합니다."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Detail Response Example",
-                                    value = SwaggerJobPostingContents.JOB_POSTING_DETAIL_RESPONSE
-                            )
-                    )
-            ),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 채용공고",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Not Found Response",
-                                    value = SwaggerJobPostingContents.JOB_POSTING_NOT_FOUND_RESPONSE
-                            )
-                    )
-            )
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> getJobPostingDetail(
-            @PathVariable Long id
-    ) {
-        JobPostingDto.DetailResponse detail = jobPostingService.getDetail(id);
-
-        return ResponseEntity
-                .ok(BaseResponse.success(detail)); // HTTP 200 OK
-    }
-    //채용공고 수정
-    @PutMapping("/{id}")
-    @Operation(
-            summary = "채용공고 수정",
-            description = "기존 채용공고를 수정합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    required = true,
-                    description = "채용공고 수정 요청 예시",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_REQUEST)
-                    )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "채용공고 수정 완료",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_RESPONSE)
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<BaseResponse<?>> updateJobPosting(
-            @PathVariable Long id,
-            @Valid @RequestBody JobPostingDto.UpdateRequest request) {
-        jobPostingService.updateJobPosting(id, request);
-        return ResponseEntity.ok(BaseResponse.success("수정 완료"));
-
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(
-            summary = "채용공고 삭제",
-            description = "기존 채용공고를 삭제합니다.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "채용공고 삭제 완료",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_DELETE_RESPONSE)
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<BaseResponse<String>> deleteJobPosting(
-            @PathVariable Long id
-    ) {
-        jobPostingService.deleteJobPosting(id);
-        return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
-    }
+//    //채용공고 전체 목록 조회
+//    @Operation(
+//            summary = "채용공고 전체 목록 조회",
+//            description = "등록된 모든 채용공고를 조회합니다."
+//    )
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "조회 성공",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            examples = @ExampleObject(
+//                                    name = "List Response Example",
+//                                    value = SwaggerJobPostingContents.JOB_POSTING_LIST_RESPONSE
+//                            )
+//                    )
+//            ),
+//            @ApiResponse(responseCode = "404", description = "등록된 채용공고가 없음",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            examples = @ExampleObject(
+//                                    name = "JobPostings Not Found Response",
+//                                    value = SwaggerJobPostingContents.JOB_POSTINGS_NOT_FOUND_RESPONSE
+//                            )
+//                    )
+//            )
+//    })
+//    @GetMapping
+//    public ResponseEntity
+//            <BaseResponse<List<JobPostingDto.ListResponse>>> getAllJobPostings() {
+//        List<JobPostingDto.ListResponse> list = jobPostingService.getList();
+//        return ResponseEntity.ok(BaseResponse.success(list));
+//    }
+//
+//    //채용공고 상세 조회
+//    @Operation(
+//            summary = "채용공고 상세 조회",
+//            description = "특정 ID의 채용공고를 상세 조회합니다."
+//    )
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "조회 성공",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            examples = @ExampleObject(
+//                                    name = "Detail Response Example",
+//                                    value = SwaggerJobPostingContents.JOB_POSTING_DETAIL_RESPONSE
+//                            )
+//                    )
+//            ),
+//            @ApiResponse(responseCode = "404", description = "존재하지 않는 채용공고",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            examples = @ExampleObject(
+//                                    name = "Not Found Response",
+//                                    value = SwaggerJobPostingContents.JOB_POSTING_NOT_FOUND_RESPONSE
+//                            )
+//                    )
+//            )
+//    })
+//    @GetMapping("/{id}")
+//    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> getJobPostingDetail(
+//            @PathVariable Long id
+//    ) {
+//        JobPostingDto.DetailResponse detail = jobPostingService.getDetail(id);
+//
+//        return ResponseEntity
+//                .ok(BaseResponse.success(detail)); // HTTP 200 OK
+//    }
+//    //채용공고 수정
+//    @PutMapping("/{id}")
+//    @Operation(
+//            summary = "채용공고 수정",
+//            description = "기존 채용공고를 수정합니다.",
+//            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+//                    required = true,
+//                    description = "채용공고 수정 요청 예시",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_REQUEST)
+//                    )
+//            ),
+//            responses = {
+//                    @ApiResponse(
+//                            responseCode = "200",
+//                            description = "채용공고 수정 완료",
+//                            content = @Content(
+//                                    mediaType = "application/json",
+//                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_RESPONSE)
+//                            )
+//                    )
+//            }
+//    )
+//    public ResponseEntity<BaseResponse<?>> updateJobPosting(
+//            @PathVariable Long id,
+//            @Valid @RequestBody JobPostingDto.UpdateRequest request) {
+//        jobPostingService.updateJobPosting(id, request);
+//        return ResponseEntity.ok(BaseResponse.success("수정 완료"));
+//
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    @Operation(
+//            summary = "채용공고 삭제",
+//            description = "기존 채용공고를 삭제합니다.",
+//            responses = {
+//                    @ApiResponse(
+//                            responseCode = "200",
+//                            description = "채용공고 삭제 완료",
+//                            content = @Content(
+//                                    mediaType = "application/json",
+//                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_DELETE_RESPONSE)
+//                            )
+//                    )
+//            }
+//    )
+//    public ResponseEntity<BaseResponse<String>> deleteJobPosting(
+//            @PathVariable Long id
+//    ) {
+//        jobPostingService.deleteJobPosting(id);
+//        return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
+//    }
 
 }
