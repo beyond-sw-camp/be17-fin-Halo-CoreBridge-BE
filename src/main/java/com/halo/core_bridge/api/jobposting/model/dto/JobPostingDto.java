@@ -1,9 +1,9 @@
 package com.halo.core_bridge.api.jobposting.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
-import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
+import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
+import com.halo.core_bridge.api.users.model.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -20,155 +20,151 @@ public class JobPostingDto {
     @AllArgsConstructor
     @Builder
     public static class CreateRequest {
-
+        //기본 정보
         @NotBlank(message = "제목은 필수 입력값입니다.")
         @Size(max = 100, message = "제목은 100자 이하로 입력해주세요")
         private String title;
 
-        @NotBlank(message = "채용공고 내용은 필수 입력값입니다.")
-        @Size(max = 2000, message = "채용공고 내용은 2000자 이하로 입력해주세요.")
-        private String description;
+        private Long createdByUserId;
 
-        @NotBlank(message = "고용형태는 필수 입력값입니다.")
-        @Pattern(regexp= "^(정규직|계약직)$", message = "고용형태는 정규직 계약직 중 하나입니다.")
-        private String employmentType;
+        @NotNull(message = "고용 형태는 필수 입력값입니다.")
+        private EmploymentType employmentType; // Enum(정규직,계약직,인턴)
 
-        @NotBlank(message = "경력 구분은 필수 입력값입니다.")
-        @Pattern(regexp = "^(신입|경력|무관)$", message = "경력 구분은 신입, 경력, 무관 중 하나여야 합니다.")
-        private String careerType;
+        @NotNull(message = "경력 선택은 필수 입력값입니다.")
+        private CareerType careerType; // Enum(신입, 경력, 무관)
 
-        private int minExperience;
+        @Min(value = 1, message ="최소 경력은 1년 이상이어야 합니다")
+        private Integer minExperience;
+        @Max(value = 1, message ="최대 경력은 1년 이상이어야 합니다")
+        private Integer maxExperience;
 
-        @AssertTrue(message = "최대 경력은 최소 경력 이상이어야 합니다.")
+        @AssertTrue(message = "최대 경력은 최소경력 이상이어야 합니다.")
         private boolean isValidExperience() {
-            return maxExperience >= minExperience;
+            if(minExperience == null ||  maxExperience == null){
+                return true;
+            } return maxExperience >= minExperience;
         }
 
-        private int maxExperience;
+        @Size(max=10, message = "직급은 10자 이하로 입력해주세요")
+        private String positionLevel;
 
+        @NotBlank(message = "근무지역은 필수 입력값입니다.")
+        @Size(max = 100, message = "근무지역은 100자 이하로 입력해주세요")
+        private String location;
+
+        // 공고 기간(날짜)관련 정보
+        @NotNull(message = "접수 시작일은 필수 입력값입니다.")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyStartDate;
+
+        @NotNull(message = "접수 종료일은 필수 입력값입니다.")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyEndDate;
+
+        @NotNull(message = "마감일은 필수 입력값입니다.")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime hireEndDate;
+
+        // 모집
+        @NotNull(message = "모집 인원은 필수 입력값입니다.")
+        @Min(value = 0, message = "모집인원은 0명 이상이어야 합니다.")
+        private Integer headcount;
+
+        // 직무 상세
+
+        @NotBlank(message = "직무 소개는 필수 입력값입니다.")
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요")
+        private String summary;
+
+        @NotBlank(message = "주요 업무는 필수 입력값입니다.")
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요")
+        private String responsibilities;
+
+        @NotBlank(message = "필수 자격 요건은 필수 입력값입니다.")
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요")
+        private String requirements;
+
+        @NotBlank(message = "우대 사항은 필수 입력값입니다.")
+        @Size(max = 1000, message = "우대 사항은 1000자 이하로 입력해주세요.")
+        private String preferred;
+
+        @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
+        private List<
+                @Size(max = 20, message = "기술명은 20자 이하로 입력해주세요.")
+                String> techStack; // ex) ["Java", "Spring", "Vue"]
+
+
+        @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
+        private List<
+                @NotBlank(message = "프로세스명은 비어 있을 수 없습니다.")
+                @Size(max = 50, message = "프로세스명은 50자 이하로 입력해주세요.")
+                        String> recruitProcess;             // ["지원 완료","서류 검토","1차 면접",...]
+
+        // 급여
+        @NotNull(message = "급여 형태는 필수 입력값입니다.")
+        private SalaryType salaryType;
+
+        @PositiveOrZero(message = "최소 금액은 0 이상이어야 합니다.")
+        private Integer salaryMin;
+
+        @PositiveOrZero(message = "최대 금액은 0 이상이어야 합니다.")
+        private Integer salaryMax;
+
+        private Boolean salaryNegotiable;
+
+        // 근무 조건
+        @NotBlank(message = "근무시간은 필수 입력값입니다.")
+        private String workingHours;         // 예: "09:00 ~ 18:00 (주 5일)"
+
+        @NotBlank(message = "복리후생은 필수 입력값입니다.")
+        private String benefits;
+
+        // 부서/담당/기타
         @NotNull(message = "부서 ID는 필수 입력값입니다.")
         @Positive(message = "부서 ID는 양수여야 합니다.")
         private Long departmentId;
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        @NotNull(message = "지원 시작일은 필수 입력값입니다.")
-        private LocalDateTime applyStartDate;
+        @NotBlank(message = "담당자 이름은 필수 입력값입니다.")
+        private String contactName;
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        @NotNull(message = "지원 마감일은 필수 입력값입니다.")
-        private LocalDateTime applyEndDate;
+        @NotBlank(message = "담당자 이메일은 필수 입력값입니다.")
+        @Email(message = "올바른 이메일 형식이어야 합니다.")
+        private String contactEmail;
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        @NotNull(message = "채용 마감일은 필수 입력값입니다.")
-        private LocalDateTime hireEndDate;
+        private String additionalInfo;
 
-        @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
-        private List<
-                @NotBlank(message = "기술 이름은 비어 있을 수 없습니다.")
-                @Size(max = 50, message = "기술 이름은 50자 이하로 입력해주세요.")
-                        String
-                > skills;
-
-        public JobPosting toEntity(Department department) {
+        public JobPosting toEntity(Long createdByUserId) {
             return JobPosting.builder()
                     .title(title)
-                    .description(description)
+                    .createdUser(User.builder().id(createdByUserId).build())
                     .employmentType(employmentType)
                     .careerType(careerType)
-                    .minExperience(minExperience)
-                    .maxExperience(maxExperience)
+                    .positionLevel(positionLevel)
+                    .location(location)
                     .applyStartDate(applyStartDate)
                     .applyEndDate(applyEndDate)
                     .hireEndDate(hireEndDate)
-                    .department(department)
+                    .headcount(headcount)
+                    .minExperience(minExperience == null ? 0 : minExperience)
+                    .maxExperience(maxExperience == null ? 0 : maxExperience)
+                    .summary(summary)
+                    .responsibilities(responsibilities)
+                    .requirements(requirements)
+                    .preferred(preferred)
+                    .salaryType(salaryType)
+                    .salaryMin(salaryMin)
+                    .salaryMax(salaryMax)
+                    .salaryNegotiable(salaryNegotiable != null ? salaryNegotiable : Boolean.FALSE)
+                    .workingHours(workingHours)
+                    .benefits(benefits)
+                    .contactName(contactName)
+                    .contactEmail(contactEmail)
+                    .additionalInfo(additionalInfo)
+                    .department(Department.builder().id(departmentId).build())
                     .build();
         }
+
+
     }
 
-    // 공고 목록 응답
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ListResponse {
-        private Long id;
-        private String title;
-        private String department;
-        private String employmentType;
-        private LocalDateTime applyEndDate;
-
-        // entity → dto 변환
-        public static ListResponse fromEntity(JobPosting entity) {
-            return ListResponse.builder()
-                    .id(entity.getId())
-                    .title(entity.getTitle())
-                    .department(entity.getDepartment().getName())
-                    .employmentType(entity.getEmploymentType())
-                    .applyEndDate(entity.getApplyEndDate())
-                    .build();
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class DetailResponse {
-        private Long id;
-        private String title;
-        private String description;
-        private String department;
-        private String employmentType;
-        private List<String> skills;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime applyStartDate;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime applyEndDate;
-
-        public static DetailResponse fromEntity(JobPosting entity) {
-            return DetailResponse.builder()
-                    .id(entity.getId())
-                    .title(entity.getTitle())
-                    .description(entity.getDescription())
-                    .department(entity.getDepartment().getName())
-                    .employmentType(entity.getEmploymentType())
-                    .skills(
-                            entity.getSkills() == null
-                                    ? List.of()  // null일 경우 빈 리스트로 대체
-                                    : entity.getSkills().stream()
-                                    .map(JobPostingSkill::getName)
-                                    .toList()
-                    )
-                    .applyStartDate(entity.getApplyStartDate())
-                    .applyEndDate(entity.getApplyEndDate())
-                    .build();
-        }
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class UpdateRequest {
-        private String title;
-        private String description;
-        private String employmentType;
-        private String careerType;
-        private Integer minExperience;
-        private Integer maxExperience;
-        private Long departmentId;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime applyStartDate;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime applyEndDate;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime hireEndDate;
-        private List<String> skills;
-    }
 }
