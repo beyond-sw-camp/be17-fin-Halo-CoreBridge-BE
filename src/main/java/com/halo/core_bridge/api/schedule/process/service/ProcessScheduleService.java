@@ -2,6 +2,8 @@ package com.halo.core_bridge.api.schedule.process.service;
 
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
+import com.halo.core_bridge.api.schedule.notification.model.enums.NotificationType;
+import com.halo.core_bridge.api.schedule.notification.service.NotificationService;
 import com.halo.core_bridge.api.schedule.process.model.dto.ProcessScheduleDto;
 import com.halo.core_bridge.api.schedule.process.model.entity.ProcessSchedule;
 import com.halo.core_bridge.api.schedule.process.repository.ProcessScheduleRepository;
@@ -23,6 +25,7 @@ import java.util.UUID;
 public class ProcessScheduleService {
     private final ProcessScheduleRepository processScheduleRepository;
     private final JobPostingRepository jobPostingRepository;
+    private final NotificationService notificationService;
 
     public List<ProcessScheduleDto.Response> getAll() {
         log.info("[ProcessScheduleService] getAll schedules");
@@ -60,6 +63,13 @@ public class ProcessScheduleService {
             }
         }
 
+        notificationService.publishNotification(
+                1L,
+                NotificationType.PROCESS_SCHEDULE_CREATED,
+                "채용 프로세스 단계가 생성되었습니다.",
+                jobPosting.getTitle(),
+                "/recruiter/jobs/" + jobPosting.getId() + "/schedule"
+        );
         return first.toDto();
     }
 
@@ -70,6 +80,13 @@ public class ProcessScheduleService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.PROCESS_SCHEDULE_NOT_FOUND));
         schedule.update(request);
 
+        notificationService.publishNotification(
+                1L,
+                NotificationType.PROCESS_SCHEDULE_UPDATED,
+                "프로세스 일정이 수정되었습니다: " + schedule.getTitle(),
+                schedule.getJobPosting().getTitle(),
+                "/recruiter/jobs/" + schedule.getJobPosting().getId() + "/schedule"
+        );
         return schedule.toDto();
     }
 
@@ -83,6 +100,14 @@ public class ProcessScheduleService {
         } else {
             processScheduleRepository.delete(schedule);
         }
+
+        notificationService.publishNotification(
+                1L,
+                NotificationType.PROCESS_SCHEDULE_DELETED,
+                "프로세스 일정이 삭제되었습니다: " + schedule.getTitle(),
+                schedule.getJobPosting().getTitle(),
+                "/recruiter/jobs/" + schedule.getJobPosting().getId() + "/schedule"
+        );
     }
 
     private JobPosting validateJobPostingExists(Long jobPostingId) {

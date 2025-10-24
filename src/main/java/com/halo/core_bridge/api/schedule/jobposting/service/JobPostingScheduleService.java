@@ -5,6 +5,8 @@ import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.schedule.jobposting.model.dto.JobPostingScheduleDto;
 import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingSchedule;
 import com.halo.core_bridge.api.schedule.jobposting.repository.JobPostingScheduleRepository;
+import com.halo.core_bridge.api.schedule.notification.model.enums.NotificationType;
+import com.halo.core_bridge.api.schedule.notification.service.NotificationService;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class JobPostingScheduleService {
     private static final String[] DEFAULT_COLORS = {"#60A5FA", "#34D399", "#F472B6", "#FBBF24", "#A78BFA", "#F87171"};
     private final JobPostingScheduleRepository jobScheduleRepository;
     private final JobPostingRepository jobPostingRepository;
+    private final NotificationService notificationService;
 
     public List<JobPostingScheduleDto.Response> getAll() {
         log.info("[JobScheduleService] getAll");
@@ -59,7 +62,13 @@ public class JobPostingScheduleService {
                 if (firstSaved == null) firstSaved = s;
             }
         }
-
+        notificationService.publishNotification(
+                1L,
+                NotificationType.JOB_SCHEDULE_CREATED,
+                "새로운 채용 일정이 추가되었습니다.",
+                jobPosting.getTitle(),
+                "/recruiter/jobs/" + jobPosting.getId() + "/schedule"
+        );
         return firstSaved.toDto();
     }
 
@@ -71,6 +80,13 @@ public class JobPostingScheduleService {
         String color = resolveColor(request.getColor(), schedule.getJobPosting().getId());
         schedule.update(request, color);
 
+        notificationService.publishNotification(
+                1L,
+                NotificationType.JOB_SCHEDULE_UPDATED,
+                "공고 일정이 수정되었습니다: " + schedule.getTitle(),
+                schedule.getJobPosting().getTitle(),
+                "/recruiter/jobs/" + schedule.getJobPosting().getId() + "/schedule"
+        );
         return schedule.toDto();
     }
 
@@ -84,6 +100,14 @@ public class JobPostingScheduleService {
         } else {
             jobScheduleRepository.delete(schedule);
         }
+
+        notificationService.publishNotification(
+                1L,
+                NotificationType.JOB_SCHEDULE_DELETED,
+                "공고 일정이 삭제되었습니다: " + schedule.getTitle(),
+                schedule.getJobPosting().getTitle(),
+                "/recruiter/jobs/" + schedule.getJobPosting().getId() + "/schedule"
+        );
     }
 
     private JobPosting validateJobPostingExists(Long jobPostingId) {
