@@ -4,8 +4,10 @@ import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
+import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.organization.service.DepartmentService;
+import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
-    private final JobPostingSkillService jobPostingSkillService;
+    private final ResumeRepository resumeRepository;
+    private final RecruitProcessRepository recruitProcessRepository;
 
     // 채용공고 등록
     @Transactional
@@ -29,9 +32,10 @@ public class JobPostingService {
         return jobPosting.getId();
     }
 
-    // 전체 목록 조회
-    public List<JobPostingDto.ListResponse> getList() {
-        return null;
+    // 채용공고 리스트 조회
+    @Transactional(readOnly = true)
+    public List<JobPostingDto.JobPostingListResponseDto> getJobPostingList() {
+
     }
 
     // 상세조회

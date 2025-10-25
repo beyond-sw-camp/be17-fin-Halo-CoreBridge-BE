@@ -6,12 +6,13 @@ import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 
 public class JobPostingDto {
-
 
 
     @Getter
@@ -31,19 +32,20 @@ public class JobPostingDto {
         @NotNull(message = "경력 선택은 필수 입력값입니다.")
         private CareerType careerType; // Enum(신입, 경력, 무관)
 
-        @Min(value = 1, message ="최소 경력은 1년 이상이어야 합니다")
+        @Min(value = 1, message = "최소 경력은 1년 이상이어야 합니다")
         private Integer minExperience;
-        @Min(value = 1, message ="최대 경력은 1년 이상이어야 합니다")
+        @Min(value = 1, message = "최대 경력은 1년 이상이어야 합니다")
         private Integer maxExperience;
 
         @AssertTrue(message = "최대 경력은 최소경력 이상이어야 합니다.")
         private boolean isValidExperience() {
-            if(minExperience == null ||  maxExperience == null){
+            if (minExperience == null || maxExperience == null) {
                 return true;
-            } return maxExperience >= minExperience;
+            }
+            return maxExperience >= minExperience;
         }
 
-        @Size(max=10, message = "직급은 10자 이하로 입력해주세요")
+        @Size(max = 10, message = "직급은 10자 이하로 입력해주세요")
         private String positionLevel;
 
         @NotBlank(message = "근무지역은 필수 입력값입니다.")
@@ -89,7 +91,7 @@ public class JobPostingDto {
         @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
         private List<
                 @Size(max = 20, message = "기술명은 20자 이하로 입력해주세요.")
-                String> techStack; // ex) ["Java", "Spring", "Vue"]
+                        String> techStack; // ex) ["Java", "Spring", "Vue"]
 
 
         @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
@@ -165,25 +167,75 @@ public class JobPostingDto {
 
     }
 
-     // 공고 목록 응답
+    // 공고 목록 응답
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class JobPostingListResponseDto {
-        // 식별자
-        private Long id;
+        // 기본 공고 정보
+        private Long id; // 공고 Id
+        private String title; // 공고명(ex: 시니어 프론트엔드 개발자)
 
-        //타이틀 영역
-        private String title;  // ex) "시니어 프론트엔트 개발자"
-        private String subtitle; // ex) "5년 이상 · 정규직" (experience + employmentType 라벨)
+        // 요약정보(ex: "5년 이상 · 정규직")
+        private String summaryText;
 
-        // 부서/상태
-        private String department; //ex) "개발팀"
-        private String status; // ex)
+        private String departmentName; // 부서명(ex: 개발팀)
+        private EmploymentType employmentType;
+        private CareerType careerType;
 
+        // 상태/날짜 관련
+        private String status; // ex: "채용중" / "예정" / "마감"
 
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDate hireEndDate;       // 마감일 (YYYY-MM-DD)
 
+        private Integer dday;                // 예: D-16 → 16 저장, D-day는 프론트에서 렌더링
+
+        // 지원자/진행률
+        private Integer applicantCount; //총 지원자 수
+        private Integer progressPercent; //진행률(0 ~ 100)
+
+        // 단계별 현황
+        private List<ProcessSummary> processSummaries;
+
+        @Getter
+        @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Builder
+        public static class ProcessSummary {
+            private String stageName;   // 단계명 (예: 서류, 1차, 2차, 최종)
+            private Integer count;      // 해당 단계 지원자 수
+            private Integer orderIndex; // 단계 순서 (예: 0=서류, 1=1차 ...)
+        }
+
+        public static JobPostingListResponseDto fromEntity(
+                JobPosting entity,
+                String summaryText,
+                String status,
+                Integer dday,
+                Integer applicantCount,
+                Integer progressPercent,
+                List<ProcessSummary> processSummaries
+        ) {
+            return JobPostingListResponseDto.builder()
+                    .id(entity.getId())
+                    .title(entity.getTitle())
+                    .departmentName(entity.getDepartment().getName())
+                    .employmentType(entity.getEmploymentType())
+                    .careerType(entity.getCareerType())
+                    .hireEndDate(entity.getHireEndDate().toLocalDate())
+                    // Service에서 가공 후에 주입
+                    .summaryText(summaryText)
+                    .status(status)
+                    .dday(dday)
+                    .applicantCount(applicantCount)
+                    .progressPercent(progressPercent)
+                    .processSummaries(processSummaries)
+                    .build();
+        }
     }
 
     @Getter
@@ -205,7 +257,7 @@ public class JobPostingDto {
         private LocalDateTime applyEndDate;
 
         public static DetailResponse fromEntity(JobPosting entity) {
-           return null;
+            return null;
         }
     }
 
