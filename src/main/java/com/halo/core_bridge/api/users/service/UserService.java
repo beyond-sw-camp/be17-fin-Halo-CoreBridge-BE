@@ -62,4 +62,18 @@ public class UserService {
 
         return UserDto.ResumeUserInfo.from(findUser);
     }
+
+    /**
+     * 사용자 정보를 상세 조회 한다.
+     * @param userId 조회할 사용자 ID
+     * @return <code>UserDto.Read</code> 사용저 정보 조회 DTO
+     */
+    public UserDto.Read findById(Long userId) {
+
+        User findUser = userRepository.findById(userId).orElseThrow(
+                () -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER)
+        );
+
+        return UserDto.Read.from(findUser);
+    }
 }
