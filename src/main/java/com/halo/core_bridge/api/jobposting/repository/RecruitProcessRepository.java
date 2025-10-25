@@ -12,4 +12,6 @@ public interface RecruitProcessRepository extends JpaRepository<RecruitProcess, 
 
     List<RecruitProcess> findByJobPosting(JobPosting jobPosting);
 
+    void deleteAllByJobPosting(JobPosting jobPosting);
+
 }

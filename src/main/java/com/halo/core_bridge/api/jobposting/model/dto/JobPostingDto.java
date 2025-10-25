@@ -409,14 +409,37 @@ public class JobPostingDto {
     @AllArgsConstructor
     @Builder
     public static class UpdateRequest {
+        // 기본 정보
+        // ----------------------------
+        // 기본 정보
+        // ----------------------------
+        @Size(max = 100, message = "제목은 100자 이하로 입력해주세요.")
         private String title;
-        private String description;
-        private String employmentType;
-        private String careerType;
-        private Integer minExperience;
-        private Integer maxExperience;
-        private Long departmentId;
 
+        private EmploymentType employmentType;   // Enum(정규직, 계약직, 인턴)
+        private CareerType careerType;           // Enum(신입, 경력, 무관)
+
+        @Min(value = 0, message = "최소 경력은 0년 이상이어야 합니다.")
+        private Integer minExperience;
+
+        @Min(value = 0, message = "최대 경력은 0년 이상이어야 합니다.")
+        private Integer maxExperience;
+
+        @AssertTrue(message = "최대 경력은 최소 경력 이상이어야 합니다.")
+        private boolean isValidExperience() {
+            if (minExperience == null || maxExperience == null) return true;
+            return maxExperience >= minExperience;
+        }
+
+        @Size(max = 10, message = "직급은 10자 이하로 입력해주세요.")
+        private String positionLevel;
+
+        @Size(max = 100, message = "근무지역은 100자 이하로 입력해주세요.")
+        private String location;
+
+        // ----------------------------
+        // 기간 관련
+        // ----------------------------
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyStartDate;
 
@@ -425,7 +448,73 @@ public class JobPostingDto {
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime hireEndDate;
-        private List<String> skills;
+
+        // ----------------------------
+        // 모집 정보
+        // ----------------------------
+        @Min(value = 0, message = "모집인원은 0명 이상이어야 합니다.")
+        private Integer headcount;
+
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요.")
+        private String summary;
+
+        @Size(max = 1000, message = "주요 업무는 1000자 이하로 입력해주세요.")
+        private String responsibilities;
+
+        @Size(max = 1000, message = "필수 자격 요건은 1000자 이하로 입력해주세요.")
+        private String requirements;
+
+        @Size(max = 1000, message = "우대 사항은 1000자 이하로 입력해주세요.")
+        private String preferred;
+
+        // ----------------------------
+        // 기술 스택 & 채용 프로세스
+        // ----------------------------
+        private List<
+                @Size(max = 20, message = "기술명은 20자 이하로 입력해주세요.")
+                        String> techStack;
+
+        private List<
+                @Size(max = 50, message = "프로세스명은 50자 이하로 입력해주세요.")
+                        String> recruitProcess;
+
+        // ----------------------------
+        // 급여
+        // ----------------------------
+        private SalaryType salaryType;
+
+        @PositiveOrZero(message = "최소 급여는 0 이상이어야 합니다.")
+        private Integer salaryMin;
+
+        @PositiveOrZero(message = "최대 급여는 0 이상이어야 합니다.")
+        private Integer salaryMax;
+
+        private Boolean salaryNegotiable;
+
+        // ----------------------------
+        // 근무 조건
+        // ----------------------------
+        @Size(max = 100, message = "근무시간은 100자 이하로 입력해주세요.")
+        private String workingHours;
+
+        @Size(max = 1000, message = "복리후생은 1000자 이하로 입력해주세요.")
+        private String benefits;
+
+        // ----------------------------
+        // 부서/담당/기타
+        // ----------------------------
+        @Positive(message = "부서 ID는 양수여야 합니다.")
+        private Long departmentId;
+
+        @Size(max = 50, message = "담당자 이름은 50자 이하로 입력해주세요.")
+        private String contactName;
+
+        @Email(message = "올바른 이메일 형식이어야 합니다.")
+        @Size(max = 100, message = "이메일은 100자 이하로 입력해주세요.")
+        private String contactEmail;
+
+        @Size(max = 1000, message = "추가정보는 1000자 이하로 입력해주세요.")
+        private String additionalInfo;
     }
 
 

@@ -140,38 +140,35 @@ public class JobPostingController {
     }
 
 
-//    //채용공고 수정
-//    @PutMapping("/{id}")
-//    @Operation(
-//            summary = "채용공고 수정",
-//            description = "기존 채용공고를 수정합니다.",
-//            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-//                    required = true,
-//                    description = "채용공고 수정 요청 예시",
-//                    content = @Content(
-//                            mediaType = "application/json",
-//                            examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_REQUEST)
-//                    )
-//            ),
-//            responses = {
-//                    @ApiResponse(
-//                            responseCode = "200",
-//                            description = "채용공고 수정 완료",
-//                            content = @Content(
-//                                    mediaType = "application/json",
-//                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_RESPONSE)
-//                            )
-//                    )
-//            }
-//    )
-//    public ResponseEntity<BaseResponse<?>> updateJobPosting(
-//            @PathVariable Long id,
-//            @Valid @RequestBody JobPostingDto.UpdateRequest request) {
-//        jobPostingService.updateJobPosting(id, request);
-//        return ResponseEntity.ok(BaseResponse.success("수정 완료"));
-//
-//    }
-//
+    //채용공고 수정
+    @PatchMapping("/{id}")
+    @Operation(
+            summary = "채용공고 수정",
+            description = "기존 채용공고를 수정합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "채용공고 수정 요청 예시",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_REQUEST)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "채용공고 수정 완료",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_UPDATE_RESPONSE)
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<BaseResponse<String>> updateJobPosting(@PathVariable Long id, @Valid @RequestBody JobPostingDto.UpdateRequest request) {
+        jobPostingService.updateJobPosting(id, request);
+        return ResponseEntity.ok(BaseResponse.success("수정 완료"));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "채용공고 삭제",

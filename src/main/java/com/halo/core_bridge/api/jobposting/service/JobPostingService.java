@@ -5,6 +5,7 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
+import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.organization.service.DepartmentService;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
+    private final JobPostingSkillRepository jobPostingSkillRepository;
     private final ResumeRepository resumeRepository;
     private final RecruitProcessRepository recruitProcessRepository;
 
@@ -80,8 +82,114 @@ public class JobPostingService {
     }
 
     @Transactional
-    public void updateJobPosting(Long id, JobPostingDto.UpdateRequest dto) {
+    public void updateJobPosting(Long id, JobPostingDto.UpdateRequest request) {
+        JobPosting jobPosting = jobPostingRepository.findById(id)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
 
+        //  기본 필드 변경 감지 후 반영
+        if (request.getTitle() != null && !request.getTitle().equals(jobPosting.getTitle())) {
+            jobPosting.setTitle(request.getTitle());
+        }
+
+        if (request.getEmploymentType() != null) {
+            jobPosting.setEmploymentType(request.getEmploymentType());
+        }
+
+        if (request.getCareerType() != null) {
+            jobPosting.setCareerType(request.getCareerType());
+        }
+
+        if (request.getMinExperience() != null) {
+            jobPosting.setMinExperience(request.getMinExperience());
+        }
+
+        if (request.getMaxExperience() != null) {
+            jobPosting.setMaxExperience(request.getMaxExperience());
+        }
+
+        if (request.getPositionLevel() != null) {
+            jobPosting.setPositionLevel(request.getPositionLevel());
+        }
+
+        if (request.getLocation() != null) {
+            jobPosting.setLocation(request.getLocation());
+        }
+
+        if (request.getApplyStartDate() != null) {
+            jobPosting.setApplyStartDate(request.getApplyStartDate());
+        }
+
+        if (request.getApplyEndDate() != null) {
+            jobPosting.setApplyEndDate(request.getApplyEndDate());
+        }
+
+        if (request.getHireEndDate() != null) {
+            jobPosting.setHireEndDate(request.getHireEndDate());
+        }
+
+        if (request.getHeadcount() != null) {
+            jobPosting.setHeadcount(request.getHeadcount());
+        }
+
+        if (request.getSummary() != null) {
+            jobPosting.setSummary(request.getSummary());
+        }
+
+        if (request.getResponsibilities() != null) {
+            jobPosting.setResponsibilities(request.getResponsibilities());
+        }
+
+        if (request.getRequirements() != null) {
+            jobPosting.setRequirements(request.getRequirements());
+        }
+
+        if (request.getPreferred() != null) {
+            jobPosting.setPreferred(request.getPreferred());
+        }
+
+//        // 3기술 스택 업데이트 (있을 경우만)
+//        if (request.getTechStack() != null) {
+//            jobPostingSkillRepository.deleteAllByJobPosting(jobPosting);
+//            for (String techName : request.getTechStack()) {
+//                JobPostingSkill skill = JobPostingSkill.builder()
+//                        .jobPosting(jobPosting)
+//                        .name(techName)
+//                        .build();
+//                jobPostingSkillRepository.save(skill);
+//            }
+//        }
+//
+//        // 채용 프로세스 업데이트(있을 경우만)
+//        if(request.getRecruitProcess() != null) {
+//            recruitProcessRepository.deleteAllByJobPosting(jobPosting);
+//            for(int i = 0; i < request.getRecruitProcess().size(); i++) {
+//                RecruitProcess process = RecruitProcess.builder()
+//                        .jobPosting(jobPosting)
+//                        .name(request.getRecruitProcess().get(i))
+//                        .orderIdx(i+1)
+//                        .build();
+//                recruitProcessRepository.save(process);
+//            }
+//        }
+
+        //급여정보
+        if (request.getSalaryType() != null) jobPosting.setSalaryType(request.getSalaryType());
+        if (request.getSalaryMin() != null) jobPosting.setSalaryMin(request.getSalaryMin());
+        if (request.getSalaryMax() != null) jobPosting.setSalaryMax(request.getSalaryMax());
+        if (request.getSalaryNegotiable() != null) jobPosting.setSalaryNegotiable(request.getSalaryNegotiable());
+
+        // 근무조건
+        if (request.getWorkingHours() != null) jobPosting.setWorkingHours(request.getWorkingHours());
+        if (request.getBenefits() != null) jobPosting.setBenefits(request.getBenefits());
+
+        // 담당자 정보
+        if (request.getContactName() != null) jobPosting.setContactName(request.getContactName());
+        if (request.getContactEmail() != null) jobPosting.setContactEmail(request.getContactEmail());
+
+        // 기타 정보
+        if (request.getAdditionalInfo() != null) jobPosting.setAdditionalInfo(request.getAdditionalInfo());
+
+        jobPostingRepository.save(jobPosting);
     }
 
     @Transactional
