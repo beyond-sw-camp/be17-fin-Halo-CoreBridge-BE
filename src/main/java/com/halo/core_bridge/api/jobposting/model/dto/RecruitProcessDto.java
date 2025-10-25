@@ -4,7 +4,10 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 public class RecruitProcessDto {
 
@@ -28,6 +31,23 @@ public class RecruitProcessDto {
                     .jobPosting(
                             JobPosting.builder().id(jobPostingId).build()
                     )
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class Raad {
+
+        private Long id;
+        private String name;
+        private String colorCode;
+
+        public static RecruitProcessDto.Raad from(RecruitProcess entity) {
+            return Raad.builder()
+                    .id(entity.getId())
+                    .name(entity.getName())
+                    .colorCode(entity.getColorCode().getColorCode())
                     .build();
         }
     }
