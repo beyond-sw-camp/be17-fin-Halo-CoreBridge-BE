@@ -313,8 +313,9 @@ public class JobPostingDto {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime hireEndDate;
 
-        // 모집
+        // 모집 및 지원자 수
         private Integer headcount;
+        private Integer applicantCount;
 
         // 직무 상세(저장값 그대로)
         private String summary;
@@ -347,7 +348,7 @@ public class JobPostingDto {
         // -----------------------------
         // 정적 팩토리 - 엔티티 그대로 매핑
         // -----------------------------
-        public static DetailResponse fromEntity(JobPosting e) {
+        public static DetailResponse fromEntity(JobPosting e, Integer applicantCount) {
             // 기술스택 이름 리스트
             List<String> skills = (e.getSkills() == null) ? List.of()
                     : e.getSkills().stream()
@@ -378,6 +379,7 @@ public class JobPostingDto {
                     .applyEndDate(e.getApplyEndDate())
                     .hireEndDate(e.getHireEndDate())
                     .headcount(e.getHeadcount())
+                    .applicantCount(applicantCount)
                     .summary(e.getSummary())
                     .responsibilities(e.getResponsibilities())
                     .requirements(e.getRequirements())

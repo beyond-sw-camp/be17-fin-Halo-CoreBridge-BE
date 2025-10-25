@@ -172,26 +172,26 @@ public class JobPostingController {
 //
 //    }
 //
-//    @DeleteMapping("/{id}")
-//    @Operation(
-//            summary = "채용공고 삭제",
-//            description = "기존 채용공고를 삭제합니다.",
-//            responses = {
-//                    @ApiResponse(
-//                            responseCode = "200",
-//                            description = "채용공고 삭제 완료",
-//                            content = @Content(
-//                                    mediaType = "application/json",
-//                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_DELETE_RESPONSE)
-//                            )
-//                    )
-//            }
-//    )
-//    public ResponseEntity<BaseResponse<String>> deleteJobPosting(
-//            @PathVariable Long id
-//    ) {
-//        jobPostingService.deleteJobPosting(id);
-//        return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
-//    }
+    @DeleteMapping("/{id}")
+    @Operation(
+            summary = "채용공고 삭제",
+            description = "기존 채용공고를 삭제합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "채용공고 삭제 완료",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(value = SwaggerJobPostingContents.JOB_POSTING_DELETE_RESPONSE)
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<BaseResponse<String>> deleteJobPosting(
+            @PathVariable Long id
+    ) {
+        jobPostingService.deleteJobPosting(id);
+        return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
+    }
 
 }

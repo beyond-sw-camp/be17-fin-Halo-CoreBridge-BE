@@ -74,7 +74,9 @@ public class JobPostingService {
     public JobPostingDto.DetailResponse getDetail(Long id) {
         JobPosting jp = jobPostingRepository.findById(id)
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
-        return JobPostingDto.DetailResponse.fromEntity(jp);
+
+        int applicantCounts = resumeRepository.countByJobPostingId(id);
+        return JobPostingDto.DetailResponse.fromEntity(jp, applicantCounts);
     }
 
     @Transactional
@@ -84,6 +86,6 @@ public class JobPostingService {
 
     @Transactional
     public void deleteJobPosting(Long id) {
-
+        jobPostingRepository.deleteById(id);
     }
 }
