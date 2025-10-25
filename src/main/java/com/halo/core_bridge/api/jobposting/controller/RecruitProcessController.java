@@ -6,12 +6,10 @@ import com.halo.core_bridge.common.model.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api/recruiter/processes")
 @RequiredArgsConstructor
 public class RecruitProcessController {
 
@@ -23,5 +21,12 @@ public class RecruitProcessController {
         recruitProcessService.add(createRecruitProcessDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("채용 프로세스 추가 완료"));
 
+    }
+
+    @GetMapping
+    public ResponseEntity<BaseResponse<RecruitProcessDto.recruitProcesses>> getRecruitProcesses(@RequestParam("recruit") Long jobPostingId) {
+
+        RecruitProcessDto.recruitProcesses findRecruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(jobPostingId);
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(findRecruitProcesses));
     }
 }
