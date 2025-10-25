@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 
@@ -191,7 +192,7 @@ public class JobPostingDto {
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         private LocalDate hireEndDate;       // 마감일 (YYYY-MM-DD)
 
-        private Integer dday;                // 예: D-16 → 16 저장, D-day는 프론트에서 렌더링
+        private String dday;                // 예: D-16
 
         // 지원자/진행률
         private Integer applicantCount; //총 지원자 수
@@ -211,31 +212,76 @@ public class JobPostingDto {
             private Integer orderIndex; // 단계 순서 (예: 0=서류, 1=1차 ...)
         }
 
+        // 정적 팩토리 메서드 - 엔티티에서 바로 DTO 변환
         public static JobPostingListResponseDto fromEntity(
                 JobPosting entity,
-                String summaryText,
-                String status,
-                Integer dday,
                 Integer applicantCount,
-                Integer progressPercent,
-                List<ProcessSummary> processSummaries
+                List<ProcessSummary> proccessSummaries
         ) {
-            return JobPostingListResponseDto.builder()
+            JobPostingListResponseDto dto = JobPostingListResponseDto.builder()
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .departmentName(entity.getDepartment().getName())
                     .employmentType(entity.getEmploymentType())
                     .careerType(entity.getCareerType())
                     .hireEndDate(entity.getHireEndDate().toLocalDate())
-                    // Service에서 가공 후에 주입
-                    .summaryText(summaryText)
-                    .status(status)
-                    .dday(dday)
                     .applicantCount(applicantCount)
-                    .progressPercent(progressPercent)
-                    .processSummaries(processSummaries)
+                    .processSummaries(proccessSummaries)
                     .build();
+
+            dto.summaryText = dto.buildSummaryText();
+            dto.status = dto.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
+            dto.dday = dto.computeDDay(entity.getHireEndDate());
+            dto.progressPercent = dto.computeProgressByPeriod(entity.getApplyStartDate(), entity.getHireEndDate());
+
+            return dto;
         }
+        // dto 내부 로직 - 데이터 가공/계산
+
+        //요약 정보 생성("5년 이상 · 정규직")
+        private String buildSummaryText() {
+            String exp = careerType.getLabel();
+            String emp =employmentType.getLabel();
+            return exp + " · " + emp;
+        }
+
+        // 채용 상태 계산("예정" / "채용중" / "마감")
+        private String computeStatus(LocalDateTime start, LocalDateTime end) {
+            LocalDateTime now =  LocalDateTime.now();
+            if(now.isBefore(start)) return "예정";
+            if(now.isAfter(end)) return "마감";
+            return "채용중";
+        }
+
+        private String computeDDay(LocalDateTime end) {
+            long diff = ChronoUnit.DAYS.between(LocalDate.now(), end.toLocalDate());
+
+            if(diff > 0) {
+                return "D-" + diff;
+            } else if (diff == 0) {
+                return "D-Day";
+            } else {
+                return "마감";
+            }
+        }
+
+        private Integer computeProgressByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+
+            LocalDate today = LocalDate.now();
+            LocalDate start = startDate.toLocalDate();
+            LocalDate end = endDate.toLocalDate();
+
+            long totalDays =  ChronoUnit.DAYS.between(start, end);
+
+            long passedDays = ChronoUnit.DAYS.between(start, today);
+            double progress = (double) passedDays / totalDays * 100;
+
+            if (progress < 0) return 0;
+            if (progress > 100) return 100;
+
+            return (int) Math.round(progress);
+        }
+
     }
 
     @Getter
@@ -285,4 +331,6 @@ public class JobPostingDto {
         private LocalDateTime hireEndDate;
         private List<String> skills;
     }
+
+
 }

@@ -48,26 +48,47 @@ public class SwaggerJobPostingContents {
     // ✅ 채용공고 전체 조회 응답
     public static final String JOB_POSTING_LIST_RESPONSE = """
             {
-              "success": true,
-              "code": 20000,
-              "message": "요청에 성공하였습니다.",
-              "results": [
-                {
-                  "id": 3,
-                  "title": "백엔드 개발자 채용",
-                  "department": "플랫폼개발팀",
-                  "employmentType": "정규직",
-                  "applyEndDate": "2025-11-15T18:00:00"
-                },
-                {
-                  "id": 4,
-                  "title": "백엔드 개발자 채용",
-                  "department": "플랫폼개발팀",
-                  "employmentType": "정규직",
-                  "applyEndDate": "2025-11-15T18:00:00"
-                }
-              ]
-            }
+                   "success": true,
+                   "code": 20000,
+                   "message": "요청에 성공하였습니다.",
+                   "results": [
+                       {
+                           "id": 1,
+                           "title": "시니어 프론트엔드 개발자",
+                           "summaryText": "신입 · 정규직",
+                           "departmentName": "플랫폼개발팀",
+                           "employmentType": "정규직",
+                           "careerType": "신입",
+                           "status": "채용중",
+                           "hireEndDate": "2025-10-31",
+                           "dday": "D-6",
+                           "applicantCount": 14,
+                           "progressPercent": 71,
+                           "processSummaries": [
+                               {
+                                   "stageName": "지원 완료",
+                                   "count": 5,
+                                   "orderIndex": 0
+                               },
+                               {
+                                   "stageName": "서류 검토",
+                                   "count": 3,
+                                   "orderIndex": 1
+                               },
+                               {
+                                   "stageName": "1차 면접",
+                                   "count": 3,
+                                   "orderIndex": 2
+                               },
+                               {
+                                   "stageName": "최종 합격",
+                                   "count": 3,
+                                   "orderIndex": 3
+                               }
+                           ]
+                       }
+                   ]
+               }
             """;
 
     // ✅ 채용공고 단건 상세 조회 응답

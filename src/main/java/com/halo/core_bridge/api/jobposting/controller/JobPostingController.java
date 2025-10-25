@@ -4,6 +4,7 @@ package com.halo.core_bridge.api.jobposting.controller;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -67,45 +68,44 @@ public class JobPostingController {
     })
     @PostMapping
     public ResponseEntity<BaseResponse<String>> createJobPosting(
-//     실제로는 인증객체에서 id가져올 것       @AuthenticationPrincipal AuthenticationPrincipal CustomUserDetails,
+//            @AuthenticationPrincipal UserDto.Auth auth,
             @RequestBody @Validated JobPostingDto.CreateRequest request) {
         Long userId = 1L;
         jobPostingService.save(request, userId);
-
         return ResponseEntity.ok(BaseResponse.success("저장 완료"));
     }
 
-//    //채용공고 전체 목록 조회
-//    @Operation(
-//            summary = "채용공고 전체 목록 조회",
-//            description = "등록된 모든 채용공고를 조회합니다."
-//    )
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "조회 성공",
-//                    content = @Content(
-//                            mediaType = "application/json",
-//                            examples = @ExampleObject(
-//                                    name = "List Response Example",
-//                                    value = SwaggerJobPostingContents.JOB_POSTING_LIST_RESPONSE
-//                            )
-//                    )
-//            ),
-//            @ApiResponse(responseCode = "404", description = "등록된 채용공고가 없음",
-//                    content = @Content(
-//                            mediaType = "application/json",
-//                            examples = @ExampleObject(
-//                                    name = "JobPostings Not Found Response",
-//                                    value = SwaggerJobPostingContents.JOB_POSTINGS_NOT_FOUND_RESPONSE
-//                            )
-//                    )
-//            )
-//    })
-//    @GetMapping
-//    public ResponseEntity
-//            <BaseResponse<List<JobPostingDto.ListResponse>>> getAllJobPostings() {
-//        List<JobPostingDto.ListResponse> list = jobPostingService.getList();
-//        return ResponseEntity.ok(BaseResponse.success(list));
-//    }
+    //채용공고 전체 목록 조회
+    @Operation(
+            summary = "채용공고 전체 목록 조회",
+            description = "등록된 모든 채용공고를 조회합니다."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "List Response Example",
+                                    value = SwaggerJobPostingContents.JOB_POSTING_LIST_RESPONSE
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "등록된 채용공고가 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "JobPostings Not Found Response",
+                                    value = SwaggerJobPostingContents.JOB_POSTINGS_NOT_FOUND_RESPONSE
+                            )
+                    )
+            )
+    })
+    @GetMapping
+    public ResponseEntity
+            <BaseResponse<List<JobPostingDto.JobPostingListResponseDto>>> getAllJobPostings() {
+        List<JobPostingDto.JobPostingListResponseDto> list = jobPostingService.getJobPostingList();
+        return ResponseEntity.ok(BaseResponse.success(list));
+    }
 //
 //    //채용공고 상세 조회
 //    @Operation(

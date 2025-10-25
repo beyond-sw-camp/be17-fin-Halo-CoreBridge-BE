@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.jobposting.service;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
+import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.api.organization.model.entity.Department;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,22 +37,51 @@ public class JobPostingService {
     // 채용공고 리스트 조회
     @Transactional(readOnly = true)
     public List<JobPostingDto.JobPostingListResponseDto> getJobPostingList() {
+        // 전체 공고 조회
+        List<JobPosting> postings = jobPostingRepository.findAllWithDepartment();
 
+        List<JobPostingDto.JobPostingListResponseDto> resultList = new ArrayList<>();
+
+        for (JobPosting job : postings) {
+            int applicantCount = resumeRepository.countByJobPostingId(job.getId());
+
+            // 단계별 현황
+            List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting(job);
+            List<JobPostingDto.JobPostingListResponseDto.ProcessSummary> processSummaries = new ArrayList<>();
+
+            for (RecruitProcess process : processes) {
+                int count = resumeRepository.countByRecruitProcess(process);
+
+                processSummaries.add(
+                        JobPostingDto.JobPostingListResponseDto.ProcessSummary.builder()
+                                .stageName(process.getName())
+                                .orderIndex(process.getOrderIdx())
+                                .count(count)
+                                .build()
+                );
+            }
+
+            JobPostingDto.JobPostingListResponseDto dto = JobPostingDto.JobPostingListResponseDto.fromEntity(job, applicantCount, processSummaries);
+
+            resultList.add(dto);
+        }
+
+        return resultList;
     }
 
-    // 상세조회
-    @Transactional(readOnly = true)
-    public JobPostingDto.DetailResponse getDetail(Long id) {
-        return null;
+        // 상세조회
+        @Transactional(readOnly = true)
+        public JobPostingDto.DetailResponse getDetail (Long id){
+            return null;
+        }
+
+        @Transactional
+        public void updateJobPosting (Long id, JobPostingDto.UpdateRequest dto){
+
+        }
+
+        @Transactional
+        public void deleteJobPosting (Long id){
+
+        }
     }
-
-    @Transactional
-    public void updateJobPosting(Long id, JobPostingDto.UpdateRequest dto) {
-
-    }
-
-    @Transactional
-    public void deleteJobPosting(Long id) {
-
-    }
-}

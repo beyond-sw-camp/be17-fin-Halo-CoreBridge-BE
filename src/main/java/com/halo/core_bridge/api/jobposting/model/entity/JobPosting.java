@@ -69,7 +69,7 @@ public class JobPosting extends BaseEntity {
     private String requirements; // 필수 자격 요건
 
     @Column(length = 1000)
-    private String preferred;
+    private String preferred; // 우대 요건
 
     //급여 관련
     @Enumerated(EnumType.STRING)
