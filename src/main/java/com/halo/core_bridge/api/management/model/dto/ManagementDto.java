@@ -25,14 +25,14 @@ public class ManagementDto {
     public static class StageDto {
         private Long id;
         private String name;
-        private String code;
+        private String colorCode;
         private List<ApplicantDto> applicants;
 
         public static StageDto from(RecruitProcess process, List<Resume> resumes) {
             return StageDto.builder()
                     .id(process.getId())
                     .name(process.getName())
-                    .code(process.getCode())
+                    .colorCode(process.getColorCode().toString())
                     .applicants(resumes.stream().map(ApplicantDto::from).toList())
                     .build();
         }
