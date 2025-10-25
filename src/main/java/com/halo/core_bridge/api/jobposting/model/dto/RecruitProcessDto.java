@@ -37,14 +37,14 @@ public class RecruitProcessDto {
 
     @Getter
     @Builder
-    public static class Raad {
+    public static class Read {
 
         private Long id;
         private String name;
         private String colorCode;
 
-        public static RecruitProcessDto.Raad from(RecruitProcess entity) {
-            return Raad.builder()
+        public static RecruitProcessDto.Read from(RecruitProcess entity) {
+            return Read.builder()
                     .id(entity.getId())
                     .name(entity.getName())
                     .colorCode(entity.getColorCode().getColorCode())
