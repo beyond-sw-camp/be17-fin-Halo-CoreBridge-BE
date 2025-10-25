@@ -1,24 +1,33 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
-import com.halo.core_bridge.common.model.BaseEntity;
+import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Builder
 @Getter
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
-public class RecruitProcess extends BaseEntity {
+@AllArgsConstructor
+@Builder
+public class RecruitProcess {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
-    private int headCount;
+
+    @Column(nullable = false)
+    private Integer orderIdx;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ColorCode colorCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "jobPosting_id")
     private JobPosting jobPosting;
+
 }

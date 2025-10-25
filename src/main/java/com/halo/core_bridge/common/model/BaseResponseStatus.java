@@ -45,8 +45,9 @@ public enum BaseResponseStatus {
     // Common
     RESPONSE_ERROR(false, 40001, "값을 불러오는데 실패하였습니다."),
     RESUME_NOT_FOUND(false, 40002, "이력서를 찾을 수 없습니다."),
-    FAILD_FOUND_USER(false, 40003, "사용자를 찾을 수 없습니다."),
-    FAILD_FOUND_JOBPOST(false, 40003, "공고를 찾을 수 없습니다."),
+    PROCESS_NOT_FOUND(false, 40003, "이력서를 찾을 수 없습니다."),
+    FAILD_FOUND_USER(false, 40004, "사용자를 찾을 수 없습니다."),
+    FAILD_FOUND_JOBPOST(false, 40005, "공고를 찾을 수 없습니다."),
 
     /**
      * 50000 : Database 오류
@@ -72,7 +73,11 @@ public enum BaseResponseStatus {
     PDF_UPLOAD_FAILED(false, 70008, "PDF 업로드에 실패했습니다."),
     PDF_NOT_FOUND(false, 70009, "PDF를 찾을 수 없습니다."),
     UNSUPPORTED_FILE_TYPE(false, 70009, "지원하지 않는 형식입니다."),
-    FILE_TOO_LARGE(false, 700010, "용량을 초과하였습니다.");
+    FILE_TOO_LARGE(false, 700010, "용량을 초과하였습니다."),
+
+    JOB_POSTING_SCHEDULE_NOT_FOUND(false, 71001, "존재하지 않는 공고 일정입니다."),
+    PROCESS_SCHEDULE_NOT_FOUND(false, 72001, "존재하지 않는 프로세스 일정입니다."),
+    SCHEDULE_SHARE_NOT_FOUND(false, 73001, "존재하지 않는 공유 정보입니다.");
 
     private final boolean isSuccess;
     private final int code;
