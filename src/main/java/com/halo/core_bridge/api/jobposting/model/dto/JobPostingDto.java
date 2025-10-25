@@ -10,7 +10,9 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 
 public class JobPostingDto {
@@ -241,22 +243,22 @@ public class JobPostingDto {
         //요약 정보 생성("5년 이상 · 정규직")
         private String buildSummaryText() {
             String exp = careerType.getLabel();
-            String emp =employmentType.getLabel();
+            String emp = employmentType.getLabel();
             return exp + " · " + emp;
         }
 
         // 채용 상태 계산("예정" / "채용중" / "마감")
         private String computeStatus(LocalDateTime start, LocalDateTime end) {
-            LocalDateTime now =  LocalDateTime.now();
-            if(now.isBefore(start)) return "예정";
-            if(now.isAfter(end)) return "마감";
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(start)) return "예정";
+            if (now.isAfter(end)) return "마감";
             return "채용중";
         }
 
         private String computeDDay(LocalDateTime end) {
             long diff = ChronoUnit.DAYS.between(LocalDate.now(), end.toLocalDate());
 
-            if(diff > 0) {
+            if (diff > 0) {
                 return "D-" + diff;
             } else if (diff == 0) {
                 return "D-Day";
@@ -271,7 +273,7 @@ public class JobPostingDto {
             LocalDate start = startDate.toLocalDate();
             LocalDate end = endDate.toLocalDate();
 
-            long totalDays =  ChronoUnit.DAYS.between(start, end);
+            long totalDays = ChronoUnit.DAYS.between(start, end);
 
             long passedDays = ChronoUnit.DAYS.between(start, today);
             double progress = (double) passedDays / totalDays * 100;
@@ -289,23 +291,115 @@ public class JobPostingDto {
     @AllArgsConstructor
     @Builder
     public static class DetailResponse {
+        // 식별자
         private Long id;
-        private String title;
-        private String description;
-        private String department;
-        private String employmentType;
-        private List<String> skills;
 
+        // 기본 정보
+        private String title;
+        private EmploymentType employmentType;
+        private CareerType careerType;
+        private Integer minExperience;
+        private Integer maxExperience;
+        private String positionLevel;
+        private String location;
+
+        // 기간(저장값 그대로)
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyStartDate;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyEndDate;
 
-        public static DetailResponse fromEntity(JobPosting entity) {
-            return null;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime hireEndDate;
+
+        // 모집
+        private Integer headcount;
+
+        // 직무 상세(저장값 그대로)
+        private String summary;
+        private String responsibilities;
+        private String requirements;
+        private String preferred;
+
+        // 기술/프로세스 (저장값의 이름 리스트)
+        private List<String> techStack;        // JobPostingSkill.name 리스트
+        private List<String> recruitProcess;    // RecruitProcess.name 리스트 (orderIndex 오름차순)
+
+        // 급여
+        private SalaryType salaryType;
+        private Integer salaryMin;
+        private Integer salaryMax;
+        private Boolean salaryNegotiable;
+
+        // 근무 조건/복리후생/기타
+        private String workingHours;
+        private String benefits;
+        private String additionalInfo;
+
+        // 부서/담당/등록자
+        private Long departmentId;
+        private String departmentName;          // 편의용(엔티티 그대로)
+        private String contactName;
+        private String contactEmail;
+        private Long createdUserId;
+
+        // -----------------------------
+        // 정적 팩토리 - 엔티티 그대로 매핑
+        // -----------------------------
+        public static DetailResponse fromEntity(JobPosting e) {
+            // 기술스택 이름 리스트
+            List<String> skills = (e.getSkills() == null) ? List.of()
+                    : e.getSkills().stream()
+                    .filter(Objects::nonNull)
+                    .map(JobPostingSkill::getName)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            // 채용 프로세스 이름 리스트 (orderIndex 정렬)
+            List<String> processes = (e.getRecruitProcesses() == null) ? List.of()
+                    : e.getRecruitProcesses().stream()
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(rp -> rp.getOrderIdx() == null ? 0 : rp.getOrderIdx()))
+                    .map(RecruitProcess::getName)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            return DetailResponse.builder()
+                    .id(e.getId())
+                    .title(e.getTitle())
+                    .employmentType(e.getEmploymentType())
+                    .careerType(e.getCareerType())
+                    .minExperience(e.getMinExperience())
+                    .maxExperience(e.getMaxExperience())
+                    .positionLevel(e.getPositionLevel())
+                    .location(e.getLocation())
+                    .applyStartDate(e.getApplyStartDate())
+                    .applyEndDate(e.getApplyEndDate())
+                    .hireEndDate(e.getHireEndDate())
+                    .headcount(e.getHeadcount())
+                    .summary(e.getSummary())
+                    .responsibilities(e.getResponsibilities())
+                    .requirements(e.getRequirements())
+                    .preferred(e.getPreferred())
+                    .techStack(skills)
+                    .recruitProcess(processes)
+                    .salaryType(e.getSalaryType())
+                    .salaryMin(e.getSalaryMin())
+                    .salaryMax(e.getSalaryMax())
+                    .salaryNegotiable(e.getSalaryNegotiable())
+                    .workingHours(e.getWorkingHours())
+                    .benefits(e.getBenefits())
+                    .additionalInfo(e.getAdditionalInfo())
+                    .departmentId(e.getDepartment().getId())
+                    .departmentName(e.getDepartment().getName())
+                    .contactName(e.getContactName())
+                    .contactEmail(e.getContactEmail())
+                    .createdUserId(e.getCreatedUser().getId())
+                    .build();
         }
     }
+
 
     @Getter
     @Setter

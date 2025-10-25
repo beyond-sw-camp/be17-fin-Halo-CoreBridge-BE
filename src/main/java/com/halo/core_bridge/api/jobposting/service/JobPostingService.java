@@ -69,19 +69,21 @@ public class JobPostingService {
         return resultList;
     }
 
-        // 상세조회
-        @Transactional(readOnly = true)
-        public JobPostingDto.DetailResponse getDetail (Long id){
-            return null;
-        }
-
-        @Transactional
-        public void updateJobPosting (Long id, JobPostingDto.UpdateRequest dto){
-
-        }
-
-        @Transactional
-        public void deleteJobPosting (Long id){
-
-        }
+    // 상세조회
+    @Transactional(readOnly = true)
+    public JobPostingDto.DetailResponse getDetail(Long id) {
+        JobPosting jp = jobPostingRepository.findById(id)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+        return JobPostingDto.DetailResponse.fromEntity(jp);
     }
+
+    @Transactional
+    public void updateJobPosting(Long id, JobPostingDto.UpdateRequest dto) {
+
+    }
+
+    @Transactional
+    public void deleteJobPosting(Long id) {
+
+    }
+}
