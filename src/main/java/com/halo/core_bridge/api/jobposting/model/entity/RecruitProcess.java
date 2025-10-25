@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
+import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,23 +11,21 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RecruitProcess {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ex) applied, interview1, final ...
-    @Column(nullable = false)
-    private String code;
-
-    // ex) 지원 완료, 1차 면접 ...
     @Column(nullable = false)
     private String name;
 
-    // 칸반보드 순서
-    @Column(name = "order_index")
-    private Integer orderIndex;
+    @Column(nullable = false)
+    private Integer orderIdx;
 
-    // jobPosting과 연관관계
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ColorCode colorCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jobPosting_id")
     private JobPosting jobPosting;
