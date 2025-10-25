@@ -51,4 +51,19 @@ public class RecruitProcessDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class recruitProcesses {
+
+        private List<Read> recruitProcesses;
+
+        public static recruitProcesses from(List<RecruitProcess> processes) {
+
+            return RecruitProcessDto.recruitProcesses.builder()
+                    .recruitProcesses(processes.stream().map(RecruitProcessDto.Read::from).toList())
+                    .build();
+
+        }
+    }
 }
