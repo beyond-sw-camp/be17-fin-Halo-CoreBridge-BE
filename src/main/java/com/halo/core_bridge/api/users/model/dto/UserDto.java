@@ -121,4 +121,31 @@ public class UserDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class Read {
+
+        private Long id;
+        private String name;
+        private String email;
+        private LocalDate birth;
+        private String gender;
+        private String phone;
+        private String type;
+        private String profileUrl;
+
+        public static Read from(User entity) {
+            return Read.builder()
+                    .id(entity.getId())
+                    .name(entity.getName())
+                    .email(entity.getEmail())
+                    .birth(entity.getBirth())
+                    .gender(entity.getGender().getName())
+                    .phone(entity.getPhone())
+                    .type(entity.getUserRole().getName())
+                    .profileUrl(entity.getProfileImage().getSavedPath())
+                    .build();
+        }
+    }
 }
