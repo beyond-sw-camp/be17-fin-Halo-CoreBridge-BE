@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RecruitProcessService {
@@ -20,5 +22,11 @@ public class RecruitProcessService {
         RecruitProcess savedRecruitProcess = recruitProcessRepository.save(recruitProcessEntity);
 
         return savedRecruitProcess.getId();
+    }
+
+    public RecruitProcessDto.recruitProcesses findAllRecruitProcessesByJobPostingId(Long jobPostingId) {
+
+        List<RecruitProcess> findAllByJobPosting = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(jobPostingId);
+        return RecruitProcessDto.recruitProcesses.from(findAllByJobPosting);
     }
 }
