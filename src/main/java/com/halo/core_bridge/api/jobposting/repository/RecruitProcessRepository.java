@@ -63,4 +63,21 @@ public interface RecruitProcessRepository extends JpaRepository<RecruitProcess, 
             where rp.id = :processId
     """)
     void updateOrderIdx(@Param("processId") Long processId, @Param("toIdx") int toIdx);
+
+    /**
+     * 특정 채용 공고의 채용 프로세스 중에서 orderIdx의 최대값을 조회한다.
+     * @param jobPostingId 채용 공고 <code>id</code>
+     * @return <code>Integer</code> - <code>orderIdx의</code> 최대값을 반환한다. 없다면 <code>null</code>을 반환한다.
+     */
+    @Query("select max(r.orderIdx) from RecruitProcess r where r.jobPosting.id = :jobPostingId")
+    Integer findMaxOrderByJobPostingId(@Param("jobPostingId") Long jobPostingId);
+
+    /**
+     * 마지막 채용 프로세스의 <code>orderIdx</code>를 1 증가 시킨다.
+     * @param jobPostingId 채용 공고 <code>id</code>
+     * @param lastOrderIdx 마지막 프로세스의 <code>orderIdx</code>
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update RecruitProcess r set r.orderIdx = r.orderIdx + 1 where r.jobPosting.id = :jobPostingId and r.orderIdx = :lastOrderIdx")
+    void shiftLastOrderIdx(@Param("jobPostingId") Long jobPostingId, @Param("lastOrderIdx") Integer lastOrderIdx);
 }

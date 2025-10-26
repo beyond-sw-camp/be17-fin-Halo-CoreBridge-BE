@@ -23,11 +23,12 @@ public class RecruitProcessDto {
         @NotBlank(message = "채용 공고 ID는 필수 입력 값 입니다.")
         private Long jobPostingId;
 
-        public RecruitProcess toEntity() {
+        public RecruitProcess toEntity(int orderIdx) {
 
             return RecruitProcess.builder()
                     .name(this.name)
                     .colorCode(this.colorCode)
+                    .orderIdx(orderIdx)
                     .jobPosting(
                             JobPosting.builder().id(jobPostingId).build()
                     )
