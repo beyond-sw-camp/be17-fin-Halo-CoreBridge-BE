@@ -19,12 +19,4 @@ public class DepartmentService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.DEPARTMENT_NOT_FOUND));
     }
 
-    //JPA getReference() 활용 - 실제 쿼리 없이 프록시 반환
-    public Department getReference(Long id) {
-        try {
-            return departmentRepository.getReferenceById(id);
-        } catch (EntityNotFoundException e) {
-            throw BaseException.from(BaseResponseStatus.DEPARTMENT_NOT_FOUND);
-        }
-    }
 }

@@ -4,6 +4,7 @@ package com.halo.core_bridge.api.jobposting.controller;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,7 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,15 +69,11 @@ public class JobPostingController {
     })
     @PostMapping
     public ResponseEntity<BaseResponse<String>> createJobPosting(
+//            @AuthenticationPrincipal UserDto.Auth auth,
             @RequestBody @Validated JobPostingDto.CreateRequest request) {
-        Long savedId = jobPostingService.save(request);
-        // 생성된 리소스의 URI 생성
-        URI location = URI.create("/job-postings/" + savedId);
-
-        // 201 Created + Location 헤더 포함
-        return ResponseEntity
-                .created(location)
-                .body(BaseResponse.success("저장완료"));
+        Long userId = 1L;
+        jobPostingService.save(request, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("채용공고 등록완료"));
     }
 
     //채용공고 전체 목록 조회
@@ -104,8 +103,8 @@ public class JobPostingController {
     })
     @GetMapping
     public ResponseEntity
-            <BaseResponse<List<JobPostingDto.ListResponse>>> getAllJobPostings() {
-        List<JobPostingDto.ListResponse> list = jobPostingService.getList();
+            <BaseResponse<List<JobPostingDto.JobPostingListResponseDto>>> getAllJobPostings() {
+        List<JobPostingDto.JobPostingListResponseDto> list = jobPostingService.getJobPostingList();
         return ResponseEntity.ok(BaseResponse.success(list));
     }
 
@@ -135,16 +134,14 @@ public class JobPostingController {
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> getJobPostingDetail(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> getJobPostingDetail(@PathVariable Long id) {
         JobPostingDto.DetailResponse detail = jobPostingService.getDetail(id);
-
-        return ResponseEntity
-                .ok(BaseResponse.success(detail)); // HTTP 200 OK
+        return ResponseEntity.ok(BaseResponse.success(detail)); // HTTP 200 OK
     }
+
+
     //채용공고 수정
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(
             summary = "채용공고 수정",
             description = "기존 채용공고를 수정합니다.",
@@ -167,12 +164,9 @@ public class JobPostingController {
                     )
             }
     )
-    public ResponseEntity<BaseResponse<?>> updateJobPosting(
-            @PathVariable Long id,
-            @Valid @RequestBody JobPostingDto.UpdateRequest request) {
+    public ResponseEntity<BaseResponse<String>> updateJobPosting(@PathVariable Long id, @Valid @RequestBody JobPostingDto.UpdateRequest request) {
         jobPostingService.updateJobPosting(id, request);
         return ResponseEntity.ok(BaseResponse.success("수정 완료"));
-
     }
 
     @DeleteMapping("/{id}")
