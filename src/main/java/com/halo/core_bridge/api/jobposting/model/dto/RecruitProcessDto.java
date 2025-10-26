@@ -66,4 +66,12 @@ public class RecruitProcessDto {
 
         }
     }
+
+    @Getter
+    public static class ChangeOrder {
+        private Long processId;
+        private Long jobPostingId;
+        private int fromIdx;
+        private int toIdx;
+    }
 }
