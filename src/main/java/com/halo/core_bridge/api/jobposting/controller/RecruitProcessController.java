@@ -19,7 +19,7 @@ public class RecruitProcessController {
     private final RecruitProcessService recruitProcessService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<Object>> createRecruitProcess(RecruitProcessDto.Create createRecruitProcessDto) {
+    public ResponseEntity<BaseResponse<Object>> createRecruitProcess(@RequestBody RecruitProcessDto.Create createRecruitProcessDto) {
 
         recruitProcessService.add(createRecruitProcessDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("채용 프로세스 추가 완료"));
