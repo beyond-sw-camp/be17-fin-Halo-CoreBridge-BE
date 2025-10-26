@@ -34,7 +34,7 @@ public class RecruitProcessController {
     }
 
     @PatchMapping
-    public ResponseEntity<BaseResponse<Object>> changeProcessOrder(RecruitProcessDto.ChangeOrder changeOrder) {
+    public ResponseEntity<BaseResponse<Object>> changeProcessOrder(@RequestBody RecruitProcessDto.ChangeOrder changeOrder) {
 
         recruitProcessService.changeOrder(changeOrder);
         RecruitProcessDto.recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(changeOrder.getJobPostingId());
