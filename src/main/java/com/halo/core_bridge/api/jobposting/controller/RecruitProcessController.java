@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/recruiter/processes")
@@ -28,5 +31,14 @@ public class RecruitProcessController {
 
         RecruitProcessDto.recruitProcesses findRecruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(jobPostingId);
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(findRecruitProcesses));
+    }
+
+    @PatchMapping
+    public ResponseEntity<BaseResponse<Object>> changeProcessOrder(RecruitProcessDto.ChangeOrder changeOrder) {
+
+        recruitProcessService.changeOrder(changeOrder);
+        RecruitProcessDto.recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(changeOrder.getJobPostingId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(recruitProcesses));
     }
 }
