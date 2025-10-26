@@ -48,9 +48,9 @@ public class RecruitProcessService {
     private void adjustOrderIndexes(int fromIdx, int toIdx, Long joPostingId) {
 
         // 프로세스가 뒤로 이동, 사이에 있는 인덱스들은 1씩 감소
-        if (toIdx < fromIdx) {
+        if (toIdx > fromIdx) {
             recruitProcessRepository.decrementOrderIdxes(joPostingId, fromIdx, toIdx);
-        } else if (toIdx > fromIdx) {
+        } else if (toIdx < fromIdx) {
             recruitProcessRepository.incrementOrderIdxes(joPostingId, fromIdx, toIdx);
         }
     }
