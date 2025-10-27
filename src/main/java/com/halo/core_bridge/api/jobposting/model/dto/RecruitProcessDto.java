@@ -79,7 +79,7 @@ public class RecruitProcessDto {
     }
 
     @Getter
-    public static class update {
+    public static class Update {
         private String name;
         private ColorCode colorCode;
         private Long jobPostingId;

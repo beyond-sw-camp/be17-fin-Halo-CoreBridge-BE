@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +69,7 @@ public class RecruitProcessService {
      * @throws BaseException 프로세스가 존재하지 않는 경우 예외 발생
      */
     @Transactional
-    public void editRecruitProcess(Long processId, RecruitProcessDto.update updateRecruitProcess) {
+    public void editRecruitProcess(Long processId, RecruitProcessDto.Update updateRecruitProcess) {
 
         RecruitProcess findRecruitProcess = recruitProcessRepository.findById(processId)
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER));

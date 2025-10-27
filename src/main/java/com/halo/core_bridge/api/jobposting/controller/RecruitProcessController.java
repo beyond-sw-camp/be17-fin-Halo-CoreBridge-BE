@@ -44,7 +44,7 @@ public class RecruitProcessController {
     }
 
     @PatchMapping("/{processId}")
-    public ResponseEntity<BaseResponse<Object>> updateProcessName(@PathVariable Long processId ,@RequestBody update updateRecruitProcess) {
+    public ResponseEntity<BaseResponse<Object>> updateProcessName(@PathVariable Long processId ,@RequestBody Update updateRecruitProcess) {
 
         recruitProcessService.editRecruitProcess(processId, updateRecruitProcess);
         recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(updateRecruitProcess.getJobPostingId());
