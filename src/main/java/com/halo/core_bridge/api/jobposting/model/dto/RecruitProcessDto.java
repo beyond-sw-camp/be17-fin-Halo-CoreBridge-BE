@@ -77,4 +77,11 @@ public class RecruitProcessDto {
         private int fromIdx;
         private int toIdx;
     }
+
+    @Getter
+    public static class update {
+        private String name;
+        private ColorCode colorCode;
+        private Long jobPostingId;
+    }
 }

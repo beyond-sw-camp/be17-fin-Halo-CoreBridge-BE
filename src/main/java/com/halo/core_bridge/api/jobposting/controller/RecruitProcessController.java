@@ -42,4 +42,13 @@ public class RecruitProcessController {
 
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(recruitProcesses));
     }
+
+    @PatchMapping("/{processId}")
+    public ResponseEntity<BaseResponse<Object>> updateProcessName(@PathVariable Long processId ,@RequestBody update updateRecruitProcess) {
+
+        recruitProcessService.editRecruitProcess(processId, updateRecruitProcess);
+        recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(processId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(recruitProcesses));
+    }
 }
