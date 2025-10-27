@@ -1,8 +1,10 @@
 package com.halo.core_bridge.common.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
 @Getter
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum ColorCode {
 
     BLUE("파랑", "blue-500"),
@@ -11,11 +13,11 @@ public enum ColorCode {
     PURPLE("보라", "purple-500"),
     PINK("분홍", "pink-500");
 
-    private final String colorName;
-    private final String colorCode;
+    private final String name;
+    private final String code;
 
-    ColorCode(String colorName, String colorCode) {
-        this.colorName = colorName;
-        this.colorCode = colorCode;
+    ColorCode(String name, String code) {
+        this.name = name;
+        this.code = code;
     }
 }
