@@ -77,7 +77,10 @@ public enum BaseResponseStatus {
 
     JOB_POSTING_SCHEDULE_NOT_FOUND(false, 71001, "존재하지 않는 공고 일정입니다."),
     PROCESS_SCHEDULE_NOT_FOUND(false, 72001, "존재하지 않는 프로세스 일정입니다."),
-    SCHEDULE_SHARE_NOT_FOUND(false, 73001, "존재하지 않는 공유 정보입니다.");
+    SCHEDULE_SHARE_NOT_FOUND(false, 73001, "존재하지 않는 공유 정보입니다."),
+
+    RECRUIT_PROCESS_NOT_FOUND(false, 74001, "해당 공고에는 채용 프로세스가 존재하지 않습니다."),
+    RECRUIT_PROCESS_CANT_DELETE(false, 74002, "채용 프로세스에 지원자가 존재하면 삭제 할 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;

@@ -44,10 +44,19 @@ public class RecruitProcessController {
     }
 
     @PatchMapping("/{processId}")
-    public ResponseEntity<BaseResponse<Object>> updateProcessName(@PathVariable Long processId ,@RequestBody update updateRecruitProcess) {
+    public ResponseEntity<BaseResponse<Object>> updateProcessName(@PathVariable Long processId ,@RequestBody Update updateRecruitProcess) {
 
         recruitProcessService.editRecruitProcess(processId, updateRecruitProcess);
         recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(updateRecruitProcess.getJobPostingId());
+
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(recruitProcesses));
+    }
+
+    @DeleteMapping("/{processId}")
+    public ResponseEntity<BaseResponse<Object>> deleteProcess(@PathVariable Long processId) {
+
+        Long jobPostingId = recruitProcessService.deleteRecruitProcess(processId);
+        recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(jobPostingId);
 
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(recruitProcesses));
     }
