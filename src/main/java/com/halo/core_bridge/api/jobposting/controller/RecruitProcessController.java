@@ -47,7 +47,7 @@ public class RecruitProcessController {
     public ResponseEntity<BaseResponse<Object>> updateProcessName(@PathVariable Long processId ,@RequestBody update updateRecruitProcess) {
 
         recruitProcessService.editRecruitProcess(processId, updateRecruitProcess);
-        recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(processId);
+        recruitProcesses recruitProcesses = recruitProcessService.findAllRecruitProcessesByJobPostingId(updateRecruitProcess.getJobPostingId());
 
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(recruitProcesses));
     }

@@ -1,8 +1,11 @@
 package com.halo.core_bridge.common.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.halo.core_bridge.common.serialize.ColorCodeSerializer;
 import lombok.Getter;
 
 @Getter
+@JsonSerialize(using = ColorCodeSerializer.class)
 public enum ColorCode {
 
     BLUE("파랑", "blue-500"),
@@ -11,11 +14,11 @@ public enum ColorCode {
     PURPLE("보라", "purple-500"),
     PINK("분홍", "pink-500");
 
-    private final String colorName;
-    private final String colorCode;
+    private final String label;
+    private final String code;
 
-    ColorCode(String colorName, String colorCode) {
-        this.colorName = colorName;
-        this.colorCode = colorCode;
+    ColorCode(String label, String code) {
+        this.label = label;
+        this.code = code;
     }
 }

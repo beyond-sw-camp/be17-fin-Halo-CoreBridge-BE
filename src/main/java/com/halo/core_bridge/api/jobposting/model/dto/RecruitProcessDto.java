@@ -42,14 +42,14 @@ public class RecruitProcessDto {
 
         private Long id;
         private String name;
-        private String colorCode;
+        private ColorCode colorCode;
         private int orderIdx;
 
         public static RecruitProcessDto.Read from(RecruitProcess entity) {
             return Read.builder()
                     .id(entity.getId())
                     .name(entity.getName())
-                    .colorCode(entity.getColorCode().getColorCode())
+                    .colorCode(entity.getColorCode())
                     .orderIdx(entity.getOrderIdx())
                     .build();
         }
