@@ -3,11 +3,14 @@ package com.halo.core_bridge.api.jobposting.service;
 import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
+import com.halo.core_bridge.common.exception.BaseException;
+import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +62,20 @@ public class RecruitProcessService {
     public void changeOrder(RecruitProcessDto.ChangeOrder changeOrder) {
         adjustOrderIndexes(changeOrder.getFromIdx(), changeOrder.getToIdx(), changeOrder.getJobPostingId());
         recruitProcessRepository.updateOrderIdx(changeOrder.getProcessId(), changeOrder.getToIdx());
+    }
+
+    /**
+     * 채용 프로세스를 수정한다.
+     * @param updateRecruitProcess 수정된 내용이 담겨 있는 수정 DTO
+     * @throws BaseException 프로세스가 존재하지 않는 경우 예외 발생
+     */
+    @Transactional
+    public void editRecruitProcess(Long processId, RecruitProcessDto.update updateRecruitProcess) {
+
+        RecruitProcess findRecruitProcess = recruitProcessRepository.findById(processId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER));
+
+        findRecruitProcess.updateRecruitProcess(updateRecruitProcess.getName(), updateRecruitProcess.getColorCode());
     }
 
     private void adjustOrderIndexes(int fromIdx, int toIdx, Long joPostingId) {
