@@ -6,9 +6,11 @@ import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Service
@@ -75,6 +77,46 @@ public class RecruitProcessService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER));
 
         findRecruitProcess.updateRecruitProcess(updateRecruitProcess.getName(), updateRecruitProcess.getColorCode());
+    }
+
+    /**
+     * 채용 프로세스를 삭제한다.
+     *
+     * @param processId 삭제할 채용 프로세스의 ID
+     * @return <code>jobPostingId</code> 채용 공고 ID
+     */
+    @Transactional
+    public Long deleteRecruitProcess(Long processId) {
+
+        try {
+            RecruitProcess findRecruitProcess = recruitProcessRepository.findById(processId)
+                    .orElseThrow(() -> BaseException.from(BaseResponseStatus.RECRUIT_PROCESS_NOT_FOUND));
+
+            Long jobPostingId = findRecruitProcess.getJobPosting().getId();
+            int orderIdx = findRecruitProcess.getOrderIdx();
+
+            Integer lastOrderIdx = recruitProcessRepository.findMaxOrderByJobPostingId(jobPostingId);
+
+            if (lastOrderIdx == null)
+                throw BaseException.from(BaseResponseStatus.RECRUIT_PROCESS_NOT_FOUND);
+
+            if (lastOrderIdx.equals(orderIdx)) {
+
+                recruitProcessRepository.deleteById(processId);
+
+            } else if (orderIdx < lastOrderIdx) {
+
+                recruitProcessRepository.decrementOrderIdxes(jobPostingId, orderIdx, lastOrderIdx);
+                recruitProcessRepository.deleteById(processId);
+
+            }
+
+            recruitProcessRepository.flush();
+
+            return jobPostingId;
+        } catch (DataIntegrityViolationException e) {
+            throw BaseException.from(BaseResponseStatus.RECRUIT_PROCESS_CANT_DELETE);
+        }
     }
 
     private void adjustOrderIndexes(int fromIdx, int toIdx, Long joPostingId) {
