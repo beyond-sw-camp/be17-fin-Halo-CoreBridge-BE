@@ -139,6 +139,36 @@ public class JobPostingController {
         return ResponseEntity.ok(BaseResponse.success(detail)); // HTTP 200 OK
     }
 
+    @Operation(
+            summary = "채용공고 기본정보 조회",
+            description = "특정 ID의 채용공고의 기본정보를 조회합니다. Header부분"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Detail Response Example",
+                                    value = SwaggerJobPostingContents.JOB_POSTING_BASIC_RESPONSE
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 채용공고",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "Not Found Response",
+                                    value = SwaggerJobPostingContents.JOB_POSTING_NOT_FOUND_RESPONSE
+                            )
+                    )
+            )
+    })
+    @GetMapping("/header/{id}")
+    public ResponseEntity<BaseResponse<JobPostingDto.HeaderResponse>>  getJobPostingHeader(@PathVariable Long id) {
+        JobPostingDto.HeaderResponse headerDetail = jobPostingService.getHeaderDetail(id);
+        return ResponseEntity.ok(BaseResponse.success(headerDetail));
+    }
+
 
     //채용공고 수정
     @PatchMapping("/{id}")

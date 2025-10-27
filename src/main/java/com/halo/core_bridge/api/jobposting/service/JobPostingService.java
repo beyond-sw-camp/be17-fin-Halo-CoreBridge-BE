@@ -81,6 +81,15 @@ public class JobPostingService {
         return JobPostingDto.DetailResponse.fromEntity(jp, applicantCounts);
     }
 
+    //채용공고 헤더(기본정보) 조회요청
+    @Transactional(readOnly = true)
+    public JobPostingDto.HeaderResponse getHeaderDetail(Long id) {
+        JobPosting jobPosting = jobPostingRepository.findById(id)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+
+        return JobPostingDto.HeaderResponse.fromEntity(jobPosting);
+    }
+
     @Transactional
     public void updateJobPosting(Long id, JobPostingDto.UpdateRequest request) {
         JobPosting jobPosting = jobPostingRepository.findById(id)

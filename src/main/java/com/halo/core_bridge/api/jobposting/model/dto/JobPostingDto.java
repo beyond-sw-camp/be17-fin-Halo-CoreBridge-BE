@@ -4,15 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
+import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 
 public class JobPostingDto {
@@ -290,116 +289,124 @@ public class JobPostingDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class DetailResponse {
-        // 식별자
+    public static class HeaderResponse {
         private Long id;
-
-        // 기본 정보
+        //기본 정보
         private String title;
+        private String status;
+        private String departmentName;
         private EmploymentType employmentType;
+        private String location;
         private CareerType careerType;
         private Integer minExperience;
         private Integer maxExperience;
-        private String positionLevel;
-        private String location;
-
-        // 기간(저장값 그대로)
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime applyStartDate;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime applyEndDate;
-
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-        private LocalDateTime hireEndDate;
-
-        // 모집 및 지원자 수
-        private Integer headcount;
-        private Integer applicantCount;
-
-        // 직무 상세(저장값 그대로)
-        private String summary;
-        private String responsibilities;
-        private String requirements;
-        private String preferred;
-
-        // 기술/프로세스 (저장값의 이름 리스트)
-        private List<String> techStack;        // JobPostingSkill.name 리스트
-        private List<String> recruitProcess;    // RecruitProcess.name 리스트 (orderIndex 오름차순)
-
-        // 급여
+        private List<String> skills;
         private SalaryType salaryType;
         private Integer salaryMin;
         private Integer salaryMax;
-        private Boolean salaryNegotiable;
+        private Boolean SalaryNegotiable;
 
-        // 근무 조건/복리후생/기타
-        private String workingHours;
-        private String benefits;
-        private String additionalInfo;
-
-        // 부서/담당/등록자
-        private Long departmentId;
-        private String departmentName;          // 편의용(엔티티 그대로)
-        private String contactName;
-        private String contactEmail;
-        private Long createdUserId;
-
-        // -----------------------------
-        // 정적 팩토리 - 엔티티 그대로 매핑
-        // -----------------------------
-        public static DetailResponse fromEntity(JobPosting e, Integer applicantCount) {
-            // 기술스택 이름 리스트
-            List<String> skills = (e.getSkills() == null) ? List.of()
-                    : e.getSkills().stream()
-                    .filter(Objects::nonNull)
-                    .map(JobPostingSkill::getName)
-                    .filter(Objects::nonNull)
-                    .toList();
-
-            // 채용 프로세스 이름 리스트 (orderIndex 정렬)
-            List<String> processes = (e.getRecruitProcesses() == null) ? List.of()
-                    : e.getRecruitProcesses().stream()
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.comparing(rp -> rp.getOrderIdx() == null ? 0 : rp.getOrderIdx()))
-                    .map(RecruitProcess::getName)
-                    .filter(Objects::nonNull)
-                    .toList();
-
-            return DetailResponse.builder()
-                    .id(e.getId())
-                    .title(e.getTitle())
-                    .employmentType(e.getEmploymentType())
-                    .careerType(e.getCareerType())
-                    .minExperience(e.getMinExperience())
-                    .maxExperience(e.getMaxExperience())
-                    .positionLevel(e.getPositionLevel())
-                    .location(e.getLocation())
-                    .applyStartDate(e.getApplyStartDate())
-                    .applyEndDate(e.getApplyEndDate())
-                    .hireEndDate(e.getHireEndDate())
-                    .headcount(e.getHeadcount())
-                    .applicantCount(applicantCount)
-                    .summary(e.getSummary())
-                    .responsibilities(e.getResponsibilities())
-                    .requirements(e.getRequirements())
-                    .preferred(e.getPreferred())
-                    .techStack(skills)
-                    .recruitProcess(processes)
-                    .salaryType(e.getSalaryType())
-                    .salaryMin(e.getSalaryMin())
-                    .salaryMax(e.getSalaryMax())
-                    .salaryNegotiable(e.getSalaryNegotiable())
-                    .workingHours(e.getWorkingHours())
-                    .benefits(e.getBenefits())
-                    .additionalInfo(e.getAdditionalInfo())
-                    .departmentId(e.getDepartment().getId())
-                    .departmentName(e.getDepartment().getName())
-                    .contactName(e.getContactName())
-                    .contactEmail(e.getContactEmail())
-                    .createdUserId(e.getCreatedUser().getId())
+        public static HeaderResponse fromEntity(JobPosting entity) {
+            List<String> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
+            String status = HeaderResponse.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
+            return HeaderResponse.builder()
+                    .id(entity.getId())
+                    .title(entity.getTitle())
+                    .status(status)
+                    .departmentName(entity.getDepartment().getName())
+                    .employmentType(entity.getEmploymentType())
+                    .location(entity.getLocation())
+                    .careerType(entity.getCareerType())
+                    .minExperience(entity.getMinExperience() == 0 ? null : entity.getMinExperience())
+                    .maxExperience(entity.getMaxExperience() == 0 ? null : entity.getMaxExperience())
+                    .skills(skills)
+                    .salaryType(entity.getSalaryType())
+                    .salaryMin(entity.getSalaryMin())
+                    .salaryMax(entity.getSalaryMax())
+                    .SalaryNegotiable(entity.getSalaryNegotiable())
                     .build();
         }
+
+        private static String computeStatus(LocalDateTime start, LocalDateTime end) {
+            LocalDateTime now = LocalDateTime.now();
+            if (now.isBefore(start)) return "예정";
+            if (now.isAfter(end)) return "마감";
+            return "채용중";
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DetailResponse {
+        //기본 식별자
+        private Long id;
+
+        //기본 회사소개
+        private String summary; //직무 소개
+        private String responsibilities; // 주요 업무
+        private String requirements; // 필수 자격 요건
+        private String preferred; // 우대 사항
+        private String benefits; // 복리후생
+        private String additionalInfo; //기타 안내사항
+
+        //공고 정보
+        private String status; // ex)채용중 , 마감, 예정
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
+        private LocalDateTime createDate; //등록일
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm")
+        private LocalDateTime applyStartDate; //접수시작일
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm")
+        private LocalDateTime applyEndDate; //접수마감일
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm")
+        private LocalDateTime hireEndDate; //채용마감일
+
+        private Integer headCount; //모집 인원
+        private Integer applicantCount; //지원자 수
+
+        private List<String> skills;
+        private List<RecruitProcessDto.Read> recruitProcesses;
+
+        private String workingHours;
+        private String location;
+
+        private String contactName;
+        private String contactEmail;
+
+        public static DetailResponse fromEntity(JobPosting entity, Integer applicantCount) {
+            List<String> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
+            String status = HeaderResponse.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
+            List<RecruitProcessDto.Read> recruitProcesses = entity.getRecruitProcesses().stream().map(RecruitProcessDto.Read::from).toList();
+
+            return DetailResponse.builder()
+                    .id(entity.getId())
+                    .summary(entity.getSummary())
+                    .responsibilities(entity.getResponsibilities())
+                    .requirements(entity.getRequirements())
+                    .preferred(entity.getPreferred())
+                    .benefits(entity.getBenefits())
+                    .additionalInfo(entity.getAdditionalInfo())
+                    .status(status)
+                    .createDate(entity.getCreatedAt())
+                    .applyStartDate(entity.getApplyStartDate())
+                    .applyEndDate(entity.getApplyEndDate())
+                    .hireEndDate(entity.getHireEndDate())
+                    .headCount(entity.getHeadcount())
+                    .applicantCount(applicantCount)
+                    .skills(skills)
+                    .recruitProcesses(recruitProcesses)
+                    .workingHours(entity.getWorkingHours())
+                    .location(entity.getLocation())
+                    .contactName(entity.getContactName())
+                    .contactEmail(entity.getContactEmail())
+                    .build();
+
+
+        }
+
+
     }
 
 

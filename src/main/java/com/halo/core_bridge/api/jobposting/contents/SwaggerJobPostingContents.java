@@ -94,47 +94,99 @@ public class SwaggerJobPostingContents {
     // ✅ 채용공고 단건 상세 조회 응답
     public static final String JOB_POSTING_DETAIL_RESPONSE = """
             {
-                 "success": true,
-                 "code": 20000,
-                 "message": "요청에 성공하였습니다.",
-                 "results": {
-                     "id": 1,
-                     "title": "시니어 프론트엔드 개발자",
-                     "employmentType": "정규직",
-                     "careerType": "신입",
-                     "minExperience": 5,
-                     "maxExperience": 10,
-                     "positionLevel": "시니어",
-                     "location": "서울 성수",
-                     "applyStartDate": "2025-10-10 09:00:00",
-                     "applyEndDate": "2025-10-29 18:00:00",
-                     "hireEndDate": "2025-10-31 18:00:00",
-                     "headcount": 3,
-                     "summary": "고객용 대시보드 및 관리자 콘솔의 프론트엔드 개발을 리드합니다.",
-                     "responsibilities": "Vue 3 + TypeScript 기반 신규 기능 개발, UI 아키텍처 설계, 성능 최적화, 코드 리뷰.",
-                     "requirements": "Vue 3, TypeScript 실무 5년 이상 경험. 상태관리(Pinia, Vuex) 및 REST API 연동 경험.",
-                     "preferred": "대규모 트래픽 대응 경험, SSR(Nuxt) 경험, 디자인 시스템 구축 경험.",
-                     "techStack": [],
-                     "recruitProcess": [
-                         "지원 완료",
-                         "서류 검토",
-                         "1차 면접",
-                         "최종 합격"
-                     ],
-                     "salaryType": "연봉",
-                     "salaryMin": 6500,
-                     "salaryMax": 8500,
-                     "salaryNegotiable": true,
-                     "workingHours": "09:00 ~ 18:00 (주 5일)",
-                     "benefits": "중식 제공, 자율 출퇴근, 재택근무 가능, 교육비 지원",
-                     "additionalInfo": "포트폴리오 또는 GitHub 링크를 함께 제출해주세요.",
-                     "departmentId": 1,
-                     "departmentName": "플랫폼개발팀",
-                     "contactName": "김채용",
-                     "contactEmail": "recruit@example.com",
-                     "createdUserId": 1
-                 }
-             }
+                  "success": true,
+                  "code": 20000,
+                  "message": "요청에 성공하였습니다.",
+                  "results": {
+                      "id": 3,
+                      "summary": "CoreBridge SaaS 플랫폼 디자인 전반 담당",
+                      "responsibilities": "UI/UX 설계 및 서비스 리디자인 프로젝트 수행",
+                      "requirements": "Figma, Photoshop, Illustrator 숙련자",
+                      "preferred": "프로덕트 디자인, 브랜드 디자인 모두 가능한 멀티형 디자이너\\n  ㅁㄴㅇ;럼;ㅣㅏ넝히ㅏ;먼이;ㅏㅓ라ㅣ;ㅁ넝;ㅏㅣㅓㅁㄴ;ㅣ어리ㅏ;ㅁ너아ㅣㄹ@:\\n  ㅁ니ㅏㅇ;러;미넝ㅎ;ㅏㅣ먼아ㅣ허\\n  ㅁㄴ아ㅣ험;ㅣ나ㅓ하ㅣㅁ넝ㅎ\\n  ㅁ날허;미ㅏㄴ렇;ㅏㅣ머라ㅣㅎ",
+                      "benefits": "점심 지원, 유연근무, 도서구입비 지원",
+                      "additionalInfo": "포트폴리오 필수, Figma 협업 경험 우대",
+                      "status": "마감",
+                      "createDate": "2025-10-27 07:41:04",
+                      "applyStartDate": "2025-10-10 09:00:00",
+                      "applyEndDate": "2025-10-10 18:00:00",
+                      "hireEndDate": "2025-10-26 18:00:00",
+                      "headCount": 4,
+                      "applicantCount": null,
+                      "skills": [
+                          "Figma",
+                          "Illustrator",
+                          "Photoshop",
+                          "Zeplin"
+                      ],
+                      "recruitProcesses": [
+                          {
+                              "id": 11,
+                              "name": "지원 완료",
+                              "colorCode": "blue-500",
+                              "orderIdx": 1
+                          },
+                          {
+                              "id": 12,
+                              "name": "서류 검토",
+                              "colorCode": "orange-500",
+                              "orderIdx": 2
+                          },
+                          {
+                              "id": 13,
+                              "name": "1차 면접",
+                              "colorCode": "purple-500",
+                              "orderIdx": 3
+                          },
+                          {
+                              "id": 14,
+                              "name": "2차 면접",
+                              "colorCode": "red-500",
+                              "orderIdx": 4
+                          },
+                          {
+                              "id": 15,
+                              "name": "최종 합격",
+                              "colorCode": "pink-500",
+                              "orderIdx": 5
+                          }
+                      ],
+                      "workingHours": "10:00 ~ 19:00 (주 5일)",
+                      "location": "서울 강남",
+                      "contactName": "이디자인",
+                      "contactEmail": "design@halo.com"
+                  }
+              }
+            """;
+
+    public static final String JOB_POSTING_BASIC_RESPONSE = """
+            {
+                    "success": true,
+                    "code": 20000,
+                    "message": "요청에 성공하였습니다.",
+                    "results": {
+                        "id": 1,
+                        "title": "시니어 프론트엔드 개발자",
+                        "status": "채용중",
+                        "departmentName": "플랫폼개발팀",
+                        "employmentType": "정규직",
+                        "location": "서울 성수",
+                        "careerType": "신입",
+                        "minExperience": 5,
+                        "maxExperience": 10,
+                        "skills": [
+                            "JAVA",
+                            "Vue",
+                            "TypeScript",
+                            "Pinia",
+                            "Vite",
+                            "TailwindCSS"
+                        ],
+                        "salaryType": "연봉",
+                        "salaryMin": 6500,
+                        "salaryMax": 8500,
+                        "salaryNegotiable": true
+                    }
+                }
             """;
 
     // ✅ 채용공고 상세조회 시 존재하지 않을 때
