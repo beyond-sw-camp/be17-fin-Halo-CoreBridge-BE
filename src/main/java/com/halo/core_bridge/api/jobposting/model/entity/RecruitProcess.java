@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
+import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
 import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,4 +31,8 @@ public class RecruitProcess {
     @JoinColumn(name = "jobPosting_id")
     private JobPosting jobPosting;
 
+    public void updateRecruitProcess(String name, ColorCode colorCode) {
+        this.name = name;
+        this.colorCode = colorCode;
+    }
 }
