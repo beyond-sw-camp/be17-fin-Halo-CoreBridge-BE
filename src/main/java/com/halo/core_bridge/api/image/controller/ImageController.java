@@ -18,7 +18,7 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @PostMapping("/upload")
+    @PostMapping
     public ResponseEntity<BaseResponse> register(
             @RequestParam("file") MultipartFile file,
             @RequestParam("directory") String directory,
@@ -30,7 +30,7 @@ public class ImageController {
     }
 
 
-    @GetMapping("/find/{idx}")
+    @GetMapping("/{idx}")
     public ResponseEntity<BaseResponse<String>> getImage(@PathVariable Long idx) {
             String result = imageService.find(idx);
             return ResponseEntity.ok(BaseResponse.success(result));

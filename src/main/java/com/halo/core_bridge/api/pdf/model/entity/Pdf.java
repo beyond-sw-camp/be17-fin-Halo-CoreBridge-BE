@@ -1,37 +1,38 @@
 package com.halo.core_bridge.api.pdf.model.entity;
 
 import com.halo.core_bridge.common.model.BaseEntity;
+import com.halo.core_bridge.api.resume.model.entity.Resume;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Pdf extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String originalFilename;
     private String savedPath;
+    private String contentType;
     private Long fileSize;
-
-    @Column(nullable = false)
     private Boolean isDeleted = false;
 
-    private Long resumeId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resume_id")
+    private Resume resume;
 
     @Builder
-    public Pdf(String originalFilename, String savedPath, Long fileSize, Long resumeId) {
+    public Pdf(String originalFilename, String savedPath, String contentType, Long fileSize, Resume resume) {
         this.originalFilename = originalFilename;
         this.savedPath = savedPath;
+        this.contentType = contentType;
         this.fileSize = fileSize;
+        this.resume = resume;
         this.isDeleted = false;
-        this.resumeId = resumeId;
     }
 
     public void safeDelete() {

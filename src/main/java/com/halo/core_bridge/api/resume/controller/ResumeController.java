@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.halo.core_bridge.api.resume.contents.SwaggerContents;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Slf4j
@@ -47,9 +49,10 @@ public class ResumeController {
     @PostMapping
     public ResponseEntity<Long> createResume(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody ResumeDto.Create dto) {
+            @RequestPart("resume") ResumeDto.Create dto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
         Long userId = Long.parseLong(userDetails.getUsername());
-        Long resumeId = resumeService.create(dto, userId);
+        Long resumeId = resumeService.create(dto, userId, file);
         return ResponseEntity.ok(resumeId);
     }
 
