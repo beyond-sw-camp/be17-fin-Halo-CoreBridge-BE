@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    @Value("${app.token.access.name}")
+    private String accessToken;
+
+    @Value("${app.token.refresh.name}")
+    private String refreshToken;
 
     @Operation(
             summary = "회원 가입",
@@ -60,5 +69,25 @@ public class UserController {
 
         UserDto.Read findReadUser = userService.findById(auth.getId());
         return ResponseEntity.ok(BaseResponse.success(findReadUser));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<BaseResponse<Object>> logout() {
+
+        ResponseCookie accessTokenCookie = ResponseCookie.from(this.accessToken, null)
+                .httpOnly(true)
+                .maxAge(0)
+                .path("/")
+                .build();
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(this.refreshToken, null)
+                .httpOnly(true)
+                .maxAge(0)
+                .path("/")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Set-Cookie", accessTokenCookie.toString(), refreshTokenCookie.toString())
+                .body(BaseResponse.success(null));
     }
 }
