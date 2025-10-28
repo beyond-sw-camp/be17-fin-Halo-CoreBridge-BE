@@ -1,9 +1,7 @@
 package com.halo.core_bridge.api.pdf.model.dto;
 
-
-import com.halo.core_bridge.api.image.model.dto.ImageDto;
-import com.halo.core_bridge.api.image.model.entity.Image;
 import com.halo.core_bridge.api.pdf.model.entity.Pdf;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,8 +21,9 @@ public class PdfDto {
         private Long pdfSize;
 
         public static PdfDto.UploadResponseDto from(Pdf entity) {
-            return PdfDto.UploadResponseDto.builder()
+            return UploadResponseDto.builder()
                     .originalName(entity.getOriginalFilename())
+                    .pdfName(entity.getOriginalFilename())
                     .pdfPath(entity.getSavedPath())
                     .pdfSize(entity.getFileSize())
                     .build();
@@ -33,20 +32,23 @@ public class PdfDto {
 
     @Getter
     @Builder
+    @AllArgsConstructor
     public static class PdfResponseDto {
         private Long id;
         private String originalFilename;
         private String savedPath;
-        private String fileUrl;
+        private String contentType;
         private Long fileSize;
+        private Long resumeId;
 
         public static PdfDto.PdfResponseDto from(Pdf entity, String baseUrl) {
-            return PdfDto.PdfResponseDto.builder()
+            return PdfResponseDto.builder()
                     .id(entity.getId())
                     .originalFilename(entity.getOriginalFilename())
                     .savedPath(entity.getSavedPath())
-                    .fileUrl(baseUrl + "/PDF/" + entity.getSavedPath())
                     .fileSize(entity.getFileSize())
+                    .contentType(entity.getContentType())
+                    .resumeId(entity.getResume().getId())
                     .build();
         }
     }

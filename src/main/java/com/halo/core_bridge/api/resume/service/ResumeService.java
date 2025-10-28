@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.resume.service;
 
+import com.halo.core_bridge.api.pdf.repository.PdfRepository;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
@@ -7,13 +8,18 @@ import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.api.users.service.UserService;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.users.model.entity.User;
+import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.halo.core_bridge.common.model.BaseResponseStatus.RESUME_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -30,9 +36,13 @@ public class ResumeService {
     private final LanguageService languageService;
     private final OverseasExperienceService overseasExperienceService;
     private final ResumeSkillService resumeSkillService;
+    private final PdfRepository pdfRepository;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @Transactional
-    public Long create(ResumeDto.Create dto, Long userId) {
+    public Long create(ResumeDto.Create dto, Long userId, MultipartFile file) {
 //        JobPosting jobPosting = jobPostingService.read(dto.getJobPostingId());
 //        User user = userService.read(userId);
 
@@ -84,6 +94,8 @@ public class ResumeService {
 
         return saved.getId();
     }
+
+
 
     public ResumeDto.Response read(Long id) {
         Resume resume = resumeRepository.findById(id)
@@ -156,5 +168,11 @@ public class ResumeService {
     public void delete(Long id) {
         resumeRepository.deleteById(id);
         log.info("Resume deleted: {}", id);
+    }
+
+    @Transactional(readOnly = true)
+    public Resume getResumeEntity(Long id) {
+        return resumeRepository.findById(id)
+                .orElseThrow(() -> BaseException.from(RESUME_NOT_FOUND));
     }
 }

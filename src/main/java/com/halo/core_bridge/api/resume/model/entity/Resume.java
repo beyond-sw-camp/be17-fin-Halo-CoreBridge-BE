@@ -4,6 +4,7 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.common.model.BaseEntity;
+import com.halo.core_bridge.api.pdf.model.entity.Pdf;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +51,9 @@ public class Resume extends BaseEntity {
 
     @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResumeSkill> resumeSkills = new ArrayList<>();
+
+    @OneToOne(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Pdf pdf;
 
 
     // 채용공고관리(칸반) 데이터 불러오기 위해 다대일 연결
