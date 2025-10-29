@@ -155,11 +155,13 @@ public class UserDto {
 
         private String name;
         private String role;
+        private String email;
 
         public static LoginResponse from(UserDto.Auth authUser) {
             return LoginResponse.builder()
                     .name(authUser.getName())
                     .role(authUser.getRole())
+                    .email(authUser.getEmail())
                     .build();
         }
     }
