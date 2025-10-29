@@ -61,4 +61,9 @@ public class UserController {
         UserDto.Read findReadUser = userService.findById(auth.getId());
         return ResponseEntity.ok(BaseResponse.success(findReadUser));
     }
+    @GetMapping("/resume-info")
+    public ResponseEntity<BaseResponse<UserDto.ResumeUserInfo>> getResumeInfo(@AuthenticationPrincipal UserDto.Auth auth) {
+        UserDto.ResumeUserInfo info = userService.findForResumeInfo(auth.getId());
+        return ResponseEntity.ok(BaseResponse.success(info));
+    }
 }
