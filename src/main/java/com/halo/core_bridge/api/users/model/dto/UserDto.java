@@ -148,4 +148,19 @@ public class UserDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class LoginResponse {
+
+        private String name;
+        private String role;
+
+        public static LoginResponse from(UserDto.Auth authUser) {
+            return LoginResponse.builder()
+                    .name(authUser.getName())
+                    .role(authUser.getRole())
+                    .build();
+        }
+    }
 }

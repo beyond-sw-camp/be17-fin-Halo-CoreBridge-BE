@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -57,9 +58,10 @@ public class ManagementDto {
 
             // 경력계산
             double totalYears = resume.getCareers().stream()
-                    .mapToDouble(c -> ChronoUnit.DAYS.between(
-                            c.getStartDate().toLocalDate(),
-                            c.getEndDate().toLocalDate()) / 365.0)
+                    .mapToDouble(career -> {
+                        LocalDate end = (career.getEndDate() != null) ? career.getEndDate().toLocalDate() : LocalDate.now();
+                        return ChronoUnit.DAYS.between(career.getStartDate().toLocalDate(), end) / 365.0;
+                    })
                     .sum();
 
 
