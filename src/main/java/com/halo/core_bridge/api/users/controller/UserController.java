@@ -90,4 +90,11 @@ public class UserController {
                 .header("Set-Cookie", accessTokenCookie.toString(), refreshTokenCookie.toString())
                 .body(BaseResponse.success(null));
     }
+
+
+    @GetMapping("/resume-info")
+    public ResponseEntity<BaseResponse<UserDto.ResumeUserInfo>> getResumeInfo(@AuthenticationPrincipal UserDto.Auth auth) {
+        UserDto.ResumeUserInfo info = userService.findForResumeInfo(auth.getId());
+        return ResponseEntity.ok(BaseResponse.success(info));
+    }
 }
