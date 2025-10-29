@@ -70,7 +70,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             response.getWriter().write(
                     new ObjectMapper().writeValueAsString(
-                            BaseResponse.success(null)
+                            BaseResponse.success(UserDto.LoginResponse.from(authUser))
                     )
             );
 
