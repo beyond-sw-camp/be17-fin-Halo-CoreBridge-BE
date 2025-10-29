@@ -122,7 +122,7 @@ public class JobPostingDto {
         private String benefits;
 
         // 부서/담당/기타
-        @NotNull(message = "부서 ID는 필수 입력값입니다.")
+        @NotNull(message = "부서는 필수 입력값입니다.")
         @Positive(message = "부서 ID는 양수여야 합니다.")
         private Long departmentId;
 

@@ -3,8 +3,6 @@ package com.halo.core_bridge.api.organization.service;
 import com.halo.core_bridge.api.organization.model.dto.DepartmentDto;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.organization.repository.DepartmentRepository;
-import com.halo.core_bridge.common.exception.BaseException;
-import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
