@@ -44,3 +44,13 @@ password:
   reset:
     redirect:
       url: ${PWD_RESET_REDIRECT_URL}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
