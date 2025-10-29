@@ -4,8 +4,6 @@ import com.halo.core_bridge.api.organization.model.entity.Department;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-
 
 public class DepartmentDto {
 
@@ -23,12 +21,4 @@ public class DepartmentDto {
                     .build();
         }
     }
-
-//    @Getter
-//    @Builder
-//    public static class DepartmentList {
-//        private List<Read> departmentLists;
-//
-//        public static
-//    }
-}
+ }
