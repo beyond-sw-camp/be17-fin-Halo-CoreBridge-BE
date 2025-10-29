@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.users.model.dto;
 
 import com.halo.core_bridge.api.users.model.Gender;
+import com.halo.core_bridge.api.users.model.UserRoleType;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.api.users.model.entity.UserRole;
 import jakarta.validation.constraints.*;
@@ -155,11 +156,13 @@ public class UserDto {
 
         private String name;
         private String role;
+        private String email;
 
         public static LoginResponse from(UserDto.Auth authUser) {
             return LoginResponse.builder()
                     .name(authUser.getName())
-                    .role(authUser.getRole())
+                    .role(UserRoleType.getDisplayName(authUser.getRole()))
+                    .email(authUser.getEmail())
                     .build();
         }
     }
