@@ -4,6 +4,7 @@ package com.halo.core_bridge.api.jobposting.controller;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -30,6 +30,7 @@ import java.util.List;
 @Tag(name = "채용공고 API", description = "채용공고 등록, 조회, 상세조회 관련 API")
 public class JobPostingController {
     private final JobPostingService jobPostingService;
+    private final RecruitProcessService recruitProcessService;
 
     //채용공고 등록
     @Operation(
@@ -72,7 +73,9 @@ public class JobPostingController {
 //            @AuthenticationPrincipal UserDto.Auth auth,
             @RequestBody @Validated JobPostingDto.CreateRequest request) {
         Long userId = 1L;
-        jobPostingService.save(request, userId);
+        Long jobPostingId = jobPostingService.save(request, userId);
+        recruitProcessService.create(request.getRecruitProcess(), jobPostingId);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("채용공고 등록완료"));
     }
 

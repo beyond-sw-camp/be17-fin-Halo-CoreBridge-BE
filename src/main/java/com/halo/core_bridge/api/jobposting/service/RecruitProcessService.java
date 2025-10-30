@@ -11,12 +11,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecruitProcessService {
 
     private final RecruitProcessRepository recruitProcessRepository;
+
+    @Transactional
+    public void create(List<RecruitProcessDto.Create> processList, Long jobPostingId) {
+        List<RecruitProcess> recruitProcessList = processList.stream().map(dto -> dto.toEntity(jobPostingId)).toList();
+        recruitProcessRepository.saveAll(recruitProcessList);
+    }
 
     /**
      * 새로운 채용 프로세스를 저장한다.

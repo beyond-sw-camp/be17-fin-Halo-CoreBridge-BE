@@ -4,12 +4,38 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
 public class RecruitProcessDto {
+
+    @Getter
+    public static class Create {
+        @NotBlank(message = "프로세스명은 비어 있을 수 없습니다.")
+        @Size(max = 10, message = "프로세스명은 10자 이하로 입력해주세요.")
+        private String name;
+
+        @NotNull(message = "색상 코드는 필수 입력 값 입니다.")
+        private ColorCode color;
+
+        @NotNull(message = "해당 프로세스의 순서 입력은 필수 값 입니다.")
+        private Integer orderIdx;
+
+        public RecruitProcess toEntity(Long jobPostingId) {
+            return RecruitProcess.builder()
+                    .name(this.name)
+                    .colorCode(this.color)
+                    .orderIdx(this.orderIdx)
+                    .jobPosting(JobPosting.builder().id(jobPostingId).build())
+                    .build();
+        }
+
+    }
+
 
     @Getter
     public static class Add {
