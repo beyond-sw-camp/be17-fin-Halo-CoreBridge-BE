@@ -375,10 +375,11 @@ public class JobPostingDto {
         private String contactName;
         private String contactEmail;
 
-        public static DetailResponse fromEntity(JobPosting entity, Integer applicantCount) {
+        public static DetailResponse fromEntity(JobPosting entity, List<RecruitProcess> process, Integer applicantCount) {
+
             List<String> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
             String status = HeaderResponse.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
-            List<RecruitProcessDto.Read> recruitProcesses = entity.getRecruitProcesses().stream().map(RecruitProcessDto.Read::from).toList();
+            List<RecruitProcessDto.Read> recruitProcesses = process.stream().map(RecruitProcessDto.Read::from).toList();
 
             return DetailResponse.builder()
                     .id(entity.getId())
