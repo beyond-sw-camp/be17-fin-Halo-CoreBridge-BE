@@ -2,7 +2,7 @@ spring:
   application:
     name: core-bridge
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE}
   config:
     import:
       - "classpath:application-token.yml"
