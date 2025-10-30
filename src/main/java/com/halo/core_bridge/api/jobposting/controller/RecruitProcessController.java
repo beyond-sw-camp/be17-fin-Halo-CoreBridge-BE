@@ -17,12 +17,12 @@ public class RecruitProcessController {
     private final RecruitProcessService recruitProcessService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<recruitProcesses>> createRecruitProcess(@RequestBody Create createRecruitProcess) {
+    public ResponseEntity<BaseResponse<recruitProcesses>> createRecruitProcess(@RequestBody Add addRecruitProcess) {
 
-        recruitProcessService.add(createRecruitProcess);
+        recruitProcessService.add(addRecruitProcess);
 
         recruitProcesses recruitProcesses =
-                recruitProcessService.findAllRecruitProcessesByJobPostingId(createRecruitProcess.getJobPostingId());
+                recruitProcessService.findAllRecruitProcessesByJobPostingId(addRecruitProcess.getJobPostingId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success(recruitProcesses));
     }

@@ -12,7 +12,7 @@ import java.util.List;
 public class RecruitProcessDto {
 
     @Getter
-    public static class Create {
+    public static class Add {
 
         @NotBlank(message = "이름은 필수 입력 값 입니다.")
         private String name;
