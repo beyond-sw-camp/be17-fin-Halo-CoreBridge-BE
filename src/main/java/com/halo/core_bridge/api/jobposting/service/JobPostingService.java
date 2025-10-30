@@ -74,11 +74,15 @@ public class JobPostingService {
     // 상세조회
     @Transactional(readOnly = true)
     public JobPostingDto.DetailResponse getDetail(Long id) {
+
         JobPosting jp = jobPostingRepository.findById(id)
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
 
+        List<RecruitProcess> jobPostingProcess = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(id);
+
         int applicantCounts = resumeRepository.countByJobPostingId(id);
-        return JobPostingDto.DetailResponse.fromEntity(jp, applicantCounts);
+
+        return JobPostingDto.DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
     }
 
     //채용공고 헤더(기본정보) 조회요청
