@@ -112,7 +112,7 @@ public class SwaggerConfig {
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
                 .servers(List.of(
                         new Server().url("http://localhost:8080").description("Local Server"),
-                        new Server().url("https://api.halo.com").description("Production Server")
+                        new Server().url("https://api.core-bridge.co.kr").description("Production Server")
                 ))
                 .externalDocs(new ExternalDocumentation()
                         .description("GitHub Repository")
