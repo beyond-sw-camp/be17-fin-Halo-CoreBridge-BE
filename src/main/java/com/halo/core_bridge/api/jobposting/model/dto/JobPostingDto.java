@@ -5,6 +5,7 @@ import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.common.model.ColorCode;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -97,10 +98,8 @@ public class JobPostingDto {
 
 
         @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
-        private List<
-                @NotBlank(message = "프로세스명은 비어 있을 수 없습니다.")
-                @Size(max = 50, message = "프로세스명은 50자 이하로 입력해주세요.")
-                        String> recruitProcess;             // ["지원 완료","서류 검토","1차 면접",...]
+        @Valid
+        private List<RecruitProcessDto.Create> recruitProcess;
 
         // 급여
         @NotNull(message = "급여 형태는 필수 입력값입니다.")

@@ -10,8 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,27 +19,33 @@ public class RecruitProcessService {
 
     private final RecruitProcessRepository recruitProcessRepository;
 
+    @Transactional
+    public void create(List<RecruitProcessDto.Create> processList, Long jobPostingId) {
+        List<RecruitProcess> recruitProcessList = processList.stream().map(dto -> dto.toEntity(jobPostingId)).toList();
+        recruitProcessRepository.saveAll(recruitProcessList);
+    }
+
     /**
      * 새로운 채용 프로세스를 저장한다.
-     * @param createRecruitProcess 저장할 채용 프로세스
+     * @param addRecruitProcess 저장할 채용 프로세스
      * @return <code>Long</code> 새로 저장된 채용 프로세스의 식별자 <code>id</code>를 반환
      */
     @Transactional
-    public Long add(RecruitProcessDto.Create createRecruitProcess) {
+    public Long add(RecruitProcessDto.Add addRecruitProcess) {
 
         // 제일 큰 정렬 번호를 가져온다.
-        Integer lastOrderIdx = recruitProcessRepository.findMaxOrderByJobPostingId(createRecruitProcess.getJobPostingId());
+        Integer lastOrderIdx = recruitProcessRepository.findMaxOrderByJobPostingId(addRecruitProcess.getJobPostingId());
 
         if (lastOrderIdx == null) {
-            RecruitProcess savedRecruitProcess = recruitProcessRepository.save(createRecruitProcess.toEntity(1));
+            RecruitProcess savedRecruitProcess = recruitProcessRepository.save(addRecruitProcess.toEntity(1));
             return savedRecruitProcess.getId();
         }
 
         // 마지막 프로세스의 정렬 번호를 1 증가
-        recruitProcessRepository.shiftLastOrderIdx(createRecruitProcess.getJobPostingId(), lastOrderIdx);
+        recruitProcessRepository.shiftLastOrderIdx(addRecruitProcess.getJobPostingId(), lastOrderIdx);
 
         // 새로 추가된 프로세스에 이전의 마지막 프로세스 정렬 번호를 입력
-        RecruitProcess savedRecruitProcess = recruitProcessRepository.save(createRecruitProcess.toEntity(lastOrderIdx));
+        RecruitProcess savedRecruitProcess = recruitProcessRepository.save(addRecruitProcess.toEntity(lastOrderIdx));
 
         return savedRecruitProcess.getId();
     }
