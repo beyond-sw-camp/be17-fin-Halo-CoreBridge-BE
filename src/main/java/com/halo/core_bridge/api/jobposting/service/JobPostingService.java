@@ -90,6 +90,12 @@ public class JobPostingService {
         return JobPostingDto.DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
     }
 
+    // 해당공고의 지원자 조회
+    @Transactional(readOnly = true)
+    public JobPostingDto.ApplicantResponse getApplicants(Long id) {
+
+    }
+
     //채용공고 헤더(기본정보) 조회요청
     @Transactional(readOnly = true)
     public JobPostingDto.HeaderResponse getHeaderDetail(Long id) {

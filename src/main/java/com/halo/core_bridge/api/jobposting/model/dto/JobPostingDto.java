@@ -530,5 +530,22 @@ public class JobPostingDto {
         private String additionalInfo;
     }
 
+    @Getter
+    @Builder
+    public static class ApplicantResponse {
+        private String name;
+        private String email;
+        private CareerType careerType;
+        private List<String> skills;
+        private String degree;
+        private int certificateCount;
+        private LocalDateTime applyDate;
+        private String stageName;
+
+        public static ApplicantResponse fromEntity() {
+
+        }
+    }
+
 
 }

@@ -149,6 +149,7 @@ public class JobPostingController {
         return ResponseEntity.ok(BaseResponse.success(detail)); // HTTP 200 OK
     }
 
+    //채용공고 기본정보 조회
     @Operation(
             summary = "채용공고 기본정보 조회",
             description = "특정 ID의 채용공고의 기본정보를 조회합니다. Header부분"
@@ -178,6 +179,13 @@ public class JobPostingController {
         JobPostingDto.HeaderResponse headerDetail = jobPostingService.getHeaderDetail(id);
         return ResponseEntity.ok(BaseResponse.success(headerDetail));
     }
+
+    //해당채용공고의 지원자 조회
+    @GetMapping("/{id}/applicants")
+    public ResponseEntity<BaseResponse<JobPostingDto.ApplicantResponse>> getJobPostingApplicants(@PathVariable Long id) {
+        jobPostingService.getApplicants(id);
+    }
+
 
 
     //채용공고 수정
@@ -209,6 +217,7 @@ public class JobPostingController {
         return ResponseEntity.ok(BaseResponse.success("수정 완료"));
     }
 
+    //채용공고 삭제
     @DeleteMapping("/{id}")
     @Operation(
             summary = "채용공고 삭제",
