@@ -69,7 +69,7 @@
 
 # Swagger
 
-* [Swagger 바로가기](http://192.0.3.10:8080/swagger-ui/index.html)
+* [Swagger 바로가기](https://api.core-bridge.co.kr/swagger-ui/index.html)
 * [Swagger PDF 바로가기](./docs/Swagger.pdf)
 
 ---
