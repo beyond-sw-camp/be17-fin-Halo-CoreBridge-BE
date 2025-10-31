@@ -7,6 +7,7 @@ import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.jobposting.service.JobPostingSkillService;
 import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
@@ -33,6 +34,7 @@ import java.util.List;
 @Tag(name = "채용공고 API", description = "채용공고 등록, 조회, 상세조회 관련 API")
 public class JobPostingController {
     private final JobPostingService jobPostingService;
+    private final JobPostingSkillService jobPostingSkillService;
     private final RecruitProcessService recruitProcessService;
     private final CoverLetterTitleService coverLetterTitleService;
 
@@ -77,7 +79,11 @@ public class JobPostingController {
 //            @AuthenticationPrincipal UserDto.Auth auth,
             @RequestBody @Validated JobPostingDto.CreateRequest request) {
         Long userId = 1L;
+        //채용공고 저장후 채용공고id 값 저장
         Long jobPostingId = jobPostingService.save(request, userId);
+
+        // 다대일로 연결된 테이블에 각각 jobPostingId와 함께 서비스 호출
+        jobPostingSkillService.saveAll(request.getTechStack(), jobPostingId);
         recruitProcessService.create(request.getRecruitProcess(), jobPostingId);
         coverLetterTitleService.create(request.getCoverLetterTitles(), jobPostingId);
 
