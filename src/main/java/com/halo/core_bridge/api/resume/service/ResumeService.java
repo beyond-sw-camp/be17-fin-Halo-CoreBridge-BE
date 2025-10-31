@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.halo.core_bridge.common.model.BaseResponseStatus.RESUME_NOT_FOUND;
 
@@ -170,9 +171,8 @@ public class ResumeService {
         log.info("Resume deleted: {}", id);
     }
 
-    @Transactional(readOnly = true)
-    public Resume getResumeEntity(Long id) {
+    public Resume findById(Long id) {
         return resumeRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(RESUME_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
     }
 }

@@ -48,6 +48,9 @@ public enum BaseResponseStatus {
     PROCESS_NOT_FOUND(false, 40003, "이력서를 찾을 수 없습니다."),
     FAILD_FOUND_USER(false, 40004, "사용자를 찾을 수 없습니다."),
     FAILD_FOUND_JOBPOST(false, 40005, "공고를 찾을 수 없습니다."),
+    FAILD_FOUND_COVERLETTER(false, 40006, "답변을 찾을 수 없습니다."),
+    FAILD_FOUND_COVERLETTER_TITLE(false, 40007, "질문을 찾을 수 없습니다."),
+
 
     /**
      * 50000 : Database 오류

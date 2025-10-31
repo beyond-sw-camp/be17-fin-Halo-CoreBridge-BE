@@ -1,0 +1,49 @@
+package com.halo.core_bridge.api.coverLetterTitle.model.dto;
+
+
+import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
+import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.List;
+
+
+@Getter
+@AllArgsConstructor // 모든 필드를 포함하는 생성자를 자동으로 만들어줍니다.
+public class CoverLetterTitleDto {
+
+    @Getter
+    @AllArgsConstructor // 생성자를 통해 jobPostingId, title, subTitle을 받습니다.
+    public static class CoverLetterTitleRequest {
+        private final String title;
+        private final String subtitle;
+
+        public CoverLetterTitle toEntity(Long jobpostId) {
+            return CoverLetterTitle.builder()
+                    .jobPostingId(jobpostId)
+                    .title(this.title)
+                    .subTitle(this.subtitle)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class CoverLetterTitleResponse {
+        private Long id;
+        private String title;
+        private String subTitle;
+        private Long jobPostingId;
+
+        public static CoverLetterTitleResponse from(CoverLetterTitle entity) {
+            return CoverLetterTitleResponse.builder()
+                    .id(entity.getId())
+                    .title(entity.getTitle())
+                    .subTitle(entity.getSubTitle())
+                    .jobPostingId(entity.getJobPostingId())
+                    .build();
+        }
+    }
+}

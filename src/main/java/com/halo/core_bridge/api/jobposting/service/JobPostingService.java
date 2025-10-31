@@ -1,5 +1,7 @@
 package com.halo.core_bridge.api.jobposting.service;
 
+import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
+import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
@@ -13,11 +15,14 @@ import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +81,7 @@ public class JobPostingService {
     public JobPostingDto.DetailResponse getDetail(Long id) {
 
         JobPosting jp = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+                .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
         List<RecruitProcess> jobPostingProcess = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(id);
 
@@ -89,7 +94,7 @@ public class JobPostingService {
     @Transactional(readOnly = true)
     public JobPostingDto.HeaderResponse getHeaderDetail(Long id) {
         JobPosting jobPosting = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+                .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
         return JobPostingDto.HeaderResponse.fromEntity(jobPosting);
     }
@@ -97,7 +102,7 @@ public class JobPostingService {
     @Transactional
     public void updateJobPosting(Long id, JobPostingDto.UpdateRequest request) {
         JobPosting jobPosting = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(BaseResponseStatus.JOB_POSTING_NOT_FOUND));
+                .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
         //  기본 필드 변경 감지 후 반영
         if (request.getTitle() != null && !request.getTitle().equals(jobPosting.getTitle())) {
@@ -203,6 +208,12 @@ public class JobPostingService {
         if (request.getAdditionalInfo() != null) jobPosting.setAdditionalInfo(request.getAdditionalInfo());
 
         jobPostingRepository.save(jobPosting);
+    }
+
+    @Transactional(readOnly = true)
+    public JobPosting getById(Long jobPostingId) {
+        return jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
     }
 
     @Transactional
