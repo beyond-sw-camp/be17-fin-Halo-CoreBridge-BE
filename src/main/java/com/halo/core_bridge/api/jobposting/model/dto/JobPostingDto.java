@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.jobposting.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
@@ -100,6 +101,10 @@ public class JobPostingDto {
         @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
         @Valid
         private List<RecruitProcessDto.Create> recruitProcess;
+
+        @NotEmpty(message = "질문 항목은 최소 1개 이상 입력해야 합니다.")
+        @Valid
+        private List<CoverLetterTitleDto.CoverLetterTitleRequest> coverLetterTitles;
 
         // 급여
         @NotNull(message = "급여 형태는 필수 입력값입니다.")
