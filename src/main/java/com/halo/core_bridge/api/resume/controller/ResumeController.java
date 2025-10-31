@@ -1,5 +1,7 @@
 package com.halo.core_bridge.api.resume.controller;
 
+import com.halo.core_bridge.api.coverLetterDescription.model.dto.CoverLetterDescriptionDto;
+import com.halo.core_bridge.api.coverLetterDescription.service.CoverLetterDescriptionService;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -27,6 +30,7 @@ import java.util.List;
 public class ResumeController {
 
     private final ResumeService resumeService;
+    private final CoverLetterDescriptionService coverLetterDescriptionService;
 
     @Operation(
             summary = "이력서 생성",
@@ -137,4 +141,26 @@ public class ResumeController {
         resumeService.delete(resumeId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{resumeId}/cover-letter-descriptions")
+    public ResponseEntity<List<Long>> createDescriptions(
+            @PathVariable Long resumeId,
+            @org.springframework.web.bind.annotation.RequestBody List<CoverLetterDescriptionDto.CoverLetterDescriptionRequest> dtoList) {
+
+        List<Long> descriptionIds = dtoList.stream()
+                .map(dto -> coverLetterDescriptionService.create(dto))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(descriptionIds);
+    }
+
+    @GetMapping("/{resumeId}/cover-letter-descriptions")
+    public ResponseEntity<List<CoverLetterDescriptionDto.CoverLetterDescriptionResponse>> listDescriptions(
+            @PathVariable Long resumeId,
+            @RequestParam Long jobPostingId) {
+        List<CoverLetterDescriptionDto.CoverLetterDescriptionResponse> descriptions =
+                coverLetterDescriptionService.list(resumeId, jobPostingId);
+        return ResponseEntity.ok(descriptions);
+    }
 }
+

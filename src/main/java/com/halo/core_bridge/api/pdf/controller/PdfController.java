@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/pdf")
 @RequiredArgsConstructor
-public class PdfContorller {
+public class PdfController {  // 클래스명 오타 수정: PdfContorller -> PdfController
 
     private final LocalPdfService pdfService;
 
@@ -27,14 +27,15 @@ public class PdfContorller {
             @RequestParam("pdf_directory") String directory,
             @RequestParam("resumeId") Long resumeId,
             @AuthenticationPrincipal UserDto.Auth loginUser
-    ){ PdfDto.UploadResponseDto response = pdfService.uploadPdf(file, directory, resumeId);
+    ){
+        PdfDto.UploadResponseDto response = pdfService.uploadPdf(file, directory, resumeId);
         System.out.println(response);
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 
     @GetMapping("/find/{idx}")
-    public ResponseEntity<BaseResponse> getPdf(@PathVariable Long idx){
-        String result = "" + pdfService.findByResumeId(idx);
+    public ResponseEntity<BaseResponse<PdfDto.PdfResponseDto>> getPdf(@PathVariable Long idx){
+        PdfDto.PdfResponseDto result = pdfService.findByResumeId(idx);
         return ResponseEntity.ok(BaseResponse.success(result));
     }
 
@@ -42,12 +43,11 @@ public class PdfContorller {
     public ResponseEntity<BaseResponse<Void>> deletePdf(@PathVariable Long idx){
         pdfService.deletePdf(idx);
         return ResponseEntity.ok(BaseResponse.success(null));
-
     }
 
-    @GetMapping("/download/{resumeid}")
-    public ResponseEntity<Resource> download(@PathVariable("resumeId") Long resumeid) {
-        PdfDto.PdfResponseDto pdf = pdfService.findByResumeId(resumeid);
+    @GetMapping("/download/{resumeId}")
+    public ResponseEntity<Resource> download(@PathVariable Long resumeId) {
+        PdfDto.PdfResponseDto pdf = pdfService.findByResumeId(resumeId);
         Resource resource = pdfService.downloadPdf(pdf.getId());
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)

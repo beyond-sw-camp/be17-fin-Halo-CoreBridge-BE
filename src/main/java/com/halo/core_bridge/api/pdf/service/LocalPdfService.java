@@ -32,7 +32,7 @@ public class LocalPdfService implements PdfService {
 
         validatePdfFile(file);
 
-        Resume resume = resumeService.getResumeEntity(resumeId);
+        Resume resume = resumeService.findById(resumeId);
 
         String pdfName = generateFileName(file.getOriginalFilename());
         String pdfPath = uploadPath + File.separator + directory + File.separator + pdfName;
@@ -64,11 +64,11 @@ public class LocalPdfService implements PdfService {
         }
     }
 
+    // 🔧 FIX 3: isDeleted 체크를 추가하여 삭제된 PDF는 조회되지 않도록 수정
     @Override
     @Transactional(readOnly = true)
     public PdfDto.PdfResponseDto findByResumeId(Long resumeId) throws BaseException {
-        Resume resume = resumeService.getResumeEntity(resumeId);
-        Pdf pdf = pdfRepository.findByResume(resume)
+        Pdf pdf = pdfRepository.findByResumeIdAndIsDeletedFalse(resumeId)
                 .orElseThrow(() -> BaseException.from(PDF_NOT_FOUND));
 
         return PdfDto.PdfResponseDto.builder()
