@@ -22,9 +22,9 @@ public class CoverLetterTitleService {
     private final CoverLetterTitleRepository coverLetterTitleRepository;
 
     @Transactional
-    public List<Long> create(List<CoverLetterTitleDto.CoverLetterTitleRequest> requestList) {
+    public List<Long> create(List<CoverLetterTitleDto.CoverLetterTitleRequest> requestList, Long jobPostingId) {
         List<CoverLetterTitle> titlesToSave = requestList.stream()
-                .map(CoverLetterTitleDto.CoverLetterTitleRequest::toEntity)
+                .map(request -> request.toEntity(jobPostingId))
                 .collect(Collectors.toList());
 
         return coverLetterTitleRepository.saveAll(titlesToSave).stream()

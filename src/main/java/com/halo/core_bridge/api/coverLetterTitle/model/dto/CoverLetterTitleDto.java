@@ -17,13 +17,12 @@ public class CoverLetterTitleDto {
     @Getter
     @AllArgsConstructor // 생성자를 통해 jobPostingId, title, subTitle을 받습니다.
     public static class CoverLetterTitleRequest {
-        private final Long jobpostid;
         private final String title;
         private final String subtitle;
 
-        public CoverLetterTitle toEntity() {
+        public CoverLetterTitle toEntity(Long jobpostId) {
             return CoverLetterTitle.builder()
-                    .jobPostingId(this.jobpostid)
+                    .jobPostingId(jobpostId)
                     .title(this.title)
                     .subTitle(this.subtitle)
                     .build();
