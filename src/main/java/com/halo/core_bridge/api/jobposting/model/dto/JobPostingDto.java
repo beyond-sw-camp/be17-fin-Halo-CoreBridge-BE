@@ -102,7 +102,8 @@ public class JobPostingDto {
         @Valid
         private List<RecruitProcessDto.Create> recruitProcess;
 
-        @NotEmpty(message = "질문 항목은 최소 1개 이상 입력해야 합니다.")
+        @NotNull(message = "질문 항목 리스트는 비워둘 수 없습니다.")
+        @Size(min = 3, message = "질문 항목은 최소 3개 이상 입력해야 합니다.")
         @Valid
         private List<CoverLetterTitleDto.CoverLetterTitleRequest> coverLetterTitles;
 
