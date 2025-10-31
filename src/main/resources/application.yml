@@ -57,17 +57,5 @@ management:
   health:
     # 사용할 health indicator를 whitelist 형식으로 선택
     # 사용하지 않을 것은 false로 비활성화
-    defaults:
+    mail:
       enabled: false
-    db:
-      enabled: true
-    redis:
-      enabled: true
-    ssl:
-      enabled: true
-    ping:
-      enabled: true
-    livenessState:
-      enabled: true
-    readinessState:
-      enabled: true
