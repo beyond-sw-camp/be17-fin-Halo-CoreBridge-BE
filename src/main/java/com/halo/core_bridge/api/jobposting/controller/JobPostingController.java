@@ -1,15 +1,12 @@
 package com.halo.core_bridge.api.jobposting.controller;
 
 
-import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
-import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
 import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.api.jobposting.service.JobPostingSkillService;
 import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
-import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +19,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
