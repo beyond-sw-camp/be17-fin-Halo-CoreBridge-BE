@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/applies")
+@RequestMapping("/api/jobposts/{jobpostId}/applies")
 @RequiredArgsConstructor
 public class ResumeController {
 
@@ -141,6 +141,8 @@ public class ResumeController {
         resumeService.delete(resumeId);
         return ResponseEntity.ok().build();
     }
+
+    //-------------------------------------------------------------------------------------------------------------------
 
     @PostMapping("/{resumeId}/cover-letter-descriptions")
     public ResponseEntity<List<Long>> createDescriptions(
