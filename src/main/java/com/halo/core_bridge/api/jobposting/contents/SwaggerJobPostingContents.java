@@ -268,4 +268,64 @@ public class SwaggerJobPostingContents {
               "result": null
             }
             """;
+
+    public static final String APPLICANT_RESPONSE = """
+            {
+                "success": true,
+                "code": 20000,
+                "message": "요청에 성공하였습니다.",
+                "results": [
+                    {
+                        "name": "강수빈",
+                        "email": "subin.kang@email.com",
+                        "careerType": "경력",
+                        "skills": [
+                            "Java",
+                            "Spring Boot",
+                            "Kubernetes",
+                            "MySQL",
+                            "Redis",
+                            "AWS"
+                        ],
+                        "degree": "학사",
+                        "certificateCount": 2,
+                        "applyDate": "2025-11-01",
+                        "stageName": "1차 기술면접"
+                    },
+                    {
+                        "name": "윤재현",
+                        "email": "jaehyun.yoon@email.com",
+                        "careerType": "경력",
+                        "skills": [
+                            "Java",
+                            "Spring Boot",
+                            "PostgreSQL",
+                            "Docker",
+                            "Jenkins"
+                        ],
+                        "degree": "학사",
+                        "certificateCount": 1,
+                        "applyDate": "2025-11-01",
+                        "stageName": "코딩테스트"
+                    },
+                    {
+                        "name": "황동혁",
+                        "email": "donghyuk.hwang@email.com",
+                        "careerType": "경력",
+                        "skills": [
+                            "Java",
+                            "Spring Boot",
+                            "Redis",
+                            "Kafka",
+                            "MySQL",
+                            "AWS"
+                        ],
+                        "degree": "학사",
+                        "certificateCount": 1,
+                        "applyDate": "2025-11-01",
+                        "stageName": "2차 컬처핏면접"
+                    }
+                ]
+            }
+            """;
 }

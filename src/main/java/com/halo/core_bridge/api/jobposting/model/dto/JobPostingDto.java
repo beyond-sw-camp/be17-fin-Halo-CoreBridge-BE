@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
+import com.halo.core_bridge.api.resume.model.entity.Resume;
+import com.halo.core_bridge.api.resume.model.entity.ResumeSkill;
 import com.halo.core_bridge.api.users.model.entity.User;
-import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class JobPostingDto {
@@ -530,5 +532,38 @@ public class JobPostingDto {
         private String additionalInfo;
     }
 
+    @Getter
+    @Builder
+    public static class ApplicantResponse {
+        private Long id;
 
+        private String name;
+        private String email;
+        private CareerType careerType;
+        private List<String> skills;
+        private String degree;
+        private int certificateCount;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDateTime applyDate;
+        private String stageName;
+
+        public static ApplicantResponse fromEntity(JobPosting jobPosting, Resume resume) {
+
+            return JobPostingDto.ApplicantResponse.builder()
+                    .id(resume.getId())
+                    .name(resume.getUser().getName())
+                    .email(resume.getUser().getEmail())
+                    .careerType(jobPosting.getCareerType())
+                    .skills(resume.getResumeSkills().stream().map(ResumeSkill::getName).collect(Collectors.toList()))
+                    .degree(resume.getEducations().get(resume.getEducations().size() - 1).getDegree())
+                    .certificateCount(resume.getCertificates().size())
+                    .applyDate(resume.getCreatedAt())
+                    .stageName(resume.getProcess().getName())
+                    .build();
+        }
+    }
 }
+
+
+
