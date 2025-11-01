@@ -535,6 +535,8 @@ public class JobPostingDto {
     @Getter
     @Builder
     public static class ApplicantResponse {
+        private Long id;
+
         private String name;
         private String email;
         private CareerType careerType;
@@ -549,18 +551,19 @@ public class JobPostingDto {
         public static ApplicantResponse fromEntity(JobPosting jobPosting, Resume resume) {
 
             return JobPostingDto.ApplicantResponse.builder()
-                        .name(resume.getUser().getName())
-                        .email(resume.getUser().getEmail())
-                        .careerType(jobPosting.getCareerType())
-                        .skills(resume.getResumeSkills().stream().map(ResumeSkill::getName).collect(Collectors.toList()))
-                        .degree(resume.getEducations().get(resume.getEducations().size() - 1).getDegree())
-                        .certificateCount(resume.getCertificates().size())
-                        .applyDate(resume.getCreatedAt())
-                        .stageName(resume.getProcess().getName())
-                        .build();
-            }
+                    .id(resume.getId())
+                    .name(resume.getUser().getName())
+                    .email(resume.getUser().getEmail())
+                    .careerType(jobPosting.getCareerType())
+                    .skills(resume.getResumeSkills().stream().map(ResumeSkill::getName).collect(Collectors.toList()))
+                    .degree(resume.getEducations().get(resume.getEducations().size() - 1).getDegree())
+                    .certificateCount(resume.getCertificates().size())
+                    .applyDate(resume.getCreatedAt())
+                    .stageName(resume.getProcess().getName())
+                    .build();
         }
     }
+}
 
 
 
