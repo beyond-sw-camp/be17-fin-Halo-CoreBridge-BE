@@ -1,30 +1,20 @@
 package com.halo.core_bridge.api.jobposting.service;
 
-import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
-import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
-import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
-import com.halo.core_bridge.api.organization.model.entity.Department;
-import com.halo.core_bridge.api.organization.service.DepartmentService;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
-import com.halo.core_bridge.api.resume.model.entity.ResumeSkill;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
-import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_NOT_FOUND;
 

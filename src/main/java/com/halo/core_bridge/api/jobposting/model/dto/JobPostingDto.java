@@ -7,7 +7,6 @@ import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.model.entity.ResumeSkill;
 import com.halo.core_bridge.api.users.model.entity.User;
-import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -15,7 +14,6 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
