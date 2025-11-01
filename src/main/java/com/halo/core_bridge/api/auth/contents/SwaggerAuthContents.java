@@ -2,46 +2,46 @@ package com.halo.core_bridge.api.auth.contents;
 
 public class SwaggerAuthContents {
 
-    public static final String RESPONSE_SUCCESS_GET = """
+    public static final String SEND_AUTH_CODE_RESPONSE_SUCCESS = """
             {
-              "isSuccess": true,
-              "code": "COMMON200",
-              "message": "요청에 성공하였습니다.",
-              "result": "인증 번호 전송 성공"
-            }
+               "success": true,
+               "code": 20000,
+               "message": "요청에 성공하였습니다.",
+               "results": "인증 번호 전송 성공"
+             }
             """;
 
-    public static final String RESPONSE_FAILED_GET = """
+    public static final String SEND_AUTH_CODE_RESPONSE_FAILED = """
             {
-              "isSuccess": false,
-              "code": "USER401",
-              "message": "이미 가입된 회원입니다.",
-              "result": null
+               "success": false,
+               "code": 20006,
+               "message": "중복된 이메일입니다. 다른 이메일을 사용해주세요.",
+               "results": null
             }
             """;
 
     public static final String AUTH_CODE = """
             {
               "email": "test@corebridge.com",
-              "authCode": "123456"
+              "code": "154401"
             }
             """;
 
-    public static final String RESPONSE_SUCCESS = """
+    public static final String AUTH_CODE_AUTHENTICATE_RESPONSE_SUCCESS = """
             {
-              "isSuccess": true,
-              "code": "COMMON200",
-              "message": "요청에 성공하였습니다.",
-              "result": "이메일 인증 성공"
+                "success": true,
+                "code": 20000,
+                "message": "요청에 성공하였습니다.",
+                "results": "이메일 인증 성공"
             }
             """;
 
-    public static final String RESPONSE_FAILED = """
+    public static final String AUTH_CODE_AUTHENTICATE_RESPONSE_FAILED = """
             {
-              "isSuccess": false,
-              "code": "AUTH400",
-              "message": "인증번호가 일치하지 않습니다.",
-              "result": null
+                 "success": false,
+                 "code": 30002,
+                 "message": "유효하지 않은 인증번호 입니다.",
+                 "results": null
             }
             """;
 
