@@ -10,6 +10,8 @@ import java.util.List;
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
     List<Resume> findByJobPostingIdAndProcessId(Long jobPostingId, Long processId);
 
+    List<Resume> findByJobPostingId(Long jobPostingId);
+
     @Query("SELECT COUNT(r) FROM Resume r WHERE r.jobPosting.id = :jobPostingId")
     int countByJobPostingId(Long jobPostingId);
 
