@@ -70,7 +70,7 @@
 # Swagger
 
 * [Swagger 바로가기](https://api.core-bridge.co.kr/swagger-ui/index.html)
-* [Swagger PDF 바로가기](docs/swagger/swagger.pdf)
+* [Swagger PDF 바로가기](docs/swagger/Swagger.pdf)
 
 # 핵심 기능 테스트
 
