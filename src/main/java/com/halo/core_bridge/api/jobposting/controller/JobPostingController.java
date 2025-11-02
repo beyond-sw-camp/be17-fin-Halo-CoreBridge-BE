@@ -207,19 +207,21 @@ public class JobPostingController {
     //해당채용공고의 지원자 조회
     @Operation(
             summary = "채용공고 지원자 조회",
-            description = "특정 ID의 지원자를 전체 조회합니다."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    name = "Applicants Response Example",
-                                    value = SwaggerJobPostingContents.APPLICANT_RESPONSE
+            description = "특정 ID의 지원자를 전체 조회합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "조회 성공",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    examples = @ExampleObject(
+                                            name = "Applicants Response Example",
+                                            value = SwaggerJobPostingContents.APPLICANT_RESPONSE
+                                    )
                             )
                     )
-            )
-    })
+            }
+    )
     @GetMapping("/{id}/applicants")
     public ResponseEntity<BaseResponse<List<JobPostingDto.ApplicantResponse>>> getJobPostingApplicants(@PathVariable Long id) {
         List<JobPostingDto.ApplicantResponse> result = jobPostingService.getApplicants(id);
