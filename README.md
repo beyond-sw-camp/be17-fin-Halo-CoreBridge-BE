@@ -63,6 +63,41 @@
 
 ---
 
+# 실제 배포 접속 주소
+
+## 프론트 
+
+* [www.core-bridge.co.kr](https://www.core-bridge.co.kr/jobs)
+
+## 백엔드
+
+* [api.core-bridge.co.kr](https://api.core-bridge.co.kr)
+
+## URL 정리
+
+* `https://www.core-bridge.co.kr/jobs~` : 모든 권한의 사용자
+* `https://www.core-bridge.co.kr/recruiter/~` : 채용 담당자, 면접관
+* `https://www.core-bridge.co.kr/admin/~` : 관리자
+
+# 테스트 계정
+
+## 관리자
+
+* ID : `lesw1216@gmail.com`
+* PW : `qwer1234`
+
+## 채용 담당자
+
+* ID : `donghyuk.hwang@email.com`
+* PW : `qwer1234`
+
+## 지원자
+
+* ID : `minjun.kim@company.com`
+* PW : `qwer1234`
+
+---
+
 # Front-End
 
 [프론트엔드 깃허브 바로가기](https://github.com/beyond-sw-camp/be17-fin-Halo-CoreBridge-FE)
