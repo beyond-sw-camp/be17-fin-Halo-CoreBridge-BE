@@ -48,7 +48,11 @@ VALUES ('김민준', 'minjun.kim@company.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf
        ('나현아', 'hyuna.na@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1998-07-05', 'Female', '010-4444-5555',
         2),
        ('황동혁', 'donghyuk.hwang@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1993-11-29', 'Male',
-        '010-5555-6666', 4);
+        '010-5555-6666', 4),
+    ('test', 'test@corebridge.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '2000-01-01', 'Male',
+        '010-3750-5273', 1),
+       ('이상우', 'lesw1216@gmail.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1996-12-16', 'Male',
+        '010-1234-5678', 1);
 
 -- JobGroup 데이터
 INSERT INTO `job_group` (`name`, `location`)
