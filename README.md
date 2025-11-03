@@ -83,17 +83,22 @@
 
 ## 관리자
 
-* ID : `lesw1216@gmail.com`
+* ID : `admin01@core-bridge.co.kr`
 * PW : `qwer1234`
 
 ## 채용 담당자
 
-* ID : `donghyuk.hwang@email.com`
+* ID : `recruiter01@core-bridge.co.kr`
+* PW : `qwer1234`
+
+## 면접관
+
+* ID : 'interviewer01@core-bridge.co.kr`
 * PW : `qwer1234`
 
 ## 지원자
 
-* ID : `minjun.kim@company.com`
+* ID : `lesw1216@gmail.com`
 * PW : `qwer1234`
 
 ---
