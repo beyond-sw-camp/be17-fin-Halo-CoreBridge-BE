@@ -79,7 +79,9 @@ public class SecurityConfig {
 
         JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(refreshTokenService, jwtTokenService);
         AlreadyLoginFilter alreadyLoginFilter = new AlreadyLoginFilter(refreshTokenService, jwtTokenService);
+
         LoginFilter loginFilter = new LoginFilter(refreshTokenService, jwtTokenService, authenticationConfiguration.getAuthenticationManager());
+        loginFilter.setFilterProcessesUrl("/api/login");
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(alreadyLoginFilter, JwtAuthFilter.class);
