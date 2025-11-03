@@ -2,8 +2,11 @@ package com.halo.core_bridge.api.resume.controller;
 
 import com.halo.core_bridge.api.coverLetterDescription.model.dto.CoverLetterDescriptionDto;
 import com.halo.core_bridge.api.coverLetterDescription.service.CoverLetterDescriptionService;
+import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
+import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.service.ResumeService;
+import com.halo.core_bridge.api.users.model.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +34,8 @@ public class ResumeController {
 
     private final ResumeService resumeService;
     private final CoverLetterDescriptionService coverLetterDescriptionService;
+    private final CoverLetterTitleService coverLetterTitleService;
+
 
     @Operation(
             summary = "이력서 생성",
@@ -52,10 +57,10 @@ public class ResumeController {
     @ApiResponse(responseCode = "400", description = "이력서 생성 실패", content = @Content(mediaType = "application/json"))
     @PostMapping
     public ResponseEntity<Long> createResume(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserDto.Auth auth ,
             @RequestPart("resume") ResumeDto.Create dto,
             @RequestPart(value = "file", required = false) MultipartFile file) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        Long userId = auth.getId();
         Long resumeId = resumeService.create(dto, userId, file);
         return ResponseEntity.ok(resumeId);
     }
@@ -163,6 +168,14 @@ public class ResumeController {
         List<CoverLetterDescriptionDto.CoverLetterDescriptionResponse> descriptions =
                 coverLetterDescriptionService.list(resumeId, jobPostingId);
         return ResponseEntity.ok(descriptions);
+    }
+
+
+    @GetMapping("/cover-letter-titles")
+    public ResponseEntity<List<CoverLetterTitleDto.CoverLetterTitleResponse>> getCoverLetterTitles(
+            @PathVariable Long jobpostId) {
+        List<CoverLetterTitleDto.CoverLetterTitleResponse> titles = coverLetterTitleService.list(jobpostId);
+        return ResponseEntity.ok(titles);
     }
 }
 
