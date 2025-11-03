@@ -2,7 +2,7 @@ package com.halo.core_bridge.api.jobposting.contents;
 
 public class SwaggerJobPostingContents {
 
-    // ✅ 채용공고 등록 요청 예시
+    // 채용공고 등록 요청 예시
     public static final String JOB_POSTING_CREATE_REQUEST = """
             {
                 "title": "시니어 프론트엔드 개발자",
@@ -41,11 +41,10 @@ public class SwaggerJobPostingContents {
                 "contactName": "김채용",
                 "contactEmail": "recruit@example.com",
                 "additionalInfo": "포트폴리오 또는 GitHub 링크를 함께 제출해주세요."
-              }
-            
+            }
             """;
 
-    // ✅ 채용공고 저장 완료 응답
+    // 채용공고 저장 완료 응답
     public static final String JOB_POSTING_CREATE_RESPONSE = """
             {
               "success": true,
@@ -55,53 +54,53 @@ public class SwaggerJobPostingContents {
             }
             """;
 
-    // ✅ 채용공고 전체 조회 응답
+    // 채용공고 전체 조회 응답
     public static final String JOB_POSTING_LIST_RESPONSE = """
             {
-                   "success": true,
-                   "code": 20000,
-                   "message": "요청에 성공하였습니다.",
-                   "results": [
-                       {
-                           "id": 1,
-                           "title": "시니어 프론트엔드 개발자",
-                           "summaryText": "신입 · 정규직",
-                           "departmentName": "플랫폼개발팀",
-                           "employmentType": "정규직",
-                           "careerType": "신입",
-                           "status": "채용중",
-                           "hireEndDate": "2025-10-31",
-                           "dday": "D-6",
-                           "applicantCount": 14,
-                           "progressPercent": 71,
-                           "processSummaries": [
-                               {
-                                   "stageName": "지원 완료",
-                                   "count": 5,
-                                   "orderIndex": 0
-                               },
-                               {
-                                   "stageName": "서류 검토",
-                                   "count": 3,
-                                   "orderIndex": 1
-                               },
-                               {
-                                   "stageName": "1차 면접",
-                                   "count": 3,
-                                   "orderIndex": 2
-                               },
-                               {
-                                   "stageName": "최종 합격",
-                                   "count": 3,
-                                   "orderIndex": 3
-                               }
-                           ]
-                       }
-                   ]
-               }
+              "success": true,
+              "code": 20000,
+              "message": "요청에 성공하였습니다.",
+              "results": [
+                  {
+                      "id": 1,
+                      "title": "시니어 프론트엔드 개발자",
+                      "summaryText": "신입 · 정규직",
+                      "departmentName": "플랫폼개발팀",
+                      "employmentType": "정규직",
+                      "careerType": "신입",
+                      "status": "채용중",
+                      "hireEndDate": "2025-10-31",
+                      "dday": "D-6",
+                      "applicantCount": 14,
+                      "progressPercent": 71,
+                      "processSummaries": [
+                          {
+                              "stageName": "지원 완료",
+                              "count": 5,
+                              "orderIndex": 0
+                          },
+                          {
+                              "stageName": "서류 검토",
+                              "count": 3,
+                              "orderIndex": 1
+                          },
+                          {
+                              "stageName": "1차 면접",
+                              "count": 3,
+                              "orderIndex": 2
+                          },
+                          {
+                              "stageName": "최종 합격",
+                              "count": 3,
+                              "orderIndex": 3
+                          }
+                      ]
+                  }
+              ]
+            }
             """;
 
-    // ✅ 채용공고 단건 상세 조회 응답
+    // 채용공고 단건 상세 조회 응답
     public static final String JOB_POSTING_DETAIL_RESPONSE = """
             {
                   "success": true,
@@ -199,7 +198,7 @@ public class SwaggerJobPostingContents {
                 }
             """;
 
-    // ✅ 채용공고 상세조회 시 존재하지 않을 때
+    // 채용공고 상세조회 시 존재하지 않을 때
     public static final String JOB_POSTING_NOT_FOUND_RESPONSE = """
             {
               "success": false,
@@ -218,7 +217,7 @@ public class SwaggerJobPostingContents {
             }
             """;
 
-    // ✅ 유효성 검증 실패 응답 (입력 누락 등)
+    // 유효성 검증 실패 응답 (입력 누락 등)
     public static final String JOB_POSTING_VALIDATION_ERROR_RESPONSE = """
             {
               "success": false,
@@ -266,6 +265,66 @@ public class SwaggerJobPostingContents {
               "code": 20000,
               "message": "채용공고 삭제 완료",
               "result": null
+            }
+            """;
+
+    public static final String APPLICANT_RESPONSE = """
+            {
+                "success": true,
+                "code": 20000,
+                "message": "요청에 성공하였습니다.",
+                "results": [
+                    {
+                        "name": "강수빈",
+                        "email": "subin.kang@email.com",
+                        "careerType": "경력",
+                        "skills": [
+                            "Java",
+                            "Spring Boot",
+                            "Kubernetes",
+                            "MySQL",
+                            "Redis",
+                            "AWS"
+                        ],
+                        "degree": "학사",
+                        "certificateCount": 2,
+                        "applyDate": "2025-11-01",
+                        "stageName": "1차 기술면접"
+                    },
+                    {
+                        "name": "윤재현",
+                        "email": "jaehyun.yoon@email.com",
+                        "careerType": "경력",
+                        "skills": [
+                            "Java",
+                            "Spring Boot",
+                            "PostgreSQL",
+                            "Docker",
+                            "Jenkins"
+                        ],
+                        "degree": "학사",
+                        "certificateCount": 1,
+                        "applyDate": "2025-11-01",
+                        "stageName": "코딩테스트"
+                    },
+                    {
+                        "name": "황동혁",
+                        "email": "donghyuk.hwang@email.com",
+                        "careerType": "경력",
+                        "skills": [
+                            "Java",
+                            "Spring Boot",
+                            "Redis",
+                            "Kafka",
+                            "MySQL",
+                            "AWS"
+                        ],
+                        "degree": "학사",
+                        "certificateCount": 1,
+                        "applyDate": "2025-11-01",
+                        "stageName": "2차 컬처핏면접"
+                    }
+                ]
             }
             """;
 }
