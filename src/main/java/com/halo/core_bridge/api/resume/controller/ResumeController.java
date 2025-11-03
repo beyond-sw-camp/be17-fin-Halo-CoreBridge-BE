@@ -282,7 +282,6 @@ public class ResumeController {
         return ResponseEntity.ok(descriptions);
     }
 
-
     @GetMapping("/cover-letter-titles")
     public ResponseEntity<List<CoverLetterTitleDto.CoverLetterTitleResponse>> getCoverLetterTitles(
             @PathVariable Long jobpostId) {
