@@ -33,6 +33,7 @@ public class CoverLetterDescriptionDto {
         private String description;
         private Long resumeId;
         private Long coverLetterId;
+        private String coverLetterTitle;
 
         public static CoverLetterDescriptionDto.CoverLetterDescriptionResponse from(CoverLetterDescription entity) {
             return CoverLetterDescriptionResponse.builder()
@@ -40,6 +41,7 @@ public class CoverLetterDescriptionDto {
                     .description(entity.getDescription())
                     .resumeId(entity.getResume().getId())
                     .coverLetterId(entity.getCoverLetterTitle().getId())
+                    .coverLetterTitle(entity.getCoverLetterTitle().getTitle())
                     .build();
 
         }

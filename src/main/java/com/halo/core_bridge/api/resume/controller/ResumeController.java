@@ -2,9 +2,12 @@ package com.halo.core_bridge.api.resume.controller;
 
 import com.halo.core_bridge.api.coverLetterDescription.model.dto.CoverLetterDescriptionDto;
 import com.halo.core_bridge.api.coverLetterDescription.service.CoverLetterDescriptionService;
+import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
+import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.resume.contents.SwaggerResumeContents;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.service.ResumeService;
+import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,13 +16,20 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.web.bind.annotation.*;
+
+import com.halo.core_bridge.api.resume.contents.SwaggerResumeContents;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -34,6 +44,8 @@ public class ResumeController {
 
     private final ResumeService resumeService;
     private final CoverLetterDescriptionService coverLetterDescriptionService;
+    private final CoverLetterTitleService coverLetterTitleService;
+
 
     @Operation(summary = "이력서 생성", description = "새로운 이력서를 생성합니다.",
             parameters = {
@@ -67,10 +79,10 @@ public class ResumeController {
     )
     @PostMapping
     public ResponseEntity<Long> createResume(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal UserDto.Auth auth ,
             @RequestPart("resume") ResumeDto.Create dto,
             @RequestPart(value = "file", required = false) MultipartFile file) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        Long userId = auth.getId();
         Long resumeId = resumeService.create(dto, userId, file);
         return ResponseEntity.ok(resumeId);
     }
@@ -207,6 +219,8 @@ public class ResumeController {
         return ResponseEntity.ok().build();
     }
 
+    //-------------------------------------------------------------------------------------------------------------------
+
     @Operation(
             summary = "자기소개서 항목 답변 생성",
             description = "이력서에 자기소개서 항목에 대한 답변을 추가합니다.",
@@ -259,43 +273,6 @@ public class ResumeController {
         return ResponseEntity.ok(descriptionIds);
     }
 
-    @Operation(
-            summary = "자기소개서 항목 답변 목록 조회",
-            description = "이력서의 자기소개서 항목 답변 목록을 조회합니다.",
-            parameters = {
-                    @Parameter(
-                            name = "jobpostId",
-                            description = "채용 공고 ID",
-                            required = true,
-                            example = "1"
-                    ),
-                    @Parameter(
-                            name = "resumeId",
-                            description = "이력서 ID",
-                            required = true,
-                            example = "1"
-                    ),
-                    @Parameter(
-                            name = "jobPostingId",
-                            description = "채용 공고 ID",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            description = "요청 성공 응답 예시입니다.",
-                                            value = SwaggerResumeContents.COVER_LETTER_LIST_RESPONSE)
-                            )
-                    )
-            }
-    )
     @GetMapping("/{resumeId}/cover-letter-descriptions")
     public ResponseEntity<List<CoverLetterDescriptionDto.CoverLetterDescriptionResponse>> listDescriptions(
             @PathVariable Long resumeId,
@@ -304,4 +281,12 @@ public class ResumeController {
                 coverLetterDescriptionService.list(resumeId, jobPostingId);
         return ResponseEntity.ok(descriptions);
     }
+
+    @GetMapping("/cover-letter-titles")
+    public ResponseEntity<List<CoverLetterTitleDto.CoverLetterTitleResponse>> getCoverLetterTitles(
+            @PathVariable Long jobpostId) {
+        List<CoverLetterTitleDto.CoverLetterTitleResponse> titles = coverLetterTitleService.list(jobpostId);
+        return ResponseEntity.ok(titles);
+    }
 }
+
