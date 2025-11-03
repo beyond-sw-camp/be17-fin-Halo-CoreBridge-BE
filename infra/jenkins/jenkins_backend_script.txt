@@ -1,0 +1,161 @@
+pipeline {
+  agent {
+    kubernetes {
+      label "gradle-kaniko-${UUID.randomUUID().toString()}"
+      defaultContainer 'gradle'
+      yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: jenkins
+spec:
+  restartPolicy: Never
+  containers:
+    - name: gradle
+      image: gradle:8.9-jdk17
+      command: ['cat']
+      tty: true
+      lifecycle:
+        postStart:
+          exec:
+            command: ["/bin/sh", "-c", "apt update && apt install -y openssh-client"]
+      volumeMounts:
+        - name: gradle-cache
+          mountPath: /home/gradle/.gradle
+        - name: workspace
+          mountPath: /workspace
+
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command: ['/busybox/sh','-c','sleep infinity']
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /workspace
+
+  volumes:
+    - name: gradle-cache
+      emptyDir: {}
+    - name: workspace
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: regcred
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+"""
+    }
+  }
+
+  environment {
+    docker_name = 'halo1234'
+    NAMESPACE = 'corebridge'
+    SERVICE_NAME = 'corebridge-backend'
+    GIT_URL = 'https://github.com/beyond-sw-camp/be17-fin-Halo-CoreBridge-BE.git'
+    IMAGE_NAME = "${docker_name}/corebridge-backend"
+    IMAGE_TAG = "${env.BUILD_NUMBER}"
+    DISCORD_WEBHOOK = credentials('discord-webhook')
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        container('gradle') {
+          checkout([$class: 'GitSCM',
+            branches: [[name: '*/dev']],
+            userRemoteConfigs: [[url: "${GIT_URL}"]]
+          ])
+        }
+      }
+    }
+
+    stage('Build JAR') {
+      steps {
+        container('gradle') {
+          sh """
+            chmod +x ./gradlew || true
+            ./gradlew --no-daemon clean bootJar
+          """
+        }
+      }
+    }
+
+    stage('Build & Push Image') {
+      steps {
+        container('kaniko') {
+          sh """
+            /kaniko/executor \
+              --context=\$WORKSPACE \
+              --dockerfile=\$WORKSPACE/Dockerfile \
+              --destination=${IMAGE_NAME}:${IMAGE_TAG} \
+              --destination=${IMAGE_NAME}:latest \
+              --cache=true \
+              --snapshotMode=redo
+          """
+        }
+      }
+    }
+
+    stage('Blue-Green Deploy') {
+      steps {
+        sshPublisher(publishers: [
+          sshPublisherDesc(
+            configName: 'K8S_MASTER',
+            verbose: true,
+            transfers: [
+              sshTransfer(execCommand: """
+set -e
+
+CUR_VER=\$(kubectl get svc ${SERVICE_NAME} -n ${NAMESPACE} -o jsonpath='{.spec.selector.version}' || echo "")
+if [ -z "\$CUR_VER" ]; then NEW_VER="blue";
+elif [ "\$CUR_VER" = "blue" ]; then NEW_VER="green";
+else NEW_VER="blue"; fi
+
+echo "Current=\${CUR_VER:-none}, New=\$NEW_VER"
+
+kubectl set image deployment/corebridge-backend-\$NEW_VER backend=${IMAGE_NAME}:${IMAGE_TAG} -n ${NAMESPACE}
+
+kubectl scale deployment/corebridge-backend-\$NEW_VER -n ${NAMESPACE} --replicas=2
+kubectl rollout status deployment/corebridge-backend-\$NEW_VER -n ${NAMESPACE} --timeout=300s
+
+kubectl patch svc ${SERVICE_NAME} -n ${NAMESPACE} -p "{
+  \\"spec\\": {\\"selector\\": {\\"app\\\":\\"corebridge-backend\\",\\"version\\\":\\"\$NEW_VER\\"}}
+}"
+
+if [ -n "\$CUR_VER" ] && [ "\$CUR_VER" != "\$NEW_VER" ]; then
+  kubectl scale deployment/corebridge-backend-\$CUR_VER -n ${NAMESPACE} --replicas=0 || true
+fi
+
+echo "✅ Traffic switched to \$NEW_VER"
+              """)
+            ]
+          )
+        ])
+      }
+    }
+  }
+  
+    post {
+    success {
+      sh """
+      curl -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{"content": "✅ Success! Job: ${JOB_NAME}, Build: #${BUILD_NUMBER}\\n<${BUILD_URL}>"}' \
+      $DISCORD_WEBHOOK
+      """
+    }
+
+    failure {
+      sh """
+      curl -H 'Content-Type: application/json' \
+      -X POST \
+      -d '{"content": "❌ Failed! Job: ${JOB_NAME}, Build: #${BUILD_NUMBER}\\n<${BUILD_URL}>"}' \
+      $DISCORD_WEBHOOK
+      """
+    }
+  }
+}

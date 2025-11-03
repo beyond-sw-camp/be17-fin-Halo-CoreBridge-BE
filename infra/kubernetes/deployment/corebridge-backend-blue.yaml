@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: corebridge-backend-blue
+  namespace: corebridge
+spec:
+  replicas: 0 # traffic standby 상태 유지
+  selector:
+    matchLabels:
+      app: corebridge-backend
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: corebridge-backend
+        version: blue
+    spec:
+      containers:
+        - name: backend
+          image: halo1234/corebridge-backend:73
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: corebridge-config
+            - secretRef:
+                name: corebridge-secret
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

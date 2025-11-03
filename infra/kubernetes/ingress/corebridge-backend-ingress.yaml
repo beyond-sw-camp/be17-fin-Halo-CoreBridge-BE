@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: corebridge-backend
+  namespace: corebridge
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+
+  tls:
+    - hosts:
+        - api.core-bridge.co.kr
+        - www.core-bridge.co.kr
+      secretName: api-corebridge-tls
+
+  rules:
+    - host: api.core-bridge.co.kr
+      http:
+        paths:
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: corebridge-backend
+                port:
+                  number: 8080
+
+    - host: www.core-bridge.co.kr
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: corebridge-backend
+                port:
+                  number: 8080
+                  
