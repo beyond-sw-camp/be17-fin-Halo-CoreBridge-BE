@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.resume.service;
 
+import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.pdf.repository.PdfRepository;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_NOT_FOUND;
 import static com.halo.core_bridge.common.model.BaseResponseStatus.RESUME_NOT_FOUND;
 
 @Slf4j
@@ -38,6 +40,7 @@ public class ResumeService {
     private final OverseasExperienceService overseasExperienceService;
     private final ResumeSkillService resumeSkillService;
     private final PdfRepository pdfRepository;
+    private final JobPostingRepository jobPostingRepository;
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -174,5 +177,20 @@ public class ResumeService {
     public Resume findById(Long id) {
         return resumeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Resume not found"));
+    }
+
+    // 해당공고의 지원자 조회
+    @Transactional(readOnly = true)
+    public List<ResumeDto.ApplicantResponse> getApplicants(Long jobPostingId) {
+        // 해당 공고
+        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
+
+        // 해당 공고에 속한 이력서
+        List<Resume> resumeList = resumeRepository.findByJobPostingId(jobPostingId);
+
+        // 각각의 이력서 객체를 ApplicantResponse로 변환 후 List에 담아서 반환
+        return resumeList.stream()
+                .map(resume -> ResumeDto.ApplicantResponse.fromEntity(jobPosting, resume)).toList();
+
     }
 }
