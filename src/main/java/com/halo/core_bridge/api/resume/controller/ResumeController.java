@@ -16,20 +16,12 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.web.bind.annotation.*;
-
-import com.halo.core_bridge.api.resume.contents.SwaggerResumeContents;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -177,9 +169,9 @@ public class ResumeController {
             }
     )
     @GetMapping
-    public ResponseEntity<List<ResumeDto.Response>> listResumes() {
-        List<ResumeDto.Response> resumes = resumeService.list();
-        return ResponseEntity.ok(resumes);
+    public ResponseEntity<BaseResponse<List<ResumeDto.ApplicantResponse>>> listResumes(@PathVariable Long jobpostId) {
+        List<ResumeDto.ApplicantResponse> result = resumeService.getApplicants(jobpostId);
+        return ResponseEntity.ok(BaseResponse.success(result));
     }
 
     @Operation(
@@ -288,5 +280,7 @@ public class ResumeController {
         List<CoverLetterTitleDto.CoverLetterTitleResponse> titles = coverLetterTitleService.list(jobpostId);
         return ResponseEntity.ok(titles);
     }
+
+
 }
 

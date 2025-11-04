@@ -6,7 +6,6 @@ import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
-import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -82,21 +81,6 @@ public class JobPostingService {
         int applicantCounts = resumeRepository.countByJobPostingId(id);
 
         return JobPostingDto.DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
-    }
-
-    // 해당공고의 지원자 조회
-    @Transactional(readOnly = true)
-    public List<JobPostingDto.ApplicantResponse> getApplicants(Long jobPostingId) {
-        // 해당 공고
-        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
-
-        // 해당 공고에 속한 이력서
-        List<Resume> resumeList = resumeRepository.findByJobPostingId(jobPostingId);
-
-        // 각각의 이력서 객체를 ApplicantResponse로 변환 후 List에 담아서 반환
-        return resumeList.stream()
-                .map(resume -> JobPostingDto.ApplicantResponse.fromEntity(jobPosting, resume)).toList();
-
     }
 
     //채용공고 헤더(기본정보) 조회요청
