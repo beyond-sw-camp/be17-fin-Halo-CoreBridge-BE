@@ -1,165 +1,545 @@
--- UserRole Data
-INSERT INTO user_role (id, code, name, created_at, updated_at) VALUES (1, 'ROLE_USER', '일반 사용자', NOW(), NOW());
-INSERT INTO user_role (id, code, name, created_at, updated_at) VALUES (2, 'ROLE_ADMIN', '관리자', NOW(), NOW());
+-- ============================================
+-- 채용 시스템 데이터베이스 스크립트 (MariaDB)
+-- ============================================
 
--- Users Data
-INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (1, '김철수', 'kim.chulsoo@example.com', 'password123', '1990-01-15', 'MALE', '010-1234-5678', 1, NOW(), NOW());
-INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (2, '이영희', 'lee.younghee@example.com', 'password123', '1992-05-20', 'FEMALE', '010-9876-5432', 1, NOW(), NOW());
-INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (3, '박관리', 'park.admin@example.com', 'adminpass', '1985-11-01', 'MALE', '010-1111-2222', 2, NOW(), NOW());
-INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (4, '최지혜', 'choi.jihye@example.com', 'password123', '1995-03-10', 'FEMALE', '010-3333-4444', 1, NOW(), NOW());
-INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (5, '정민준', 'jung.minjun@example.com', 'password123', '1988-07-22', 'MALE', '010-5555-6666', 1, NOW(), NOW());
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
--- JobGroup Data
-INSERT INTO job_group (id, name, location, created_at, updated_at) VALUES (1, '개발', '서울', NOW(), NOW());
-INSERT INTO job_group (id, name, location, created_at, updated_at) VALUES (2, '디자인', '경기', NOW(), NOW());
-INSERT INTO job_group (id, name, location, created_at, updated_at) VALUES (3, '마케팅', '부산', NOW(), NOW());
 
--- Duty Data
-INSERT INTO duty (id, name, job_group_id, created_at, updated_at) VALUES (1, '백엔드 개발', 1, NOW(), NOW());
-INSERT INTO duty (id, name, job_group_id, created_at, updated_at) VALUES (2, '프론트엔드 개발', 1, NOW(), NOW());
-INSERT INTO duty (id, name, job_group_id, created_at, updated_at) VALUES (3, 'UI/UX 디자인', 2, NOW(), NOW());
-INSERT INTO duty (id, name, job_group_id, created_at, updated_at) VALUES (4, '디지털 마케팅', 3, NOW(), NOW());
+-- ============================================
+-- 2. 데이터 입력 (INSERT)
+-- ============================================
 
--- Department Data
-INSERT INTO department (id, name, duty_id, created_at, updated_at) VALUES (1, '백엔드 개발팀', 1, NOW(), NOW());
-INSERT INTO department (id, name, duty_id, created_at, updated_at) VALUES (2, '프론트엔드 개발팀', 2, NOW(), NOW());
-INSERT INTO department (id, name, duty_id, created_at, updated_at) VALUES (3, '디자인팀', 3, NOW(), NOW());
-INSERT INTO department (id, name, duty_id, created_at, updated_at) VALUES (4, '마케팅팀', 4, NOW(), NOW());
+-- 사용자 권한 데이터
+INSERT INTO `user_role` (`code`, `name`)
+VALUES ('ROLE_ADMIN', '관리자'),
+       ('ROLE_APPLICANT', '지원자'),
+       ('ROLE_RECRUITER', '채용 담당자'),
+       ('ROLE_INTERVIEWER', '면접관');
 
--- JobPosting Data
-INSERT INTO job_posting (id, title, employment_type, career_type, min_experience, max_experience, position_level, location, apply_start_date, apply_end_date, hire_end_date, headcount, summary, responsibilities, requirements, preferred, salary_type, salary_min, salary_max, salary_negotiable, working_hours, benefits, contact_name, contact_email, additional_info, department_id, created_user_id, created_at, updated_at) VALUES (1, '백엔드 개발자 채용', 'FULL_TIME', 'EXPERIENCED', 3, 7, '대리-과장', '서울 강남구', '2025-10-01 09:00:00', '2025-10-31 18:00:00', '2025-11-15 18:00:00', 5, '백엔드 시스템 개발 및 운영', '서비스 API 개발, DB 설계 및 최적화', 'Java, Spring Boot 경험 3년 이상', 'MSA 경험 우대', 'YEARLY', 4000, 6000, FALSE, '주 5일, 10시-19시', '식대 제공, 유연 근무', '김인사', 'hr@example.com', '많은 지원 바랍니다.', 1, 3, NOW(), NOW());
-INSERT INTO job_posting (id, title, employment_type, career_type, min_experience, max_experience, position_level, location, apply_start_date, apply_end_date, hire_end_date, headcount, summary, responsibilities, requirements, preferred, salary_type, salary_min, salary_max, salary_negotiable, working_hours, benefits, contact_name, contact_email, additional_info, department_id, created_user_id, created_at, updated_at) VALUES (2, '프론트엔드 개발자 채용', 'FULL_TIME', 'NEW', 0, 0, '사원', '서울 서초구', '2025-10-05 09:00:00', '2025-11-05 18:00:00', '2025-11-20 18:00:00', 3, '프론트엔드 웹 서비스 개발', 'React 기반 UI 개발, 웹 성능 최적화', 'HTML, CSS, JavaScript, React 경험', 'TypeScript 경험 우대', 'YEARLY', 3000, 4500, FALSE, '주 5일, 9시-18시', '커피 무제한, 사내 동호회 지원', '박인사', 'hr2@example.com', '신입 환영합니다.', 2, 3, NOW(), NOW());
-INSERT INTO job_posting (id, title, employment_type, career_type, min_experience, max_experience, position_level, location, apply_start_date, apply_end_date, hire_end_date, headcount, summary, responsibilities, requirements, preferred, salary_type, salary_min, salary_max, salary_negotiable, working_hours, benefits, contact_name, contact_email, additional_info, department_id, created_user_id, created_at, updated_at) VALUES (3, 'UI/UX 디자이너 채용', 'FULL_TIME', 'EXPERIENCED', 2, 5, '주니어-시니어', '경기 성남시', '2025-10-10 09:00:00', '2025-11-10 18:00:00', '2025-11-25 18:00:00', 2, '사용자 경험 개선 및 인터페이스 디자인', '와이어프레임, 프로토타입 제작, 디자인 시스템 구축', 'Figma, Sketch, Adobe XD 사용 경험 2년 이상', '애니메이션 디자인 경험 우대', 'YEARLY', 3500, 5500, FALSE, '주 5일, 9시-18시', '최신 장비 지원, 디자인 교육 지원', '최인사', 'hr3@example.com', '포트폴리오 제출 필수', 3, 3, NOW(), NOW());
-INSERT INTO job_posting (id, title, employment_type, career_type, min_experience, max_experience, position_level, location, apply_start_date, apply_end_date, hire_end_date, headcount, summary, responsibilities, requirements, preferred, salary_type, salary_min, salary_max, salary_negotiable, working_hours, benefits, contact_name, contact_email, additional_info, department_id, created_user_id, created_at, updated_at) VALUES (4, '디지털 마케터 (경력무관)', 'FULL_TIME', 'ANY', 0, 0, '사원-대리', '부산 해운대구', '2025-10-15 09:00:00', '2025-11-15 18:00:00', '2025-11-30 18:00:00', 4, '온라인 마케팅 전략 수립 및 실행', 'SNS 채널 운영, 광고 캠페인 기획 및 분석', '디지털 마케팅에 대한 이해와 열정', 'GA, SEO 경험 우대', 'MONTHLY', 250, 350, FALSE, '주 5일, 9시-18시', '성과급 지급, 마케팅 교육 지원', '정인사', 'hr4@example.com', '적극적이고 창의적인 인재를 찾습니다.', 4, 3, NOW(), NOW());
+-- 사용자 데이터
+INSERT INTO `users` (`name`, `email`, `password`, `birth`, `gender`, `phone`, `user_role_id`)
+VALUES ('김관리', 'admin@company.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1985-03-15', 'Male', '010-1111-2222', 1),
+       ('박채용', 'recruiter@company.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1988-07-22', 'Female', '010-2222-3333', 3),
+       ('이면접', 'interviewer@company.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1990-11-05', 'Male', '010-3333-4444', 4),
+       ('최지원', 'applicant1@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1995-05-12', 'Female', '010-4444-5555', 2),
+       ('정개발', 'applicant2@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1993-09-18', 'Male', '010-5555-6666', 2),
+       ('한디자인', 'applicant3@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1996-02-28', 'Female', '010-6666-7777', 2),
+       ('강데이터', 'applicant4@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1994-12-03', 'Male', '010-7777-8888', 2),
+       ('윤마케팅', 'applicant5@email.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1997-08-20', 'Female', '010-8888-9999', 2),
+       ('관리자01', 'admin01@core-bridge.co.kr', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1997-08-20', 'Female', '010-8888-9999', 1),
+       ('지원자01', 'applicant01@core-bridge.co.kr', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1997-08-20', 'Female', '010-8888-9999', 2),
+       ('채용 담당자01', 'recruiter01@core-bridge.co.kr', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1997-08-20', 'Female', '010-8888-9999', 3),
+       ('면접관01', 'interviewer01@core-bridge.co.kr', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1997-08-20', 'Female', '010-8888-9999', 4),
+       ('이상우', 'lesw1216@gmail.com', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1997-08-20', 'Female', '010-8888-9999', 1);
 
--- Room Data
-INSERT INTO room (id, name, location, room_type, description) VALUES (1, '면접실 A', '본사 5층', 'OFFLINE', '조용하고 쾌적한 면접실');
-INSERT INTO room (id, name, location, room_type, description) VALUES (2, '온라인 면접방 1', '온라인', 'ONLINE', '화상 면접용 가상 공간');
-INSERT INTO room (id, name, location, room_type, description) VALUES (3, '면접실 B', '본사 6층', 'OFFLINE', '넓고 편안한 면접실');
-INSERT INTO room (id, name, location, room_type, description) VALUES (4, '온라인 면접방 2', '온라인', 'ONLINE', '그룹 화상 면접용 가상 공간');
+-- 직군 데이터
+INSERT INTO `job_group` (`name`, `location`)
+VALUES ('개발', '서울 강남구'),
+       ('디자인', '서울 강남구'),
+       ('경영지원', '서울 서초구'),
+       ('마케팅', '서울 강남구'),
+       ('데이터분석', '서울 판교');
 
--- Image Data
-INSERT INTO image (id, original_filename, saved_path, content_type, file_size, is_deleted, user_id, created_at, updated_at) VALUES (1, 'profile1.jpg', '/images/profile/1_profile1.jpg', 'image/jpeg', 102400, FALSE, 1, NOW(), NOW());
-INSERT INTO image (id, original_filename, saved_path, content_type, file_size, is_deleted, user_id, created_at, updated_at) VALUES (2, 'profile2.png', '/images/profile/2_profile2.png', 'image/png', 204800, FALSE, 2, NOW(), NOW());
-INSERT INTO image (id, original_filename, saved_path, content_type, file_size, is_deleted, user_id, created_at, updated_at) VALUES (3, 'profile3.jpg', '/images/profile/3_profile3.jpg', 'image/jpeg', 150000, FALSE, 4, NOW(), NOW());
-INSERT INTO image (id, original_filename, saved_path, content_type, file_size, is_deleted, user_id, created_at, updated_at) VALUES (4, 'profile4.png', '/images/profile/4_profile4.png', 'image/png', 250000, FALSE, 5, NOW(), NOW());
+-- 직무 데이터
+INSERT INTO `duty` (`name`, `job_group_id`)
+VALUES ('백엔드 개발', 1),
+       ('프론트엔드 개발', 1),
+       ('모바일 개발', 1),
+       ('UI/UX 디자인', 2),
+       ('그래픽 디자인', 2),
+       ('인사', 3),
+       ('재무', 3),
+       ('퍼포먼스 마케팅', 4),
+       ('콘텐츠 마케팅', 4),
+       ('데이터 엔지니어', 5),
+       ('데이터 분석가', 5);
 
--- Board Data
-INSERT INTO board (id, title, contents, like_count, view_count, user_id, created_at, updated_at) VALUES (1, '첫 번째 게시글', '안녕하세요, 첫 게시글입니다.', 10, 100, 1, NOW(), NOW());
-INSERT INTO board (id, title, contents, like_count, view_count, user_id, created_at, updated_at) VALUES (2, '두 번째 게시글', '두 번째 게시글 내용입니다.', 5, 50, 2, NOW(), NOW());
-INSERT INTO board (id, title, contents, like_count, view_count, user_id, created_at, updated_at) VALUES (3, '새로운 소식 공유', '회사 소식을 공유합니다. 많은 관심 부탁드립니다.', 20, 200, 3, NOW(), NOW());
-INSERT INTO board (id, title, contents, like_count, view_count, user_id, created_at, updated_at) VALUES (4, '개발 팁 공유', 'Spring Boot 개발 시 유용한 팁입니다.', 15, 150, 1, NOW(), NOW());
-INSERT INTO board (id, title, contents, like_count, view_count, user_id, created_at, updated_at) VALUES (5, '디자인 트렌드', '최신 UI/UX 디자인 트렌드에 대해 알아봅시다.', 8, 80, 4, NOW(), NOW());
+-- 부서 데이터
+INSERT INTO `department` (`name`, `duty_id`)
+VALUES ('플랫폼개발팀', 1),
+       ('웹개발팀', 2),
+       ('앱개발팀', 3),
+       ('UX팀', 4),
+       ('브랜드디자인팀', 5),
+       ('인사팀', 6),
+       ('재무팀', 7),
+       ('그로스마케팅팀', 8),
+       ('콘텐츠팀', 9),
+       ('데이터플랫폼팀', 10),
+       ('비즈니스애널리틱스팀', 11);
 
--- Likes Data
-INSERT INTO likes (id, board_id, user_id, created_at, updated_at) VALUES (1, 1, 2, NOW(), NOW());
-INSERT INTO likes (id, board_id, user_id, created_at, updated_at) VALUES (2, 2, 1, NOW(), NOW());
-INSERT INTO likes (id, board_id, user_id, created_at, updated_at) VALUES (3, 3, 1, NOW(), NOW());
-INSERT INTO likes (id, board_id, user_id, created_at, updated_at) VALUES (4, 3, 2, NOW(), NOW());
-INSERT INTO likes (id, board_id, user_id, created_at, updated_at) VALUES (5, 4, 5, NOW(), NOW());
+-- 채용공고 데이터
+INSERT INTO `job_posting` (`title`, `employment_type`, `career_type`, `min_experience`, `max_experience`,
+                           `position_level`, `location`, `apply_start_date`, `apply_end_date`, `hire_end_date`,
+                           `headcount`,
+                           `summary`, `responsibilities`, `requirements`, `preferred`,
+                           `salary_type`, `salary_min`, `salary_max`, `salary_negotiable`,
+                           `working_hours`, `benefits`, `contact_name`, `contact_email`, `additional_info`,
+                           `department_id`, `created_user_id`)
+VALUES ('백엔드 개발자 (Java/Spring)',
+        'FULL_TIME',
+        'EXPERIENCED',
+        3,
+        7,
+        '시니어',
+        '서울 강남구 테헤란로',
+        '2025-01-01 09:00:00',
+        '2025-02-28 23:59:59',
+        '2025-03-31 23:59:59',
+        3,
+        '글로벌 서비스를 운영하는 플랫폼 개발팀에서 백엔드 개발자를 모집합니다.',
+        'MSA 기반 백엔드 시스템 설계 및 개발, RESTful API 설계 및 구현, 대용량 트래픽 처리 및 성능 최적화',
+        'Java, Spring Boot 실무 경험 3년 이상, RDBMS 및 NoSQL 사용 경험, AWS 또는 GCP 클라우드 환경 경험',
+        'Kubernetes, Docker 등 컨테이너 기술 경험, 대규모 트래픽 처리 경험, MSA 설계 및 구축 경험',
+        'YEARLY',
+        50000000,
+        80000000,
+        TRUE,
+        '주 5일 09:00-18:00 (유연근무제)',
+        '4대보험, 연차 15일, 자기계발비 월 20만원 지원, 최신 장비 지급, 석식 제공',
+        '박채용',
+        'recruiter@company.com',
+        '서류 전형 → 1차 면접 → 2차 면접 → 최종 합격',
+        1,
+        2),
+       ('프론트엔드 개발자 (React)',
+        'FULL_TIME',
+        'EXPERIENCED',
+        2,
+        5,
+        '주니어-미들',
+        '서울 강남구 테헤란로',
+        '2025-01-15 09:00:00',
+        '2025-03-15 23:59:59',
+        '2025-04-15 23:59:59',
+        2,
+        '사용자 경험을 최우선으로 하는 웹 서비스 프론트엔드 개발자를 찾습니다.',
+        'React 기반 웹 애플리케이션 개발, UI/UX 개선 및 최적화, 반응형 웹 디자인 구현',
+        'React 실무 경험 2년 이상, JavaScript/TypeScript 능숙, HTML/CSS 마크업 능력',
+        'Next.js 경험, 웹 성능 최적화 경험, 디자인 시스템 구축 경험',
+        'YEARLY',
+        42000000,
+        65000000,
+        TRUE,
+        '주 5일 10:00-19:00 (자율출퇴근제)',
+        '4대보험, 연차 15일, 교육비 전액 지원, 간식 무제한, 도서 구입비 지원',
+        '박채용',
+        'recruiter@company.com',
+        '포트폴리오 필수 제출',
+        2,
+        2),
+       ('UI/UX 디자이너',
+        'FULL_TIME',
+        'ANY',
+        NULL,
+        NULL,
+        '주니어-시니어',
+        '서울 강남구',
+        '2025-02-01 09:00:00',
+        '2025-03-31 23:59:59',
+        '2025-04-30 23:59:59',
+        2,
+        '사용자 중심의 디자인을 만들어갈 UI/UX 디자이너를 모집합니다.',
+        '서비스 UX 리서치 및 분석, UI 디자인 및 프로토타이핑, 디자인 시스템 구축 및 관리',
+        'Figma, Sketch 등 디자인 툴 능숙, 사용자 리서치 및 데이터 분석 능력, 포트폴리오 필수',
+        '모바일 앱 디자인 경험, 프로토타이핑 툴 사용 경험, HCI 관련 전공 우대',
+        'YEARLY',
+        38000000,
+        60000000,
+        TRUE,
+        '주 5일 10:00-19:00',
+        '4대보험, 연차 15일, 디자인 컨퍼런스 참가 지원, 최신 맥북 지급',
+        '박채용',
+        'recruiter@company.com',
+        '포트폴리오는 PDF 또는 웹 링크로 제출',
+        4,
+        2),
+       ('데이터 엔지니어',
+        'FULL_TIME',
+        'EXPERIENCED',
+        3,
+        NULL,
+        '시니어',
+        '경기 성남시 판교',
+        '2025-01-20 09:00:00',
+        '2025-03-20 23:59:59',
+        '2025-04-20 23:59:59',
+        2,
+        '대용량 데이터 파이프라인을 구축할 데이터 엔지니어를 찾습니다.',
+        '데이터 파이프라인 설계 및 구축, ETL 프로세스 개발, 데이터 웨어하우스 관리',
+        'Python, Spark 실무 경험, 클라우드 환경(AWS/GCP) 경험, SQL 능숙',
+        'Airflow, Kafka 등 데이터 플랫폼 경험, 빅데이터 처리 경험, 머신러닝 파이프라인 구축 경험',
+        'YEARLY',
+        55000000,
+        85000000,
+        TRUE,
+        '주 5일 09:00-18:00 (재택근무 주 2회)',
+        '4대보험, 연차 20일, 성과급, 주식매수선택권, 자율 좌석제',
+        '박채용',
+        'recruiter@company.com',
+        'GitHub 또는 기술블로그 링크 환영',
+        10,
+        2),
+       ('퍼포먼스 마케터 (신입)',
+        'FULL_TIME',
+        'NEW',
+        NULL,
+        NULL,
+        '신입',
+        '서울 강남구',
+        '2025-02-10 09:00:00',
+        '2025-04-10 23:59:59',
+        '2025-05-10 23:59:59',
+        1,
+        '디지털 마케팅을 배우고 성장할 신입 마케터를 모집합니다.',
+        '온라인 광고 집행 및 운영, 캠페인 성과 분석 및 리포팅, 마케팅 전략 수립 지원',
+        '마케팅에 대한 열정, 데이터 분석 능력, Excel, PowerPoint 활용 능력',
+        '디지털 마케팅 경험(인턴 포함), Google Analytics 사용 경험, 관련 자격증 보유',
+        'YEARLY',
+        32000000,
+        38000000,
+        FALSE,
+        '주 5일 09:00-18:00',
+        '4대보험, 연차 15일, 광고 운영비 별도, 교육 프로그램 제공',
+        '박채용',
+        'recruiter@company.com',
+        '마케팅 관련 프로젝트 경험 기술 시 우대',
+        8,
+        2),
+       ('안드로이드 개발자 (인턴)',
+        'INTERN',
+        'NEW',
+        NULL,
+        NULL,
+        '인턴',
+        '서울 강남구',
+        '2025-01-05 09:00:00',
+        '2025-02-05 23:59:59',
+        '2025-02-28 23:59:59',
+        2,
+        '모바일 앱 개발 실무를 경험할 안드로이드 개발 인턴을 모집합니다.',
+        '안드로이드 앱 기능 개발, 버그 수정 및 테스트, 코드 리뷰 참여',
+        'Kotlin 또는 Java 기본 지식, Android Studio 사용 가능, Git 사용 경험',
+        '안드로이드 앱 개발 경험(개인 프로젝트 포함), Jetpack Compose 관심, MVVM 패턴 이해',
+        'MONTHLY',
+        2500000,
+        3000000,
+        FALSE,
+        '주 5일 10:00-19:00 (6개월 계약)',
+        '4대보험, 중식 제공, 우수 인턴 정규직 전환 기회, 멘토링 프로그램',
+        '박채용',
+        'recruiter@company.com',
+        '인턴 기간: 6개월, 정규직 전환 가능',
+        3,
+        2);
 
--- RecruitProcess Data
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (1, '서류 전형', 1, 'BLUE', 1);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (2, '1차 면접', 2, 'RED', 1);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (3, '2차 면접', 3, 'ORANGE', 1);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (4, '최종 합격', 4, 'PURPLE', 1);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (5, '서류 심사', 1, 'BLUE', 2);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (6, '코딩 테스트', 2, 'PINK', 2);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (7, '기술 면접', 3, 'RED', 2);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (8, '임원 면접', 4, 'ORANGE', 2);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (9, '최종 합격', 5, 'PURPLE', 2);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (10, '포트폴리오 심사', 1, 'BLUE', 3);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (11, '실무 면접', 2, 'RED', 3);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (12, '최종 합격', 3, 'PURPLE', 3);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (13, '서류 전형', 1, 'BLUE', 4);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (14, '실무 면접', 2, 'RED', 4);
-INSERT INTO recruit_process (id, name, order_idx, color_code, job_posting_id) VALUES (15, '최종 합격', 3, 'PURPLE', 4);
+-- 채용공고 스킬 데이터
+INSERT INTO `job_posting_skill` (`name`, `job_posting_id`)
+VALUES ('Java', 1),
+       ('Spring Boot', 1),
+       ('MySQL', 1),
+       ('Redis', 1),
+       ('AWS', 1),
+       ('Docker', 1),
+       ('Kubernetes', 1),
+       ('React', 2),
+       ('TypeScript', 2),
+       ('JavaScript', 2),
+       ('HTML/CSS', 2),
+       ('Webpack', 2),
+       ('Git', 2),
+       ('Figma', 3),
+       ('Sketch', 3),
+       ('Photoshop', 3),
+       ('Illustrator', 3),
+       ('Prototyping', 3),
+       ('Python', 4),
+       ('Spark', 4),
+       ('Airflow', 4),
+       ('AWS', 4),
+       ('Kafka', 4),
+       ('SQL', 4),
+       ('ETL', 4),
+       ('Google Ads', 5),
+       ('Facebook Ads', 5),
+       ('Google Analytics', 5),
+       ('Excel', 5),
+       ('Kotlin', 6),
+       ('Android Studio', 6),
+       ('Git', 6),
+       ('Jetpack', 6);
 
--- CoverLetterTitle Data
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (1, '지원 동기', '회사에 지원하게 된 동기를 작성해주세요.', 1);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (2, '성장 과정', '자신의 성장 과정을 구체적으로 작성해주세요.', 1);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (3, '직무 역량', '지원 직무와 관련된 자신의 강점을 작성해주세요.', 1);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (4, '입사 후 포부', '입사 후 어떤 기여를 하고 싶은지 작성해주세요.', 1);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (5, '지원 동기 및 포부', '프론트엔드 개발에 대한 열정과 비전을 보여주세요.', 2);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (6, '협업 경험', '팀 프로젝트 경험을 중심으로 작성해주세요.', 2);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (7, '디자인 철학', '자신만의 디자인 철학을 설명해주세요.', 3);
-INSERT INTO cover_letter_title (id, title, sub_title, job_posting_id) VALUES (8, '마케팅 경험', '성공적인 마케팅 캠페인 경험을 작성해주세요.', 4);
+-- 채용 프로세스 데이터
+INSERT INTO `recruit_process` (`name`, `order_idx`, `color_code`, `job_posting_id`)
+VALUES ('서류 전형', 1, 'BLUE', 1),
+       ('1차 면접', 2, 'ORANGE', 1),
+       ('2차 면접', 3, 'PURPLE', 1),
+       ('최종 합격', 4, 'PINK', 1),
+       ('서류 전형', 1, 'BLUE', 2),
+       ('실무 면접', 2, 'ORANGE', 2),
+       ('최종 합격', 3, 'PINK', 2),
+       ('서류 전형', 1, 'BLUE', 3),
+       ('포트폴리오 리뷰', 2, 'PURPLE', 3),
+       ('실무 면접', 3, 'ORANGE', 3),
+       ('최종 합격', 4, 'PINK', 3),
+       ('서류 전형', 1, 'BLUE', 4),
+       ('기술 면접', 2, 'ORANGE', 4),
+       ('임원 면접', 3, 'PURPLE', 4),
+       ('최종 합격', 4, 'PINK', 4),
+       ('서류 전형', 1, 'BLUE', 5),
+       ('실무 면접', 2, 'ORANGE', 5),
+       ('최종 합격', 3, 'PINK', 5),
+       ('서류 전형', 1, 'BLUE', 6),
+       ('면접', 2, 'ORANGE', 6),
+       ('최종 합격', 3, 'PINK', 6);
 
--- Resume Data
-INSERT INTO resume (id, applied_at, description, job_posting_id, user_id, process_id, created_at, updated_at) VALUES (1, '2025-10-20 10:00:00', '백엔드 개발자 지원합니다.', 1, 1, 1, NOW(), NOW());
-INSERT INTO resume (id, applied_at, description, job_posting_id, user_id, process_id, created_at, updated_at) VALUES (2, '2025-10-25 11:00:00', '프론트엔드 개발자 지원합니다.', 2, 2, 5, NOW(), NOW());
-INSERT INTO resume (id, applied_at, description, job_posting_id, user_id, process_id, created_at, updated_at) VALUES (3, '2025-10-28 14:00:00', 'UI/UX 디자이너 지원합니다.', 3, 4, 10, NOW(), NOW());
-INSERT INTO resume (id, applied_at, description, job_posting_id, user_id, process_id, created_at, updated_at) VALUES (4, '2025-10-29 16:00:00', '디지털 마케터 지원합니다.', 4, 5, 13, NOW(), NOW());
-INSERT INTO resume (id, applied_at, description, job_posting_id, user_id, process_id, created_at, updated_at) VALUES (5, '2025-10-21 10:30:00', '백엔드 개발자 (경력) 지원합니다.', 1, 5, 1, NOW(), NOW());
+-- 이력서 데이터
+INSERT INTO `resume` (`applied_at`, `description`, `job_posting_id`, `user_id`, `process_id`)
+VALUES ('2025-01-10 14:30:00', '안녕하세요. 5년차 백엔드 개발자 정개발입니다.', 1, 5, 2),
+       ('2025-01-20 10:15:00', '3년간 React 개발 경험이 있는 최지원입니다.', 2, 4, 5),
+       ('2025-02-05 16:45:00', 'UI/UX 디자인에 열정이 있는 한디자인입니다.', 3, 6, 8),
+       ('2025-01-25 11:20:00', '데이터 파이프라인 구축 경험이 풍부한 강데이터입니다.', 4, 7, 12),
+       ('2025-02-15 09:40:00', '디지털 마케팅을 배우고 싶은 윤마케팅입니다.', 5, 8, 16),
+       ('2025-01-08 13:25:00', '안드로이드 개발에 관심이 많은 신입 개발자입니다.', 6, 5, 19);
 
--- CoverLetterDescription Data
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (1, '어릴 적부터 개발에 대한 열정이 많았습니다.', 1, 1);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (2, '꾸준한 학습으로 개발 역량을 키웠습니다.', 2, 1);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (3, 'Spring Boot를 활용한 프로젝트 경험이 풍부합니다.', 3, 1);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (4, '귀사에 기여하여 함께 성장하고 싶습니다.', 4, 1);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (5, 'React 개발에 대한 깊은 이���와 경험을 가지고 있습니다.', 5, 2);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (6, '다양한 협업 툴을 사용하여 팀 프로젝트를 성공적으로 이끌었습니다.', 6, 2);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (7, '사용자 중심의 디자인을 추구하며, 미적 감각과 실용성을 겸비했습니다.', 7, 3);
-INSERT INTO cover_letter_description (id, description, cover_letter_title_id, resume_id) VALUES (8, '데이터 기반의 마케팅 전략으로 높은 ROI를 달성했습니다.', 8, 4);
+-- 경력 데이터
+INSERT INTO `career` (`company_name`, `position`, `start_date`, `end_date`, `resume_id`)
+VALUES ('네이버', '백엔드 개발자', '2020-01-01 00:00:00', '2023-12-31 00:00:00', 1),
+       ('카카오', '시니어 백엔드 개발자', '2024-01-01 00:00:00', NULL, 1),
+       ('토스', '프론트엔드 개발자', '2022-03-01 00:00:00', '2024-12-31 00:00:00', 2),
+       ('쿠팡', 'UI/UX 디자이너', '2023-06-01 00:00:00', '2024-12-31 00:00:00', 3),
+       ('라인', '데이터 엔지니어', '2021-03-01 00:00:00', '2024-06-30 00:00:00', 4),
+       ('우아한형제들', '시니어 데이터 엔지니어', '2024-07-01 00:00:00', NULL, 4);
 
--- JobPostingSkill Data
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (1, 'Java', 1, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (2, 'Spring Boot', 1, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (3, 'MSA', 1, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (4, 'React', 2, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (5, 'TypeScript', 2, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (6, 'Figma', 3, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (7, 'Adobe XD', 3, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (8, 'Google Analytics', 4, NOW(), NOW());
-INSERT INTO job_posting_skill (id, name, job_posting_id, created_at, updated_at) VALUES (9, 'SEO', 4, NOW(), NOW());
+-- 자격증 데이터
+INSERT INTO `certificate` (`name`, `acquired_date`, `resume_id`)
+VALUES ('정보처리기사', '2019-08', 1),
+       ('AWS Solutions Architect Associate', '2022-05', 1),
+       ('SQLD', '2021-03', 2),
+       ('GTQ', '2022-10', 3),
+       ('ADsP', '2020-11', 4),
+       ('빅데이터분석기사', '2023-06', 4),
+       ('Google Ads 인증', '2024-08', 5);
 
--- Pdf Data
-INSERT INTO pdf (id, original_filename, saved_path, content_type, file_size, is_deleted, resume_id, created_at, updated_at) VALUES (1, 'resume_kim.pdf', '/pdfs/resume/1_resume_kim.pdf', 'application/pdf', 512000, FALSE, 1, NOW(), NOW());
-INSERT INTO pdf (id, original_filename, saved_path, content_type, file_size, is_deleted, resume_id, created_at, updated_at) VALUES (2, 'resume_lee.pdf', '/pdfs/resume/2_resume_lee.pdf', 'application/pdf', 600000, FALSE, 2, NOW(), NOW());
-INSERT INTO pdf (id, original_filename, saved_path, content_type, file_size, is_deleted, resume_id, created_at, updated_at) VALUES (3, 'portfolio_choi.pdf', '/pdfs/portfolio/3_portfolio_choi.pdf', 'application/pdf', 1200000, FALSE, 3, NOW(), NOW());
+-- 학력 데이터
+INSERT INTO `education` (`school_name`, `major`, `degree`, `resume_id`)
+VALUES ('서울대학교', '컴퓨터공학과', '학사', 1),
+       ('연세대학교', '소프트웨어학과', '학사', 2),
+       ('홍익대학교', '디자인학과', '학사', 3),
+       ('KAIST', '전산학부', '석사', 4),
+       ('고려대학교', '경영학과', '학사', 5),
+       ('한양대학교', '컴퓨터소프트웨어학부', '학사', 6);
 
--- Career Data
-INSERT INTO career (id, company_name, position, start_date, end_date, resume_id, created_at, updated_at) VALUES (1, 'ABC 주식회사', '백엔드 개발자', '2022-01-01 09:00:00', '2024-12-31 18:00:00', 1, NOW(), NOW());
-INSERT INTO career (id, company_name, position, start_date, end_date, resume_id, created_at, updated_at) VALUES (2, 'XYZ 테크', '주니어 프론트엔드 개발자', '2023-03-01 09:00:00', '2025-09-30 18:00:00', 2, NOW(), NOW());
-INSERT INTO career (id, company_name, position, start_date, end_date, resume_id, created_at, updated_at) VALUES (3, '디자인랩', 'UI/UX 디자이너', '2023-01-01 09:00:00', '2025-10-31 18:00:00', 3, NOW(), NOW());
-INSERT INTO career (id, company_name, position, start_date, end_date, resume_id, created_at, updated_at) VALUES (4, '마케팅허브', '디지털 마케터', '2024-01-01 09:00:00', '2025-10-31 18:00:00', 4, NOW(), NOW());
+-- 어학 데이터
+INSERT INTO `language` (`name`, `test_name`, `language_name`, `grade`, `speaking_level`, `test_date`, `resume_id`)
+VALUES ('영어', 'TOEIC', 'English', '950', 'Fluent', '2024-06-15', 1),
+       ('일본어', 'JLPT', 'Japanese', 'N2', 'Intermediate', '2023-12-10', 1),
+       ('영어', 'TOEIC Speaking', 'English', 'Level 7', 'Advanced', '2024-08-20', 2),
+       ('영어', 'OPIC', 'English', 'IH', 'Advanced', '2024-05-10', 3),
+       ('영어', 'TOEFL', 'English', '105', 'Fluent', '2024-03-15', 4),
+       ('중국어', 'HSK', 'Chinese', '6급', 'Advanced', '2023-11-20', 4);
 
--- Certificate Data
-INSERT INTO certificate (id, name, acquired_date, resume_id, created_at, updated_at) VALUES (1, '정보처리기사', '2021-03-01', 1, NOW(), NOW());
-INSERT INTO certificate (id, name, acquired_date, resume_id, created_at, updated_at) VALUES (2, 'SQLD', '2022-06-15', 1, NOW(), NOW());
-INSERT INTO certificate (id, name, acquired_date, resume_id, created_at, updated_at) VALUES (3, '웹디자인기능사', '2023-04-20', 2, NOW(), NOW());
-INSERT INTO certificate (id, name, acquired_date, resume_id, created_at, updated_at) VALUES (4, 'GTQ 1급', '2022-11-01', 3, NOW(), NOW());
+-- 해외경험 데이터
+INSERT INTO `overseas_experience` (`type`, `country`, `start_date`, `end_date`, `note`, `resume_id`)
+VALUES ('어학연수', '미국', '2018-01-01', '2018-12-31', '샌프란시스코 어학연수', 1),
+       ('교환학생', '일본', '2021-03-01', '2021-08-31', '도쿄대학 교환학생', 2),
+       ('인턴십', '싱가포르', '2022-06-01', '2022-08-31', '글로벌 IT 기업 인턴', 4);
 
--- Education Data
-INSERT INTO education (id, school_name, major, degree, resume_id, created_at, updated_at) VALUES (1, '한국대학교', '컴퓨터공학과', '학사', 1, NOW(), NOW());
-INSERT INTO education (id, school_name, major, degree, resume_id, created_at, updated_at) VALUES (2, '서울대학교', '소프트웨어학과', '학사', 2, NOW(), NOW());
-INSERT INTO education (id, school_name, major, degree, resume_id, created_at, updated_at) VALUES (3, '이화여자대학교', '디자인학과', '학사', 3, NOW(), NOW());
-INSERT INTO education (id, school_name, major, degree, resume_id, created_at, updated_at) VALUES (4, '고려대학교', '경영학과', '학사', 4, NOW(), NOW());
+-- 이력서 스킬 데이터
+INSERT INTO `resume_skill` (`name`, `resume_id`)
+VALUES ('Java', 1),
+       ('Spring', 1),
+       ('MySQL', 1),
+       ('AWS', 1),
+       ('Docker', 1),
+       ('React', 2),
+       ('TypeScript', 2),
+       ('Next.js', 2),
+       ('Redux', 2),
+       ('Figma', 3),
+       ('Sketch', 3),
+       ('Adobe XD', 3),
+       ('Prototyping', 3),
+       ('Python', 4),
+       ('Spark', 4),
+       ('Airflow', 4),
+       ('SQL', 4),
+       ('Kafka', 4),
+       ('Google Ads', 5),
+       ('Facebook Ads', 5),
+       ('Google Analytics', 5),
+       ('Kotlin', 6),
+       ('Android', 6),
+       ('Git', 6);
 
--- Language Data
-INSERT INTO language (id, name, test_name, language_name, grade, speaking_level, test_date, resume_id, created_at, updated_at) VALUES (1, 'TOEIC', 'TOEIC', '영어', '900점', '상', '2023-05-10', 1, NOW(), NOW());
-INSERT INTO language (id, name, test_name, language_name, grade, speaking_level, test_date, resume_id, created_at, updated_at) VALUES (2, 'OPIC', 'OPIC', '영어', 'AL', '최상', '2024-01-20', 1, NOW(), NOW());
-INSERT INTO language (id, name, test_name, language_name, grade, speaking_level, test_date, resume_id, created_at, updated_at) VALUES (3, 'HSK', 'HSK', '중국��', '5급', '중', '2023-09-01', 2, NOW(), NOW());
+-- 자기소개서 제목 데이터
+INSERT INTO `cover_letter_title` (`title`, `sub_title`, `job_posting_id`)
+VALUES ('지원 동기', '왜 우리 회사에 지원하셨나요?', 1),
+       ('기술 경험', '보유하신 기술과 경험을 구체적으로 설명해주세요.', 1),
+       ('프로젝트 경험', '가장 기억에 남는 프로젝트를 소개해주세요.', 1),
+       ('지원 동기', '지원하게 된 계기를 말씀해주세요.', 2),
+       ('프론트엔드 경험', 'React를 활용한 프로젝트 경험을 소개해주세요.', 2),
+       ('디자인 철학', '본인의 디자인 철학과 접근 방식을 설명해주세요.', 3),
+       ('포트폴리오 설명', '포트폴리오 중 가장 자신있는 작업물을 소개해주세요.', 3);
 
--- OverseasExperience Data
-INSERT INTO overseas_experience (id, type, country, start_date, end_date, note, resume_id, created_at, updated_at) VALUES (1, '어학연수', '미국', '2019-07-01', '2019-12-31', '영어 실력 향상', 1, NOW(), NOW());
-INSERT INTO overseas_experience (id, type, country, start_date, end_date, note, resume_id, created_at, updated_at) VALUES (2, '워킹홀리데이', '호주', '2020-01-01', '2020-12-31', '다양한 문화 경험', 2, NOW(), NOW());
+-- 자기소개서 내용 데이터
+INSERT INTO `cover_letter_description` (`description`, `cover_letter_title_id`, `resume_id`)
+VALUES ('귀사의 기술 스택과 개발 문화에 깊은 인상을 받았습니다. 특히 MSA 기반의 대규모 시스템을 운영하는 환경에서 제 경험을 발휘하고 싶습니다.', 1, 1),
+       ('Java와 Spring Boot를 활용하여 5년간 실무 경험을 쌓았습니다. 특히 대용량 트래픽 처리와 성능 최적화 경험이 풍부합니다.', 2, 1),
+       ('전사 결제 시스템 MSA 전환 프로젝트를 리드하여 응답 시간을 50% 개선했습니다.', 3, 1),
+       ('사용자 경험을 최우선으로 생각하는 귀사의 철학에 공감하여 지원하게 되었습니다.', 4, 2),
+       ('3년간 React 생태계에서 다양한 프로젝트를 진행했으며, 성능 최적화와 재사용 가능한 컴포넌트 설계에 강점이 있습니다.', 5, 2),
+       ('저는 사용자 중심의 디자인을 추구하며, 데이터 기반의 의사결정을 중요하게 생각합니다.', 6, 3),
+       ('모바일 앱 리디자인 프로젝트에서 사용자 리서치를 통해 UX를 개선하여 사용자 만족도를 30% 향상시켰습니다.', 7, 3);
 
--- ResumeSkill Data
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (1, 'Java', 1, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (2, 'Spring Boot', 1, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (3, 'MySQL', 1, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (4, 'React', 2, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (5, 'JavaScript', 2, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (6, 'Figma', 3, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (7, 'Photoshop', 3, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (8, 'Google Analytics', 4, NOW(), NOW());
-INSERT INTO resume_skill (id, name, resume_id, created_at, updated_at) VALUES (9, 'SNS 마케팅', 4, NOW(), NOW());
+-- 면접실 데이터
+INSERT INTO `room` (`name`, `location`, `room_type`, `description`)
+VALUES ('제1회의실', '본사 5층', 'OFFLINE', '20명 수용 가능한 대회의실'),
+       ('제2회의실', '본사 3층', 'OFFLINE', '10명 수용 가능한 중회의실'),
+       ('제3회의실', '본사 3층', 'OFFLINE', '6명 수용 가능한 소회의실'),
+       ('Zoom Room A', 'https://zoom.us/j/1234567890', 'ONLINE', 'Zoom 화상 면접실'),
+       ('Google Meet Room', 'https://meet.google.com/abc-defg-hij', 'ONLINE', 'Google Meet 화상 면접실');
 
--- Interview Data
-INSERT INTO interview (id, start_date_time, duration, status, description, resume_id, room_id, recruit_process_id, created_at, updated_at) VALUES (1, '2025-11-01 14:00:00', 60, 'SCHEDULED', '백엔드 개발자 1차 면접', 1, 1, 2, NOW(), NOW());
-INSERT INTO interview (id, start_date_time, duration, status, description, resume_id, room_id, recruit_process_id, created_at, updated_at) VALUES (2, '2025-11-05 10:00:00', 45, 'SCHEDULED', '프론트엔드 개발자 1차 면접', 2, 2, 7, NOW(), NOW());
-INSERT INTO interview (id, start_date_time, duration, status, description, resume_id, room_id, recruit_process_id, created_at, updated_at) VALUES (3, '2025-11-08 11:00:00', 50, 'SCHEDULED', 'UI/UX 디자이너 실무 면접', 3, 3, 11, NOW(), NOW());
-INSERT INTO interview (id, start_date_time, duration, status, description, resume_id, room_id, recruit_process_id, created_at, updated_at) VALUES (4, '2025-11-12 15:00:00', 40, 'SCHEDULED', '디지털 마케터 실무 면접', 4, 4, 14, NOW(), NOW());
-INSERT INTO interview (id, start_date_time, duration, status, description, resume_id, room_id, recruit_process_id, created_at, updated_at) VALUES (5, '2025-11-02 16:00:00', 60, 'COMPLETED', '백엔드 개발자 2차 면접 (완료)', 1, 1, 3, NOW(), NOW());
-INSERT INTO interview (id, start_date_time, duration, status, description, resume_id, room_id, recruit_process_id, created_at, updated_at) VALUES (6, '2025-11-06 13:00:00', 45, 'ONGOING', '프론트엔드 개발자 코딩 테스트 (진행 중)', 2, 2, 6, NOW(), NOW());
+-- 면접 데이터
+INSERT INTO `interview` (`start_date_time`, `duration`, `status`, `description`, `resume_id`, `room_id`,
+                         `recruit_process_id`)
+VALUES ('2025-01-15 14:00:00', 60, 'COMPLETED', '1차 기술 면접 - 시스템 설계 및 알고리즘', 1, 2, 2),
+       ('2025-01-22 15:00:00', 90, 'SCHEDULED', '2차 임원 면접', 1, 1, 3),
+       ('2025-01-25 10:00:00', 60, 'SCHEDULED', '실무 면접 - 프론트엔드 과제 리뷰', 2, 4, 6),
+       ('2025-02-10 13:00:00', 90, 'SCHEDULED', '포트폴리오 발표 및 실무 면접', 3, 3, 10),
+       ('2025-02-01 16:00:00', 60, 'COMPLETED', '기술 면접 - 데이터 파이프라인 설계', 4, 5, 13),
+       ('2025-02-08 11:00:00', 60, 'SCHEDULED', '임원 면접', 4, 1, 14);
+
+-- 게시판 데이터
+INSERT INTO `board` (`title`, `contents`, `like_count`, `view_count`, `user_id`)
+VALUES ('입사 후기 - 백엔드 개발자', '안녕하세요. 이번에 입사한 백엔드 개발자입니다. 면접 과정과 입사 후기를 공유합니다...', 15, 234, 5),
+       ('면접 준비 팁 공유', '최근 여러 회사 면접을 보면서 느낀 점들을 정리해봤습니다. 도움이 되길 바랍니다...', 28, 456, 4),
+       ('포트폴리오 작성 가이드', 'UI/UX 디자이너를 준비하시는 분들께 포트폴리오 작성 팁을 공유합니다...', 42, 678, 6),
+       ('개발 트렌드 2025', '2025년 주목해야 할 개발 트렌드에 대해 이야기해봅시다...', 35, 892, 5),
+       ('신입 개발자 취업 성공기', '6개월간의 취업 준비 끝에 드디어 합격했습니다. 제 경험을 공유합니다...', 67, 1245, 8);
+
+-- 좋아요 데이터
+INSERT INTO `likes` (`board_id`, `user_id`)
+VALUES (1, 4),
+       (1, 6),
+       (1, 7),
+       (2, 5),
+       (2, 6),
+       (2, 8),
+       (3, 4),
+       (3, 5),
+       (3, 7),
+       (3, 8),
+       (4, 4),
+       (4, 6),
+       (5, 4),
+       (5, 5),
+       (5, 6),
+       (5, 7);
+
+-- 채용공고 스케줄 데이터
+INSERT INTO `job_posting_schedules` (`title`, `position`, `department`, `experience`, `type`, `assigned_to_id`,
+                                     `posted_date`, `deadline`, `start_time`, `end_time`, `status`, `description`,
+                                     `responsibilities`,
+                                     `requirements`, `preferences`, `benefits`, `urgent`, `applicants`, `progress`,
+                                     `screening`,
+                                     `interview1`, `interview2`, `final_stage`)
+VALUES ('시니어 백엔드 개발자 채용',
+        'Backend Developer',
+        '플랫폼개발팀',
+        '3년 이상',
+        '정규직',
+        2,
+        '2025-01-01',
+        '2025-02-28',
+        '09:00:00',
+        '18:00:00',
+        'recruiting',
+        'Java/Spring 기반 백엔드 시스템 개발',
+        'MSA 설계 및 구현, API 개발, 성능 최적화',
+        'Java, Spring Boot 3년 이상 경험',
+        'Kubernetes, AWS 경험자 우대',
+        '연봉 5000~8000만원, 스톡옵션',
+        TRUE,
+        12,
+        8,
+        5,
+        2,
+        1,
+        0),
+       ('프론트엔드 개발자 (React)',
+        'Frontend Developer',
+        '웹개발팀',
+        '2년 이상',
+        '정규직',
+        2,
+        '2025-01-15',
+        '2025-03-15',
+        '10:00:00',
+        '19:00:00',
+        'screening',
+        'React 기반 웹 애플리케이션 개발',
+        'UI 컴포넌트 개발, 상태 관리, 성능 최적화',
+        'React, TypeScript 2년 이상',
+        'Next.js, 반응형 디자인 경험',
+        '연봉 4200~6500만원, 재택근무',
+        FALSE,
+        8,
+        8,
+        8,
+        3,
+        1,
+        0),
+       ('UI/UX 디자이너',
+        'UI/UX Designer',
+        'UX팀',
+        '경력무관',
+        '정규직',
+        2,
+        '2025-02-01',
+        '2025-03-31',
+        '10:00:00',
+        '19:00:00',
+        'recruiting',
+        '사용자 경험 디자인 및 프로토타이핑',
+        'UX 리서치, UI 디자인, 디자인 시스템',
+        'Figma 능숙, 포트폴리오 필수',
+        '모바일 앱 디자인 경험',
+        '연봉 3800~6000만원, 디자인 툴 지원',
+        FALSE,
+        15,
+        12,
+        8,
+        4,
+        2,
+        0);
+
+-- 채용공고 스케줄 공유 데이터
+INSERT INTO `job_posting_schedule_share` (`schedule_id`, `user_id`)
+VALUES (1, 3),
+       (1, 4),
+       (2, 3),
+       (2, 4),
+       (3, 3),
+       (3, 4);
+
+-- PDF 파일 데이터
+INSERT INTO `pdf` (`original_filename`, `saved_path`, `content_type`, `file_size`, `is_deleted`, `resume_id`)
+VALUES ('이력서_정개발.pdf', '/uploads/resumes/2025/01/resume_001.pdf', 'application/pdf', 245678, FALSE, 1),
+       ('이력서_최지원.pdf', '/uploads/resumes/2025/01/resume_002.pdf', 'application/pdf', 198234, FALSE, 2),
+       ('포트폴리오_한디자인.pdf', '/uploads/resumes/2025/02/resume_003.pdf', 'application/pdf', 3456789, FALSE, 3),
+       ('이력서_강데이터.pdf', '/uploads/resumes/2025/01/resume_004.pdf', 'application/pdf', 312456, FALSE, 4);
+
+-- 이미지 데이터
+INSERT INTO `image` (`original_filename`, `saved_path`, `content_type`, `file_size`, `is_deleted`, `user_id`)
+VALUES ('profile_admin.jpg', '/uploads/profiles/admin_001.jpg', 'image/jpeg', 156789, FALSE, 1),
+       ('profile_recruiter.jpg', '/uploads/profiles/recruiter_001.jpg', 'image/jpeg', 145623, FALSE, 2),
+       ('profile_interviewer.jpg', '/uploads/profiles/interviewer_001.jpg', 'image/jpeg', 134567, FALSE, 3),
+       ('profile_applicant1.jpg', '/uploads/profiles/applicant_001.jpg', 'image/jpeg', 167890, FALSE, 4),
+       ('profile_applicant2.jpg', '/uploads/profiles/applicant_002.jpg', 'image/jpeg', 178901, FALSE, 5);
+
+
+-- ============================================
+-- 완료
+-- ============================================
