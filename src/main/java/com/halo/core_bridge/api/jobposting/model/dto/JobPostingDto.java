@@ -14,6 +14,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -415,6 +416,107 @@ public class JobPostingDto {
         }
 
 
+    }
+
+    @Getter
+    @Builder
+    public static class EditResponse {
+        private Long id;
+        private String title;
+
+        private String employmentType; // Enum → String
+        private String careerType;     // Enum → String
+
+        private Integer minExperience;
+        private Integer maxExperience;
+        private String positionLevel;
+        private String location;
+
+        // 날짜들은 문자열 형태로 내려감 (TypeScript: string)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyStartDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime applyEndDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime hireEndDate;
+
+        private Integer headcount;
+
+        private String summary;
+        private String responsibilities;
+        private String requirements;
+        private String preferred;
+
+        private List<String> techStack; // ex) ["Java", "Spring Boot"]
+
+        private List<RecruitProcessDto.Read> recruitProcess;
+        private List<CoverLetterTitleDto.CoverLetterTitleResponse> coverLetterTitles;
+
+        private String salaryType; // Enum → String
+        private Integer salaryMin;
+        private Integer salaryMax;
+        private Boolean salaryNegotiable;
+
+        private String workingHours;
+        private String benefits;
+
+        private Long departmentId;
+        private String contactName;
+        private String contactEmail;
+        private String additionalInfo;
+
+        public static EditResponse fromEntity(JobPosting jobPosting, List<CoverLetterTitleDto.CoverLetterTitleResponse> coverLetterTitles) {
+            return EditResponse.builder()
+                    .id(jobPosting.getId())
+                    .title(jobPosting.getTitle())
+                    .employmentType(
+                            jobPosting.getEmploymentType() != null ? jobPosting.getEmploymentType().name() : null
+                    )
+                    .careerType(
+                            jobPosting.getCareerType() != null ? jobPosting.getCareerType().name() : null
+                    )
+                    .minExperience(jobPosting.getMinExperience())
+                    .maxExperience(jobPosting.getMaxExperience())
+                    .positionLevel(jobPosting.getPositionLevel())
+                    .location(jobPosting.getLocation())
+                    .applyStartDate(jobPosting.getApplyStartDate())
+                    .applyEndDate(jobPosting.getApplyEndDate())
+                    .hireEndDate(jobPosting.getHireEndDate())
+                    .headcount(jobPosting.getHeadcount())
+                    .summary(jobPosting.getSummary())
+                    .responsibilities(jobPosting.getResponsibilities())
+                    .requirements(jobPosting.getRequirements())
+                    .preferred(jobPosting.getPreferred())
+                    .techStack(
+                            jobPosting.getSkills().stream()
+                                    .map(JobPostingSkill::getName)
+                                    .toList()
+                    )
+                    .recruitProcess(
+                            jobPosting.getRecruitProcesses().stream()
+                                    .sorted(Comparator.comparing(RecruitProcess::getOrderIdx))
+                                    .map(RecruitProcessDto.Read::from)
+                                    .toList()
+                    )
+                    .salaryType(
+                            jobPosting.getSalaryType() != null ? jobPosting.getSalaryType().name() : null
+                    )
+                    .coverLetterTitles(coverLetterTitles)
+                    .salaryMin(jobPosting.getSalaryMin())
+                    .salaryMax(jobPosting.getSalaryMax())
+                    .salaryNegotiable(jobPosting.getSalaryNegotiable())
+                    .workingHours(jobPosting.getWorkingHours())
+                    .benefits(jobPosting.getBenefits())
+                    .departmentId(
+                            jobPosting.getDepartment() != null ? jobPosting.getDepartment().getId() : null
+                    )
+                    .contactName(jobPosting.getContactName())
+                    .contactEmail(jobPosting.getContactEmail())
+                    .additionalInfo(jobPosting.getAdditionalInfo())
+                    .build();
+        }
     }
 
 

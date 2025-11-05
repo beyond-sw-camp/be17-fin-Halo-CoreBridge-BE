@@ -1,5 +1,8 @@
 package com.halo.core_bridge.api.jobposting.service;
 
+import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
+import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
+import com.halo.core_bridge.api.coverLetterTitle.repository.CoverLetterTitleRepository;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
@@ -24,6 +27,7 @@ public class JobPostingService {
     private final JobPostingSkillRepository jobPostingSkillRepository;
     private final ResumeRepository resumeRepository;
     private final RecruitProcessRepository recruitProcessRepository;
+    private final CoverLetterTitleRepository  coverLetterTitleRepository;
 
     // 채용공고 등록
     @Transactional
@@ -81,6 +85,21 @@ public class JobPostingService {
         int applicantCounts = resumeRepository.countByJobPostingId(id);
 
         return JobPostingDto.DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
+    }
+
+    //편집용 조회
+    @Transactional(readOnly = true)
+    public JobPostingDto.EditResponse getEditResponse(Long jobPostingId) {
+        JobPosting jp = jobPostingRepository.findById(jobPostingId).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
+
+        List<CoverLetterTitle> questionnaires = coverLetterTitleRepository.findAllByJobPostingId(jobPostingId);
+
+        List<CoverLetterTitleDto.CoverLetterTitleResponse> resultList = new ArrayList<>();
+        for (CoverLetterTitle title : questionnaires) {
+            resultList.add(CoverLetterTitleDto.CoverLetterTitleResponse.from(title));
+        }
+
+        return JobPostingDto.EditResponse.fromEntity(jp, resultList);
     }
 
     //채용공고 헤더(기본정보) 조회요청
