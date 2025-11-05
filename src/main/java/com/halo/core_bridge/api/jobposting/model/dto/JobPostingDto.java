@@ -433,13 +433,13 @@ public class JobPostingDto {
         private String location;
 
         // 날짜들은 문자열 형태로 내려감 (TypeScript: string)
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         private LocalDateTime applyStartDate;
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         private LocalDateTime applyEndDate;
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         private LocalDateTime hireEndDate;
 
         private Integer headcount;
@@ -471,12 +471,8 @@ public class JobPostingDto {
             return EditResponse.builder()
                     .id(jobPosting.getId())
                     .title(jobPosting.getTitle())
-                    .employmentType(
-                            jobPosting.getEmploymentType() != null ? jobPosting.getEmploymentType().name() : null
-                    )
-                    .careerType(
-                            jobPosting.getCareerType() != null ? jobPosting.getCareerType().name() : null
-                    )
+                    .employmentType(jobPosting.getEmploymentType().getLabel())
+                    .careerType(jobPosting.getCareerType().getLabel())
                     .minExperience(jobPosting.getMinExperience())
                     .maxExperience(jobPosting.getMaxExperience())
                     .positionLevel(jobPosting.getPositionLevel())
@@ -500,18 +496,14 @@ public class JobPostingDto {
                                     .map(RecruitProcessDto.Read::from)
                                     .toList()
                     )
-                    .salaryType(
-                            jobPosting.getSalaryType() != null ? jobPosting.getSalaryType().name() : null
-                    )
+                    .salaryType(jobPosting.getSalaryType().getLabel())
                     .coverLetterTitles(coverLetterTitles)
                     .salaryMin(jobPosting.getSalaryMin())
                     .salaryMax(jobPosting.getSalaryMax())
                     .salaryNegotiable(jobPosting.getSalaryNegotiable())
                     .workingHours(jobPosting.getWorkingHours())
                     .benefits(jobPosting.getBenefits())
-                    .departmentId(
-                            jobPosting.getDepartment() != null ? jobPosting.getDepartment().getId() : null
-                    )
+                    .departmentId(jobPosting.getDepartment().getId())
                     .contactName(jobPosting.getContactName())
                     .contactEmail(jobPosting.getContactEmail())
                     .additionalInfo(jobPosting.getAdditionalInfo())
