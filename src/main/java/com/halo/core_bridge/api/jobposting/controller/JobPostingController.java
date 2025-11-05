@@ -207,6 +207,13 @@ public class JobPostingController {
     }
 
 
+    //채용공고 update를 위한 바꾸고자 하는 채용공고 데이터 가공 없이 그대로 반환용 end-point
+    @GetMapping("/{id}/edit")
+    public ResponseEntity<BaseResponse<JobPostingDto.EditResponse>> getJobPostingForEdit(@PathVariable Long id) {
+        JobPostingDto.EditResponse result = jobPostingService.getEditResponse(id);
+        return ResponseEntity.ok(BaseResponse.success(result));
+    }
+
     //채용공고 수정
     @Operation(
             summary = "채용공고 수정",
@@ -275,5 +282,6 @@ public class JobPostingController {
         jobPostingService.deleteJobPosting(id);
         return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
     }
+
 
 }

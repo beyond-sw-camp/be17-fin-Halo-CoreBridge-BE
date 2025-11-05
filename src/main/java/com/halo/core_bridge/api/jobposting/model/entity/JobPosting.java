@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.users.model.entity.User;
