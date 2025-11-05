@@ -374,7 +374,7 @@ VALUES ('Java', 1),
        ('Git', 6);
 
 -- 자기소개서 제목 데이터
-INSERT INTO `cover_letter_title` (`title`, `sub_title`, `job_posting_id`)
+INSERT INTO `cover_letter_title` (`title`, `subtitle`, `job_posting_id`)
 VALUES ('지원 동기', '왜 우리 회사에 지원하셨나요?', 1),
        ('기술 경험', '보유하신 기술과 경험을 구체적으로 설명해주세요.', 1),
        ('프로젝트 경험', '가장 기억에 남는 프로젝트를 소개해주세요.', 1),

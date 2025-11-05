@@ -18,15 +18,15 @@ public class CoverLetterTitle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String subTitle;
+    private String subtitle;
     private Long jobPostingId;
 
 
 
     @Builder
-    public CoverLetterTitle(String title, String subTitle, Long jobPostingId) {
+    public CoverLetterTitle(String title, String subtitle, Long jobPostingId) {
         this.title = title;
-        this.subTitle = subTitle;
+        this.subtitle = subtitle;
         this.jobPostingId = jobPostingId;
     }
 }
