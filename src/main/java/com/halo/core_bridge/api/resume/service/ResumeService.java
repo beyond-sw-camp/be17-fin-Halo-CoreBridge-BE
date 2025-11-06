@@ -1,6 +1,10 @@
 package com.halo.core_bridge.api.resume.service;
 
+import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
+import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
+import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
 import com.halo.core_bridge.api.pdf.model.dto.PdfDto;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.pdf.repository.PdfRepository;
@@ -34,7 +38,6 @@ public class ResumeService {
     private final ResumeRepository resumeRepository;
     private final JobPostingService jobPostingService;
     private final UserService userService;
-
     private final CareerService careerService;
     private final CertificateService certificateService;
     private final EducationService educationService;
@@ -51,12 +54,19 @@ public class ResumeService {
     public Long create(ResumeDto.Create dto, Long userId, MultipartFile file) {
         JobPosting jobPosting = jobPostingService.getById(dto.getJobPostingId());
         User user = userService.findForResumeInfo(userId);
+        RecruitProcess recruitProcess = jobPosting.getRecruitProcesses()
+                .stream()
+                .filter(rp -> rp.getOrderIdx() == 1)
+                .findFirst()
+                .get();
+
 
         Resume resume = Resume.builder()
                 .applied_at(LocalDateTime.now())  // 서버에서 현재 시각 자동 설정
                 .description(dto.getDescription())
                 .jobPosting(jobPosting)
                 .user(user)
+                .process(recruitProcess)
                 .build();
 
         Resume saved = resumeRepository.save(resume);
