@@ -1,4 +1,4 @@
-package com.halo.core_bridge.api.interview.model.controller;
+package com.halo.core_bridge.api.interview.controller;
 
 import com.halo.core_bridge.api.interview.model.dto.InterviewRoomDto;
 import com.halo.core_bridge.api.interview.service.InterviewRoomService;
