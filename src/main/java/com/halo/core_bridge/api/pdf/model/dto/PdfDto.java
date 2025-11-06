@@ -4,8 +4,10 @@ import com.halo.core_bridge.api.pdf.model.entity.Pdf;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+
 @Builder
 public class PdfDto {
 
@@ -31,6 +33,7 @@ public class PdfDto {
     }
 
     @Getter
+    @Setter
     @Builder
     @AllArgsConstructor
     public static class PdfResponseDto {
