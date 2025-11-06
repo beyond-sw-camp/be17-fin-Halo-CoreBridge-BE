@@ -4,6 +4,7 @@ import com.halo.core_bridge.api.pdf.contents.SwaggerPdfContents;
 import com.halo.core_bridge.api.pdf.model.dto.PdfDto;
 import com.halo.core_bridge.api.pdf.service.LocalPdfService;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
+import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+import static com.halo.core_bridge.common.model.BaseResponseStatus.PDF_NOT_FOUND;
 
 @Tag(name = "PDF", description = "PDF 업로드, 조회, 삭제, 다운로드 API")
 @RestController
@@ -121,9 +126,33 @@ public class PdfController {  // 클래스명 오타 수정: PdfContorller -> Pd
     public ResponseEntity<Resource> download(@PathVariable Long resumeId) {
         PdfDto.PdfResponseDto pdf = pdfService.findByResumeId(resumeId);
         Resource resource = pdfService.downloadPdf(pdf.getId());
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pdf.getOriginalFilename() + "\"")
-                .body(resource);
+
+        String safeFilename = "resume_" + resumeId + ".pdf";
+
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(resource.contentLength())  // 🔧 이 줄 추가!
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + safeFilename + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            throw BaseException.from(PDF_NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/view/{resumeId}")
+    public ResponseEntity<Resource> viewPdf(@PathVariable Long resumeId) {
+        PdfDto.PdfResponseDto pdf = pdfService.findByResumeId(resumeId);
+        Resource resource = pdfService.downloadPdf(pdf.getId());
+
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentLength(resource.contentLength())  // 🔧 이 줄 추가!
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                    .body(resource);
+        } catch (IOException e) {
+            throw BaseException.from(PDF_NOT_FOUND);
+        }
     }
 }

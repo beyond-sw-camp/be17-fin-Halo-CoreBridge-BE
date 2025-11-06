@@ -40,8 +40,12 @@ public class PdfDto {
         private String contentType;
         private Long fileSize;
         private Long resumeId;
+        private String fileUrl;
 
-        public static PdfDto.PdfResponseDto from(Pdf entity, String baseUrl) {
+        public static PdfDto.PdfResponseDto from(Pdf entity) {
+            if (entity == null) {
+                return null;
+            }
             return PdfResponseDto.builder()
                     .id(entity.getId())
                     .originalFilename(entity.getOriginalFilename())
@@ -49,6 +53,7 @@ public class PdfDto {
                     .fileSize(entity.getFileSize())
                     .contentType(entity.getContentType())
                     .resumeId(entity.getResume().getId())
+                    .fileUrl("/" + entity.getSavedPath())
                     .build();
         }
     }

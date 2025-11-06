@@ -1,5 +1,7 @@
 package com.halo.core_bridge.api.resume.service;
 
+import com.halo.core_bridge.api.jobposting.service.JobPostingService;
+import com.halo.core_bridge.api.pdf.model.dto.PdfDto;
 import com.halo.core_bridge.api.pdf.repository.PdfRepository;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
@@ -28,7 +30,7 @@ import static com.halo.core_bridge.common.model.BaseResponseStatus.RESUME_NOT_FO
 @Transactional(readOnly = true)
 public class ResumeService {
     private final ResumeRepository resumeRepository;
-//    private final JobPostingService jobPostingService;
+    private final JobPostingService jobPostingService;
     private final UserService userService;
 
     private final CareerService careerService;
@@ -44,14 +46,14 @@ public class ResumeService {
 
     @Transactional
     public Long create(ResumeDto.Create dto, Long userId, MultipartFile file) {
-//        JobPosting jobPosting = jobPostingService.read(dto.getJobPostingId());
-//        User user = userService.read(userId);
+        JobPosting jobPosting = jobPostingService.getById(dto.getJobPostingId());
+        User user = userService.findForResumeInfo(userId);
 
         Resume resume = Resume.builder()
                 .applied_at(LocalDateTime.now())  // 서버에서 현재 시각 자동 설정
                 .description(dto.getDescription())
-//                .jobPosting(jobPosting)
-//                .user(user)
+                .jobPosting(jobPosting)
+                .user(user)
                 .build();
 
         Resume saved = resumeRepository.save(resume);
@@ -102,7 +104,18 @@ public class ResumeService {
         Resume resume = resumeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Resume not found"));
 
-        return ResumeDto.Response.from(resume);
+        ResumeDto.Response responseDto = ResumeDto.Response.from(resume);
+        User user = resume.getUser();
+        if (user != null) {
+            responseDto.setName(user.getName());
+            responseDto.setEmail(user.getEmail());
+            responseDto.setPhone(user.getPhone());
+        }
+
+        if (resume.getPdf() != null) {
+            responseDto.setPdf(PdfDto.PdfResponseDto.from(resume.getPdf()));
+        }
+        return responseDto;
     }
 
     @Transactional
