@@ -38,37 +38,6 @@ public class ResumeController {
     private final CoverLetterDescriptionService coverLetterDescriptionService;
     private final CoverLetterTitleService coverLetterTitleService;
 
-
-    @Operation(summary = "이력서 생성", description = "새로운 이력서를 생성합니다.",
-            parameters = {
-                    @Parameter(
-                            name = "jobpostId",
-                            description = "채용 공고 ID",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            requestBody = @RequestBody(
-                    description = "이력서 생성 요청 데이터",
-                    content = @Content(
-                            schema = @Schema(implementation = ResumeDto.Create.class),
-                            examples = @ExampleObject(
-                                    value = SwaggerResumeContents.RESUME_CREATE_REQUEST
-                            )
-                    )
-            ),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "이력서 생성 성공",
-                            content = @Content(
-                                    schema = @Schema(implementation = Long.class),
-                                    examples = @ExampleObject(
-                                            name = "이력서 생성 성공 응답",
-                                            value = SwaggerResumeContents.RESUME_CREATE_REQUEST
-                                    )
-                            )
-                    )
-            }
-    )
     @PostMapping
     public ResponseEntity<Long> createResume(
             @AuthenticationPrincipal UserDto.Auth auth ,
@@ -79,61 +48,13 @@ public class ResumeController {
         return ResponseEntity.ok(resumeId);
     }
 
-    @Operation(
-            summary = "이력서 조회",
-            description = "특정 이력서 정보를 조회하는 기능",
-            parameters = {
-                    @Parameter(
-                            name = "resumeId",
-                            description = "이력서 Id",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "이력서 조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ResumeDto.Response.class),
-                                    examples = @ExampleObject(
-                                            name = "요청 성공 응답 예시입니다.",
-                                            value = SwaggerResumeContents.RESUME_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
+
     @GetMapping("/{resumeId}")
-    public ResponseEntity<ResumeDto.Response> getResume(@PathVariable Long resumeId) {
+    public ResponseEntity<ResumeDto.Response> getResume(@PathVariable Long resumeId, @AuthenticationPrincipal UserDto.Auth auth) {
         ResumeDto.Response resume = resumeService.read(resumeId);
         return ResponseEntity.ok(resume);
     }
 
-    @Operation(summary = "이력서 수정", description = "ID로 특정 이력서를 수정합니다.",
-            parameters = {
-                    @Parameter(name = "jobpostId", description = "채용 공고 ID", required = true, example = "1"),
-                    @Parameter(name = "resumeId", description = "이력서 ID", required = true, example = "1")
-            },
-            requestBody = @RequestBody(
-                    required = true,
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResumeDto.Update.class),
-                            examples = @ExampleObject(value = SwaggerResumeContents.RESUME_UPDATE_REQUEST))
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "수정 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            description = "요청 성공 응답 예시입니다.",
-                                            value = SwaggerResumeContents.RESUME_UPDATE_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
     @PatchMapping("/{resumeId}")
     public ResponseEntity<Void> updateResume(
             @PathVariable Long resumeId,
@@ -142,69 +63,12 @@ public class ResumeController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(
-            summary = "이력서 목록 조회",
-            description = "특정 채용 공고의 채용 공고 ID로 이력서 목록을 조회합니다.",
-            parameters = {
-                    @Parameter(
-                            name = "jobpostId",
-                            description = "채용 공고 ID",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            description = "요청 성공 응답 예시입니다.",
-                                            value = SwaggerResumeContents.RESUME_LIST_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
     @GetMapping
     public ResponseEntity<BaseResponse<List<ResumeDto.ApplicantResponse>>> listResumes(@PathVariable Long jobpostId) {
         List<ResumeDto.ApplicantResponse> result = resumeService.getApplicants(jobpostId);
         return ResponseEntity.ok(BaseResponse.success(result));
     }
 
-    @Operation(
-            summary = "이력서 삭제",
-            description = "ID로 특정 이력서를 삭제합니다.",
-            parameters = {
-                    @Parameter(
-                            name = "jobpostId",
-                            description = "채용 공고 ID",
-                            required = true,
-                            example = "1"
-                    ),
-                    @Parameter(
-                            name = "resumeId",
-                            description = "이력서 ID",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "삭제 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            description = "요청 성공 응답 예시입니다.",
-                                            value = SwaggerResumeContents.RESUME_DELETE_RESPONSE)
-                            )
-                    )
-            }
-    )
     @DeleteMapping("/{resumeId}")
     public ResponseEntity<Void> deleteResume(@PathVariable Long resumeId) {
         resumeService.delete(resumeId);
@@ -213,46 +77,6 @@ public class ResumeController {
 
     //-------------------------------------------------------------------------------------------------------------------
 
-    @Operation(
-            summary = "자기소개서 항목 답변 생성",
-            description = "이력서에 자기소개서 항목에 대한 답변을 추가합니다.",
-            parameters = {
-                    @Parameter(
-                            name = "jobpostId",
-                            description = "채용 공고 ID",
-                            required = true,
-                            example = "1"
-                    ),
-                    @Parameter(
-                            name = "resumeId",
-                            description = "이력서 ID",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            requestBody = @RequestBody(
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = List.class),
-                            examples = @ExampleObject(
-                                    value = SwaggerResumeContents.COVER_LETTER_CREATE_REQUEST)
-                    )
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "201",
-                            description = "생성 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = BaseResponse.class),
-                                    examples = @ExampleObject(
-                                            description = "요청 성공 응답 예시입니다.",
-                                            value = SwaggerResumeContents.COVER_LETTER_CREATE_RESPONSE)
-                            )
-                    )
-            }
-    )
     @PostMapping("/{resumeId}/cover-letter-descriptions")
     public ResponseEntity<List<Long>> createDescriptions(
             @PathVariable Long resumeId,

@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.resume.model.dto;
 
+import com.halo.core_bridge.api.pdf.model.dto.PdfDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.CareerType;
@@ -78,6 +79,10 @@ public class ResumeDto {
         private Long jobPostingId;
         @Schema(description = "사용자 ID", example = "10")
         private Long userId;
+        private String name;
+        private String email;
+        private String phone;
+        private PdfDto.PdfResponseDto pdf;
         @Schema(description = "경력 목록")
         private List<CareerDto> careers;
         @Schema(description = "자격증 목록")
@@ -98,12 +103,24 @@ public class ResumeDto {
                     .description(resume.getDescription())
                     .jobPostingId(resume.getJobPosting() != null ? resume.getJobPosting().getId() : null)
                     .userId(resume.getUser() != null ? resume.getUser().getId() : null)
-                    .careers(resume.getCareers().stream().map(CareerDto::from).toList())
-                    .certificates(resume.getCertificates().stream().map(CertificateDto::from).toList())
-                    .educations(resume.getEducations().stream().map(EducationDto::from).toList())
-                    .languages(resume.getLanguages().stream().map(LanguageDto::from).toList())
-                    .overseasExperiences(resume.getOverseasExperiences().stream().map(OverseasExperienceDto::from).toList())
-                    .resumeSkills(resume.getResumeSkills().stream().map(ResumeSkillDto::from).toList())
+                    .careers(resume.getCareers().stream()
+                            .map(CareerDto::from)
+                            .toList())
+                    .certificates(resume.getCertificates().stream()
+                            .map(CertificateDto::from)
+                            .toList())
+                    .educations(resume.getEducations().stream()
+                            .map(EducationDto::from)
+                            .toList())
+                    .languages(resume.getLanguages().stream()
+                            .map(LanguageDto::from)
+                            .toList())
+                    .overseasExperiences(resume.getOverseasExperiences().stream()
+                            .map(OverseasExperienceDto::from)
+                            .toList())
+                    .resumeSkills(resume.getResumeSkills().stream()
+                            .map(ResumeSkillDto::from)
+                            .toList())
                     .build();
         }
     }

@@ -54,13 +54,13 @@ public class UserService {
      * @return UserDto.ResumeUserInfo 지원서 작성에 필요한 지원자 정보를 담은 DTO
      * @throws BaseException - 회원이 존재하지 않는 경우 에외가 발생한다.
      */
-    public UserDto.ResumeUserInfo findForResumeInfo(Long userId) {
+    public User findForResumeInfo(Long userId) {
 
         User findUser = userRepository.findById(userId).orElseThrow(
                 () -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER)
         );
 
-        return UserDto.ResumeUserInfo.from(findUser);
+        return findUser;
     }
 
     /**
