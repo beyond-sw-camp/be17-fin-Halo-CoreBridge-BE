@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 
@@ -70,8 +72,13 @@ public class PdfController {  // 클래스명 오타 수정: PdfContorller -> Pd
             }
     )
     @GetMapping("/find/{idx}")
-    public ResponseEntity<BaseResponse<PdfDto.PdfResponseDto>> getPdf(@PathVariable Long idx){
+    public ResponseEntity<BaseResponse<PdfDto.PdfResponseDto>> getPdf(@PathVariable Long idx, HttpServletRequest request) {
         PdfDto.PdfResponseDto result = pdfService.findByResumeId(idx);
+        String fileUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath("/api/pdf/view/" + result.getResumeId())
+                .toUriString();
+
+        result.setFileUrl(fileUrl);
         return ResponseEntity.ok(BaseResponse.success(result));
     }
 

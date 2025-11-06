@@ -7,6 +7,7 @@ import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.service.ResumeService;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,6 @@ public class LocalPdfService implements PdfService {
 
     @Value("${upload.path}")
     private String uploadPath;
-
-    @Value("${server.url:http://localhost:8080}")
-    private String serverUrl;
 
     @Override
     public PdfDto.UploadResponseDto uploadPdf(MultipartFile file, String directory, Long resumeId) throws BaseException {
@@ -83,7 +81,6 @@ public class LocalPdfService implements PdfService {
                 .contentType(pdf.getContentType())
                 .fileSize(pdf.getFileSize())
                 .resumeId(pdf.getResume().getId())
-                .fileUrl(serverUrl + "/api/pdf/view/" + pdf.getResume().getId())  // 변경
                 .build();
     }
 
