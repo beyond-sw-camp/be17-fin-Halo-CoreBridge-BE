@@ -20,7 +20,7 @@ public class Room {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String location;
 
     @Column(nullable = false)
@@ -29,4 +29,7 @@ public class Room {
 
     @Column(nullable = false)
     private String description;
+
+    @Column(nullable = true)
+    private Integer capacity;
 }

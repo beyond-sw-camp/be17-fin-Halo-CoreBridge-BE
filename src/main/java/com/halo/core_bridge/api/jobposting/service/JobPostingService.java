@@ -1,12 +1,15 @@
 package com.halo.core_bridge.api.jobposting.service;
 
+import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
+import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
+import com.halo.core_bridge.api.coverLetterTitle.repository.CoverLetterTitleRepository;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
-import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class JobPostingService {
     private final JobPostingSkillRepository jobPostingSkillRepository;
     private final ResumeRepository resumeRepository;
     private final RecruitProcessRepository recruitProcessRepository;
+    private final CoverLetterTitleRepository  coverLetterTitleRepository;
 
     // 채용공고 등록
     @Transactional
@@ -84,19 +88,19 @@ public class JobPostingService {
         return JobPostingDto.DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
     }
 
-    // 해당공고의 지원자 조회
+    //편집용 조회
     @Transactional(readOnly = true)
-    public List<JobPostingDto.ApplicantResponse> getApplicants(Long jobPostingId) {
-        // 해당 공고
-        JobPosting jobPosting = jobPostingRepository.findById(jobPostingId).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
+    public JobPostingDto.EditResponse getEditResponse(Long jobPostingId) {
+        JobPosting jp = jobPostingRepository.findById(jobPostingId).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
-        // 해당 공고에 속한 이력서
-        List<Resume> resumeList = resumeRepository.findByJobPostingId(jobPostingId);
+        List<CoverLetterTitle> questionnaires = coverLetterTitleRepository.findAllByJobPostingId(jobPostingId);
 
-        // 각각의 이력서 객체를 ApplicantResponse로 변환 후 List에 담아서 반환
-        return resumeList.stream()
-                .map(resume -> JobPostingDto.ApplicantResponse.fromEntity(jobPosting, resume)).toList();
+        List<CoverLetterTitleDto.CoverLetterTitleResponse> resultList = new ArrayList<>();
+        for (CoverLetterTitle title : questionnaires) {
+            resultList.add(CoverLetterTitleDto.CoverLetterTitleResponse.from(title));
+        }
 
+        return JobPostingDto.EditResponse.fromEntity(jp, resultList);
     }
 
     //채용공고 헤더(기본정보) 조회요청
@@ -113,109 +117,49 @@ public class JobPostingService {
         JobPosting jobPosting = jobPostingRepository.findById(id)
                 .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
-        //  기본 필드 변경 감지 후 반영
-        if (request.getTitle() != null && !request.getTitle().equals(jobPosting.getTitle())) {
-            jobPosting.setTitle(request.getTitle());
+        //  1. JobPosting의 기본 필드 업데이트
+        request.applyUpdates(jobPosting);
+
+        //  2. 기술 스택 갱신
+        if (request.getTechStack() != null) {
+            jobPostingSkillRepository.deleteAllByJobPosting(jobPosting);
+            List<JobPostingSkill> newSkills = request.getTechStack().stream()
+                    .map(skill -> JobPostingSkill.builder()
+                            .jobPosting(jobPosting)
+                            .name(skill)
+                            .build())
+                    .toList();
+            jobPostingSkillRepository.saveAll(newSkills);
         }
 
-        if (request.getEmploymentType() != null) {
-            jobPosting.setEmploymentType(request.getEmploymentType());
+        //  3. 채용 프로세스 갱신
+        if (request.getRecruitProcess() != null) {
+            recruitProcessRepository.deleteAllByJobPosting(jobPosting);
+            List<RecruitProcess> newProcesses = request.getRecruitProcess().stream()
+                    .map(p -> RecruitProcess.builder()
+                            .jobPosting(jobPosting)
+                            .name(p.getName())
+                            .colorCode(p.getColor()) // String 컬럼
+                            .orderIdx(p.getOrderIdx())
+                            .build())
+                    .toList();
+            recruitProcessRepository.saveAll(newProcesses);
         }
 
-        if (request.getCareerType() != null) {
-            jobPosting.setCareerType(request.getCareerType());
+        //  4. 자기소개서 문항 갱신
+        if (request.getCoverLetterTitles() != null) {
+            coverLetterTitleRepository.deleteAllByJobPostingId(id);
+            List<CoverLetterTitle> newQuestions = request.getCoverLetterTitles().stream()
+                    .map(q -> CoverLetterTitle.builder()
+                            .jobPostingId(id)
+                            .title(q.getTitle())
+                            .subtitle(q.getSubtitle())
+                            .build())
+                    .toList();
+            coverLetterTitleRepository.saveAll(newQuestions);
         }
 
-        if (request.getMinExperience() != null) {
-            jobPosting.setMinExperience(request.getMinExperience());
-        }
-
-        if (request.getMaxExperience() != null) {
-            jobPosting.setMaxExperience(request.getMaxExperience());
-        }
-
-        if (request.getPositionLevel() != null) {
-            jobPosting.setPositionLevel(request.getPositionLevel());
-        }
-
-        if (request.getLocation() != null) {
-            jobPosting.setLocation(request.getLocation());
-        }
-
-        if (request.getApplyStartDate() != null) {
-            jobPosting.setApplyStartDate(request.getApplyStartDate());
-        }
-
-        if (request.getApplyEndDate() != null) {
-            jobPosting.setApplyEndDate(request.getApplyEndDate());
-        }
-
-        if (request.getHireEndDate() != null) {
-            jobPosting.setHireEndDate(request.getHireEndDate());
-        }
-
-        if (request.getHeadcount() != null) {
-            jobPosting.setHeadcount(request.getHeadcount());
-        }
-
-        if (request.getSummary() != null) {
-            jobPosting.setSummary(request.getSummary());
-        }
-
-        if (request.getResponsibilities() != null) {
-            jobPosting.setResponsibilities(request.getResponsibilities());
-        }
-
-        if (request.getRequirements() != null) {
-            jobPosting.setRequirements(request.getRequirements());
-        }
-
-        if (request.getPreferred() != null) {
-            jobPosting.setPreferred(request.getPreferred());
-        }
-
-//        // 3기술 스택 업데이트 (있을 경우만)
-//        if (request.getTechStack() != null) {
-//            jobPostingSkillRepository.deleteAllByJobPosting(jobPosting);
-//            for (String techName : request.getTechStack()) {
-//                JobPostingSkill skill = JobPostingSkill.builder()
-//                        .jobPosting(jobPosting)
-//                        .name(techName)
-//                        .build();
-//                jobPostingSkillRepository.save(skill);
-//            }
-//        }
-//
-//        // 채용 프로세스 업데이트(있을 경우만)
-//        if(request.getRecruitProcess() != null) {
-//            recruitProcessRepository.deleteAllByJobPosting(jobPosting);
-//            for(int i = 0; i < request.getRecruitProcess().size(); i++) {
-//                RecruitProcess process = RecruitProcess.builder()
-//                        .jobPosting(jobPosting)
-//                        .name(request.getRecruitProcess().get(i))
-//                        .orderIdx(i+1)
-//                        .build();
-//                recruitProcessRepository.save(process);
-//            }
-//        }
-
-        //급여정보
-        if (request.getSalaryType() != null) jobPosting.setSalaryType(request.getSalaryType());
-        if (request.getSalaryMin() != null) jobPosting.setSalaryMin(request.getSalaryMin());
-        if (request.getSalaryMax() != null) jobPosting.setSalaryMax(request.getSalaryMax());
-        if (request.getSalaryNegotiable() != null) jobPosting.setSalaryNegotiable(request.getSalaryNegotiable());
-
-        // 근무조건
-        if (request.getWorkingHours() != null) jobPosting.setWorkingHours(request.getWorkingHours());
-        if (request.getBenefits() != null) jobPosting.setBenefits(request.getBenefits());
-
-        // 담당자 정보
-        if (request.getContactName() != null) jobPosting.setContactName(request.getContactName());
-        if (request.getContactEmail() != null) jobPosting.setContactEmail(request.getContactEmail());
-
-        // 기타 정보
-        if (request.getAdditionalInfo() != null) jobPosting.setAdditionalInfo(request.getAdditionalInfo());
-
+        //  5. 변경사항 저장
         jobPostingRepository.save(jobPosting);
     }
 

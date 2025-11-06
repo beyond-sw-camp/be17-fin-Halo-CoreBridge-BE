@@ -14,6 +14,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -417,6 +418,99 @@ public class JobPostingDto {
 
     }
 
+    @Getter
+    @Builder
+    public static class EditResponse {
+        private Long id;
+        private String title;
+
+        private String employmentType; // Enum → String
+        private String careerType;     // Enum → String
+
+        private Integer minExperience;
+        private Integer maxExperience;
+        private String positionLevel;
+        private String location;
+
+        // 날짜들은 문자열 형태로 내려감 (TypeScript: string)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDateTime applyStartDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDateTime applyEndDate;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDateTime hireEndDate;
+
+        private Integer headcount;
+
+        private String summary;
+        private String responsibilities;
+        private String requirements;
+        private String preferred;
+
+        private List<String> techStack; // ex) ["Java", "Spring Boot"]
+
+        private List<RecruitProcessDto.Read> recruitProcess;
+        private List<CoverLetterTitleDto.CoverLetterTitleResponse> coverLetterTitles;
+
+        private String salaryType; // Enum → String
+        private Integer salaryMin;
+        private Integer salaryMax;
+        private Boolean salaryNegotiable;
+
+        private String workingHours;
+        private String benefits;
+
+        private Long departmentId;
+        private String contactName;
+        private String contactEmail;
+        private String additionalInfo;
+
+        public static EditResponse fromEntity(JobPosting jobPosting, List<CoverLetterTitleDto.CoverLetterTitleResponse> coverLetterTitles) {
+            return EditResponse.builder()
+                    .id(jobPosting.getId())
+                    .title(jobPosting.getTitle())
+                    .employmentType(jobPosting.getEmploymentType().getLabel())
+                    .careerType(jobPosting.getCareerType().getLabel())
+                    .minExperience(jobPosting.getMinExperience())
+                    .maxExperience(jobPosting.getMaxExperience())
+                    .positionLevel(jobPosting.getPositionLevel())
+                    .location(jobPosting.getLocation())
+                    .applyStartDate(jobPosting.getApplyStartDate())
+                    .applyEndDate(jobPosting.getApplyEndDate())
+                    .hireEndDate(jobPosting.getHireEndDate())
+                    .headcount(jobPosting.getHeadcount())
+                    .summary(jobPosting.getSummary())
+                    .responsibilities(jobPosting.getResponsibilities())
+                    .requirements(jobPosting.getRequirements())
+                    .preferred(jobPosting.getPreferred())
+                    .techStack(
+                            jobPosting.getSkills().stream()
+                                    .map(JobPostingSkill::getName)
+                                    .toList()
+                    )
+                    .recruitProcess(
+                            jobPosting.getRecruitProcesses().stream()
+                                    .sorted(Comparator.comparing(RecruitProcess::getOrderIdx))
+                                    .map(RecruitProcessDto.Read::from)
+                                    .toList()
+                    )
+                    .salaryType(jobPosting.getSalaryType().getLabel())
+                    .coverLetterTitles(coverLetterTitles)
+                    .salaryMin(jobPosting.getSalaryMin())
+                    .salaryMax(jobPosting.getSalaryMax())
+                    .salaryNegotiable(jobPosting.getSalaryNegotiable())
+                    .workingHours(jobPosting.getWorkingHours())
+                    .benefits(jobPosting.getBenefits())
+                    .departmentId(jobPosting.getDepartment().getId())
+                    .contactName(jobPosting.getContactName())
+                    .contactEmail(jobPosting.getContactEmail())
+                    .additionalInfo(jobPosting.getAdditionalInfo())
+                    .build();
+        }
+    }
+
 
     @Getter
     @Setter
@@ -428,141 +522,175 @@ public class JobPostingDto {
         // ----------------------------
         // 기본 정보
         // ----------------------------
-        @Size(max = 100, message = "제목은 100자 이하로 입력해주세요.")
+        @NotBlank(message = "제목은 필수 입력값입니다.")
+        @Size(max = 100, message = "제목은 100자 이하로 입력해주세요")
         private String title;
 
-        private EmploymentType employmentType;   // Enum(정규직, 계약직, 인턴)
-        private CareerType careerType;           // Enum(신입, 경력, 무관)
+        @NotNull(message = "고용 형태는 필수 입력값입니다.")
+        private EmploymentType employmentType; // Enum(정규직,계약직,인턴)
 
-        @Min(value = 0, message = "최소 경력은 0년 이상이어야 합니다.")
+        @NotNull(message = "경력 선택은 필수 입력값입니다.")
+        private CareerType careerType; // Enum(신입, 경력, 무관)
+
+        @Min(value = 1, message = "최소 경력은 1년 이상이어야 합니다")
         private Integer minExperience;
-
-        @Min(value = 0, message = "최대 경력은 0년 이상이어야 합니다.")
+        @Min(value = 1, message = "최대 경력은 1년 이상이어야 합니다")
         private Integer maxExperience;
 
-        @AssertTrue(message = "최대 경력은 최소 경력 이상이어야 합니다.")
+        @AssertTrue(message = "최대 경력은 최소경력 이상이어야 합니다.")
         private boolean isValidExperience() {
-            if (minExperience == null || maxExperience == null) return true;
+            if (minExperience == null || maxExperience == null) {
+                return true;
+            }
             return maxExperience >= minExperience;
         }
 
-        @Size(max = 10, message = "직급은 10자 이하로 입력해주세요.")
+        @Size(max = 10, message = "직급은 10자 이하로 입력해주세요")
         private String positionLevel;
 
-        @Size(max = 100, message = "근무지역은 100자 이하로 입력해주세요.")
+        @NotBlank(message = "근무지역은 필수 입력값입니다.")
+        @Size(max = 100, message = "근무지역은 100자 이하로 입력해주세요")
         private String location;
 
-        // ----------------------------
-        // 기간 관련
-        // ----------------------------
+        // 공고 기간(날짜)관련 정보
+        @NotNull(message = "접수 시작일은 필수 입력값입니다.")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyStartDate;
 
+        @NotNull(message = "접수 종료일은 필수 입력값입니다.")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime applyEndDate;
 
+        @NotNull(message = "마감일은 필수 입력값입니다.")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime hireEndDate;
 
-        // ----------------------------
-        // 모집 정보
-        // ----------------------------
+        // 모집
+        @NotNull(message = "모집 인원은 필수 입력값입니다.")
         @Min(value = 0, message = "모집인원은 0명 이상이어야 합니다.")
         private Integer headcount;
 
-        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요.")
+        // 직무 상세
+
+        @NotBlank(message = "직무 소개는 필수 입력값입니다.")
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요")
         private String summary;
 
-        @Size(max = 1000, message = "주요 업무는 1000자 이하로 입력해주세요.")
+        @NotBlank(message = "주요 업무는 필수 입력값입니다.")
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요")
         private String responsibilities;
 
-        @Size(max = 1000, message = "필수 자격 요건은 1000자 이하로 입력해주세요.")
+        @NotBlank(message = "필수 자격 요건은 필수 입력값입니다.")
+        @Size(max = 1000, message = "직무 소개는 1000자 이하로 입력해주세요")
         private String requirements;
 
+        @NotBlank(message = "우대 사항은 필수 입력값입니다.")
         @Size(max = 1000, message = "우대 사항은 1000자 이하로 입력해주세요.")
         private String preferred;
 
-        // ----------------------------
-        // 기술 스택 & 채용 프로세스
-        // ----------------------------
+        @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
         private List<
                 @Size(max = 20, message = "기술명은 20자 이하로 입력해주세요.")
-                        String> techStack;
+                        String> techStack; // ex) ["Java", "Spring", "Vue"]
 
-        private List<
-                @Size(max = 50, message = "프로세스명은 50자 이하로 입력해주세요.")
-                        String> recruitProcess;
 
-        // ----------------------------
+        @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
+        @Valid
+        private List<RecruitProcessDto.Create> recruitProcess;
+
+        @NotNull(message = "질문 항목 리스트는 비워둘 수 없습니다.")
+        @Size(min = 3, message = "질문 항목은 최소 3개 이상 입력해야 합니다.")
+        @Valid
+        private List<CoverLetterTitleDto.CoverLetterTitleRequest> coverLetterTitles;
+
         // 급여
-        // ----------------------------
+        @NotNull(message = "급여 형태는 필수 입력값입니다.")
         private SalaryType salaryType;
 
-        @PositiveOrZero(message = "최소 급여는 0 이상이어야 합니다.")
+        @PositiveOrZero(message = "최소 금액은 0 이상이어야 합니다.")
         private Integer salaryMin;
 
-        @PositiveOrZero(message = "최대 급여는 0 이상이어야 합니다.")
+        @PositiveOrZero(message = "최대 금액은 0 이상이어야 합니다.")
         private Integer salaryMax;
 
         private Boolean salaryNegotiable;
 
-        // ----------------------------
         // 근무 조건
-        // ----------------------------
-        @Size(max = 100, message = "근무시간은 100자 이하로 입력해주세요.")
-        private String workingHours;
+        @NotBlank(message = "근무시간은 필수 입력값입니다.")
+        private String workingHours;         // 예: "09:00 ~ 18:00 (주 5일)"
 
-        @Size(max = 1000, message = "복리후생은 1000자 이하로 입력해주세요.")
+        @NotBlank(message = "복리후생은 필수 입력값입니다.")
         private String benefits;
 
-        // ----------------------------
         // 부서/담당/기타
-        // ----------------------------
+        @NotNull(message = "부서는 필수 입력값입니다.")
         @Positive(message = "부서 ID는 양수여야 합니다.")
         private Long departmentId;
 
-        @Size(max = 50, message = "담당자 이름은 50자 이하로 입력해주세요.")
+        @NotBlank(message = "담당자 이름은 필수 입력값입니다.")
         private String contactName;
 
+        @NotBlank(message = "담당자 이메일은 필수 입력값입니다.")
         @Email(message = "올바른 이메일 형식이어야 합니다.")
-        @Size(max = 100, message = "이메일은 100자 이하로 입력해주세요.")
         private String contactEmail;
 
-        @Size(max = 1000, message = "추가정보는 1000자 이하로 입력해주세요.")
         private String additionalInfo;
-    }
 
-    @Getter
-    @Builder
-    public static class ApplicantResponse {
-        private Long id;
+        public void applyUpdates(JobPosting jobPosting) {
+            // ------------------------------
+            // 기본 정보
+            // ------------------------------
+            if (title != null) jobPosting.setTitle(title);
+            if (employmentType != null) jobPosting.setEmploymentType(employmentType);
+            if (careerType != null) jobPosting.setCareerType(careerType);
+            if (minExperience != null) jobPosting.setMinExperience(minExperience);
+            if (maxExperience != null) jobPosting.setMaxExperience(maxExperience);
+            if (positionLevel != null) jobPosting.setPositionLevel(positionLevel);
+            if (location != null) jobPosting.setLocation(location);
 
-        private String name;
-        private String email;
-        private CareerType careerType;
-        private List<String> skills;
-        private String degree;
-        private int certificateCount;
+            // ------------------------------
+            // 기간 관련
+            // ------------------------------
+            if (applyStartDate != null) jobPosting.setApplyStartDate(applyStartDate);
+            if (applyEndDate != null) jobPosting.setApplyEndDate(applyEndDate);
+            if (hireEndDate != null) jobPosting.setHireEndDate(hireEndDate);
 
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-        private LocalDateTime applyDate;
-        private String stageName;
+            // ------------------------------
+            // 모집 정보
+            // ------------------------------
+            if (headcount != null) jobPosting.setHeadcount(headcount);
+            if (summary != null) jobPosting.setSummary(summary);
+            if (responsibilities != null) jobPosting.setResponsibilities(responsibilities);
+            if (requirements != null) jobPosting.setRequirements(requirements);
+            if (preferred != null) jobPosting.setPreferred(preferred);
 
-        public static ApplicantResponse fromEntity(JobPosting jobPosting, Resume resume) {
+            // ------------------------------
+            // 급여 관련
+            // ------------------------------
+            if (salaryType != null) jobPosting.setSalaryType(salaryType);
+            if (salaryMin != null) jobPosting.setSalaryMin(salaryMin);
+            if (salaryMax != null) jobPosting.setSalaryMax(salaryMax);
+            if (salaryNegotiable != null) jobPosting.setSalaryNegotiable(salaryNegotiable);
 
-            return JobPostingDto.ApplicantResponse.builder()
-                    .id(resume.getId())
-                    .name(resume.getUser().getName())
-                    .email(resume.getUser().getEmail())
-                    .careerType(jobPosting.getCareerType())
-                    .skills(resume.getResumeSkills().stream().map(ResumeSkill::getName).collect(Collectors.toList()))
-                    .degree(resume.getEducations().get(resume.getEducations().size() - 1).getDegree())
-                    .certificateCount(resume.getCertificates().size())
-                    .applyDate(resume.getCreatedAt())
-                    .stageName(resume.getProcess().getName())
-                    .build();
+            // ------------------------------
+            // 근무 조건
+            // ------------------------------
+            if (workingHours != null) jobPosting.setWorkingHours(workingHours);
+            if (benefits != null) jobPosting.setBenefits(benefits);
+
+            // ------------------------------
+            // 부서/담당/기타
+            // ------------------------------
+            if (departmentId != null) {
+                jobPosting.setDepartment(Department.builder().id(departmentId).build());
+            }
+            if (contactName != null) jobPosting.setContactName(contactName);
+            if (contactEmail != null) jobPosting.setContactEmail(contactEmail);
+            if (additionalInfo != null) jobPosting.setAdditionalInfo(additionalInfo);
         }
+
     }
+
 }
 
 

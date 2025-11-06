@@ -7,6 +7,8 @@ import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.api.jobposting.service.JobPostingSkillService;
 import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
+import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
+import com.halo.core_bridge.api.resume.service.ResumeService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -204,31 +206,13 @@ public class JobPostingController {
         return ResponseEntity.ok(BaseResponse.success(headerDetail));
     }
 
-    //해당채용공고의 지원자 조회
-    @Operation(
-            summary = "채용공고 지원자 조회",
-            description = "특정 ID의 지원자를 전체 조회합니다.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "조회 성공",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    examples = @ExampleObject(
-                                            name = "Applicants Response Example",
-                                            value = SwaggerJobPostingContents.APPLICANT_RESPONSE
-                                    )
-                            )
-                    )
-            }
-    )
-    @GetMapping("/{id}/applicants")
-    public ResponseEntity<BaseResponse<List<JobPostingDto.ApplicantResponse>>> getJobPostingApplicants(@PathVariable Long id) {
-        List<JobPostingDto.ApplicantResponse> result = jobPostingService.getApplicants(id);
+
+    //채용공고 update를 위한 바꾸고자 하는 채용공고 데이터 가공 없이 그대로 반환용 end-point
+    @GetMapping("/{id}/edit")
+    public ResponseEntity<BaseResponse<JobPostingDto.EditResponse>> getJobPostingForEdit(@PathVariable Long id) {
+        JobPostingDto.EditResponse result = jobPostingService.getEditResponse(id);
         return ResponseEntity.ok(BaseResponse.success(result));
     }
-
-
 
     //채용공고 수정
     @Operation(
@@ -298,5 +282,6 @@ public class JobPostingController {
         jobPostingService.deleteJobPosting(id);
         return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
     }
+
 
 }

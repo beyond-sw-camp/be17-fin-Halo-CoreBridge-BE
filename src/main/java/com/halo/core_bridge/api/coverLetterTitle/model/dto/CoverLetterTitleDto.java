@@ -15,7 +15,7 @@ import java.util.List;
 public class CoverLetterTitleDto {
 
     @Getter
-    @AllArgsConstructor // 생성자를 통해 jobPostingId, title, subTitle을 받습니다.
+    @AllArgsConstructor // 생성자를 통해 jobPostingId, title, subtitle을 받습니다.
     public static class CoverLetterTitleRequest {
         private final String title;
         private final String subtitle;
@@ -24,7 +24,7 @@ public class CoverLetterTitleDto {
             return CoverLetterTitle.builder()
                     .jobPostingId(jobpostId)
                     .title(this.title)
-                    .subTitle(this.subtitle)
+                    .subtitle(this.subtitle)
                     .build();
         }
     }
@@ -34,14 +34,14 @@ public class CoverLetterTitleDto {
     public static class CoverLetterTitleResponse {
         private Long id;
         private String title;
-        private String subTitle;
+        private String subtitle;
         private Long jobPostingId;
 
         public static CoverLetterTitleResponse from(CoverLetterTitle entity) {
             return CoverLetterTitleResponse.builder()
                     .id(entity.getId())
                     .title(entity.getTitle())
-                    .subTitle(entity.getSubTitle())
+                    .subtitle(entity.getSubtitle())
                     .jobPostingId(entity.getJobPostingId())
                     .build();
         }

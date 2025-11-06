@@ -1,7 +1,12 @@
 package com.halo.core_bridge.api.resume.model.dto;
 
 import com.halo.core_bridge.api.pdf.model.dto.PdfDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
+import com.halo.core_bridge.api.jobposting.model.entity.CareerType;
+import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
+import com.halo.core_bridge.api.resume.model.entity.ResumeSkill;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +16,7 @@ import lombok.Setter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ResumeDto {
 
@@ -115,6 +121,38 @@ public class ResumeDto {
                     .resumeSkills(resume.getResumeSkills().stream()
                             .map(ResumeSkillDto::from)
                             .toList())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class ApplicantResponse {
+        private Long id;
+
+        private String name;
+        private String email;
+        private CareerType careerType;
+        private List<String> skills;
+        private String degree;
+        private int certificateCount;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDateTime applyDate;
+        private String stageName;
+
+        public static ApplicantResponse fromEntity(JobPosting jobPosting, Resume resume) {
+
+            return ApplicantResponse.builder()
+                    .id(resume.getId())
+                    .name(resume.getUser().getName())
+                    .email(resume.getUser().getEmail())
+                    .careerType(jobPosting.getCareerType())
+                    .skills(resume.getResumeSkills().stream().map(ResumeSkill::getName).collect(Collectors.toList()))
+                    .degree(resume.getEducations().get(resume.getEducations().size() - 1).getDegree())
+                    .certificateCount(resume.getCertificates().size())
+                    .applyDate(resume.getCreatedAt())
+                    .stageName(resume.getProcess().getName())
                     .build();
         }
     }
