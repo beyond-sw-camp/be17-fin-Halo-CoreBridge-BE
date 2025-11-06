@@ -4,10 +4,11 @@ INSERT INTO user_role (id, code, name, created_at, updated_at) VALUES (2, 'ROLE_
 
 -- Users Data
 INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (1, '김철수', 'kim.chulsoo@example.com', 'password123', '1990-01-15', 'MALE', '010-1234-5678', 1, NOW(), NOW());
-INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (2, '이영희', 'lee.younghee@example.com', 'password123', '1992-05-20', 'FEMALE', '010-9876-5432', 1, NOW(), NOW());
+INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (2, '김륜환', 'asd@asd.asd', '$2a$10$fkDbsetbtX6HF78CV3.boeVCf8QmECM6d1.3/Tm2AFDdXEcGxYq5a', '1992-05-20', 'MALE', '010-9876-5432', 2, NOW(), NOW());
 INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (3, '박관리', 'park.admin@example.com', 'adminpass', '1985-11-01', 'MALE', '010-1111-2222', 2, NOW(), NOW());
 INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (4, '최지혜', 'choi.jihye@example.com', 'password123', '1995-03-10', 'FEMALE', '010-3333-4444', 1, NOW(), NOW());
 INSERT INTO users (id, name, email, password, birth, gender, phone, user_role_id, created_at, updated_at) VALUES (5, '정민준', 'jung.minjun@example.com', 'password123', '1988-07-22', 'MALE', '010-5555-6666', 1, NOW(), NOW());
+
 
 -- JobGroup Data
 INSERT INTO job_group (id, name, location, created_at, updated_at) VALUES (1, '개발', '서울', NOW(), NOW());

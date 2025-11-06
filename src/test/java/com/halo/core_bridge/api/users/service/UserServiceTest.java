@@ -154,7 +154,7 @@ class UserServiceTest {
         given(userRepository.findById(any(Long.class))).willReturn(Optional.ofNullable(willReturnUser));
 
         // when
-        UserDto.ResumeUserInfo findResumeUserInfo = userService.findForResumeInfo(willReturnUser.getId());
+        UserDto.ResumeUserInfo findResumeUserInfo = UserDto.ResumeUserInfo.from(userService.findForResumeInfo(willReturnUser.getId()));
 
         // then
         assertThat(findResumeUserInfo).isNotNull();

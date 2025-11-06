@@ -162,7 +162,7 @@ public class UserController {
     )
     @GetMapping("/resume-info")
     public ResponseEntity<BaseResponse<UserDto.ResumeUserInfo>> getResumeInfo(@AuthenticationPrincipal UserDto.Auth auth) {
-        UserDto.ResumeUserInfo info = userService.findForResumeInfo(auth.getId());
+        UserDto.ResumeUserInfo info = UserDto.ResumeUserInfo.from(userService.findForResumeInfo(auth.getId()));
         return ResponseEntity.ok(BaseResponse.success(info));
     }
 }
