@@ -1,7 +1,7 @@
 package com.halo.core_bridge.api.schedule.jobposting.repository;
 
-import com.halo.core_bridge.api.schedule.jobposting.entity.JobPostingSchedule;
-import com.halo.core_bridge.api.schedule.jobposting.entity.JobPostingScheduleShare;
+import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingSchedule;
+import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingScheduleShare;
 import com.halo.core_bridge.api.users.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

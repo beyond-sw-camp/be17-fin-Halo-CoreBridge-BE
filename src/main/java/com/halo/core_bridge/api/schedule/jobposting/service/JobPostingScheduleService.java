@@ -1,8 +1,8 @@
 package com.halo.core_bridge.api.schedule.jobposting.service;
 
-import com.halo.core_bridge.api.schedule.jobposting.dto.JobPostingScheduleDto;
-import com.halo.core_bridge.api.schedule.jobposting.entity.JobPostingSchedule;
-import com.halo.core_bridge.api.schedule.jobposting.entity.JobPostingScheduleShare;
+import com.halo.core_bridge.api.schedule.jobposting.model.dto.JobPostingScheduleDto;
+import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingSchedule;
+import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingScheduleShare;
 import com.halo.core_bridge.api.schedule.jobposting.repository.JobPostingScheduleRepository;
 import com.halo.core_bridge.api.schedule.jobposting.repository.JobPostingScheduleShareRepository;
 import com.halo.core_bridge.api.schedule.notification.model.enums.NotificationType;

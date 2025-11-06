@@ -1,8 +1,8 @@
-package com.halo.core_bridge.api.schedule.jobposting.dto;
+package com.halo.core_bridge.api.schedule.jobposting.model.dto;
 
-import com.halo.core_bridge.api.schedule.jobposting.entity.JobPostingSchedule;
-import com.halo.core_bridge.api.schedule.jobposting.entity.JobPostingScheduleShare;
-import com.halo.core_bridge.api.schedule.jobposting.enums.JobPostingStatus;
+import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingSchedule;
+import com.halo.core_bridge.api.schedule.jobposting.model.entity.JobPostingScheduleShare;
+import com.halo.core_bridge.api.schedule.jobposting.model.enums.JobPostingStatus;
 import com.halo.core_bridge.api.users.model.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
