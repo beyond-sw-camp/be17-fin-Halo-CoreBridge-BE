@@ -394,12 +394,12 @@ VALUES ('귀사의 기술 스택과 개발 문화에 깊은 인상을 받았습�
        ('모바일 앱 리디자인 프로젝트에서 사용자 리서치를 통해 UX를 개선하여 사용자 만족도를 30% 향상시켰습니다.', 7, 3);
 
 -- 면접실 데이터
-INSERT INTO `room` (`name`, `location`, `room_type`, `description`)
-VALUES ('제1회의실', '본사 5층', 'OFFLINE', '20명 수용 가능한 대회의실'),
-       ('제2회의실', '본사 3층', 'OFFLINE', '10명 수용 가능한 중회의실'),
-       ('제3회의실', '본사 3층', 'OFFLINE', '6명 수용 가능한 소회의실'),
-       ('Zoom Room A', 'https://zoom.us/j/1234567890', 'ONLINE', 'Zoom 화상 면접실'),
-       ('Google Meet Room', 'https://meet.google.com/abc-defg-hij', 'ONLINE', 'Google Meet 화상 면접실');
+INSERT INTO `room` (`name`, `location`, `room_type`, `description`, `capacity`)
+VALUES ('제1회의실', '본사 5층', 'OFFLINE', '20명 수용 가능한 대회의실', 20),
+       ('제2회의실', '본사 3층', 'OFFLINE', '10명 수용 가능한 중회의실', 10),
+       ('제3회의실', '본사 4층', 'OFFLINE', '6명 수용 가능한 소회의실', 6),
+       ('Zoom Room A', 'https://zoom.us/j/1234567890', 'ONLINE', 'Zoom 화상 면접실', null),
+       ('Google Meet Room', 'https://meet.google.com/abc-defg-hij', 'ONLINE', 'Zoom 화상 면접실', null);
 
 -- 면접 데이터
 INSERT INTO `interview` (`start_date_time`, `duration`, `status`, `description`, `resume_id`, `room_id`,
