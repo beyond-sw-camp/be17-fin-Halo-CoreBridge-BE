@@ -1,7 +1,7 @@
 package com.halo.core_bridge.api.schedule.jobposting.controller;
 
 import com.halo.core_bridge.api.schedule.jobposting.contents.SwaggerJobPostingScheduleContents;
-import com.halo.core_bridge.api.schedule.jobposting.dto.JobPostingScheduleDto;
+import com.halo.core_bridge.api.schedule.jobposting.model.dto.JobPostingScheduleDto;
 import com.halo.core_bridge.api.schedule.jobposting.service.JobPostingScheduleService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,7 +1,7 @@
-package com.halo.core_bridge.api.schedule.jobposting.entity;
+package com.halo.core_bridge.api.schedule.jobposting.model.entity;
 
-import com.halo.core_bridge.api.schedule.jobposting.dto.JobPostingScheduleDto;
-import com.halo.core_bridge.api.schedule.jobposting.enums.JobPostingStatus;
+import com.halo.core_bridge.api.schedule.jobposting.model.dto.JobPostingScheduleDto;
+import com.halo.core_bridge.api.schedule.jobposting.model.enums.JobPostingStatus;
 import com.halo.core_bridge.api.users.model.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
