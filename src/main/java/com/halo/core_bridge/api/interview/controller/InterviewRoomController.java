@@ -50,4 +50,12 @@ public class InterviewRoomController {
         interviewRoomService.deleteById(interviewRoomId);
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("면접 장소 삭제 완료"));
     }
+
+    @PatchMapping("/{interviewRoomId}")
+    public ResponseEntity<BaseResponse<Object>> updateInterviewRoom(@PathVariable Long interviewRoomId,
+                                                                    @RequestBody InterviewRoomDto.Update update) {
+
+        interviewRoomService.update(interviewRoomId, update);
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("수정 완료"));
+    }
 }
