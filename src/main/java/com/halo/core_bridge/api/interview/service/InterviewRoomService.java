@@ -72,4 +72,15 @@ public class InterviewRoomService {
         List<Room> rooms = interviewRoomRepository.findAll();
         return InterviewRoomDto.InterviewRoomList.fromEntity(rooms);
     }
+
+    /**
+     * 면접 장소 삭제
+     * @param interviewRoomId 삭제 하려는 면접 장소의 <code>id</code>
+     */
+    public void deleteById(Long interviewRoomId) {
+
+        // 삭제하려는 장소에 면접일정이 등록되어있는지 확인하는 로직 추후 추가 예정
+
+        interviewRoomRepository.deleteById(interviewRoomId);
+    }
 }
