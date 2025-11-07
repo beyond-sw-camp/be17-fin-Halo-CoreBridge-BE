@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.interview.model.dto;
 
 import com.halo.core_bridge.api.interview.model.entity.Room;
 import com.halo.core_bridge.api.interview.model.enums.RoomType;
+import lombok.Builder;
 import lombok.Getter;
 
 public class InterviewRoomDto {
@@ -22,6 +23,29 @@ public class InterviewRoomDto {
                     .roomType(this.roomType)
                     .capacity(this.capacity)
                     .description(this.description)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class Read {
+
+        private Long id;
+        private String name;
+        private String location;
+        private RoomType roomType;
+        private int capacity;
+        private String description;
+
+        public static Read fromEntity(Room entity) {
+            return Read.builder()
+                    .id(entity.getId())
+                    .name(entity.getName())
+                    .location(entity.getLocation())
+                    .roomType(entity.getRoomType())
+                    .capacity(entity.getCapacity())
+                    .description(entity.getDescription())
                     .build();
         }
     }
