@@ -83,4 +83,33 @@ public class InterviewRoomService {
 
         interviewRoomRepository.deleteById(interviewRoomId);
     }
+
+
+    /**
+     * 면접 장소를 수정합니다.
+     * @param roomId - 수정할 면접 장소의 <code>id</code>
+     * @param update - 수정데이터
+     * @throws BaseException 존재하지 않는 면접일 경우 예외 발생
+     */
+    @Transactional
+    public void update(Long roomId, InterviewRoomDto.Update update) {
+
+        Room findRoom = interviewRoomRepository.findById(roomId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_INTERVIEW_ROOM));
+
+        if (update.getLocation() != null)
+            findRoom.changeLocation(update.getLocation());
+
+        else if (update.getName() != null)
+            findRoom.changeName(update.getName());
+
+        else if (update.getCapacity() != null)
+            findRoom.changeCapacity(update.getCapacity());
+
+        else if (update.getRoomType() != null)
+            findRoom.changeRoomType(update.getRoomType());
+
+        else if (update.getDescription() != null)
+            findRoom.changeDescription(update.getDescription());
+    }
 }
