@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.interview.service;
 
 import com.halo.core_bridge.api.interview.model.dto.InterviewRoomDto;
 import com.halo.core_bridge.api.interview.model.entity.Room;
+import com.halo.core_bridge.api.interview.model.enums.RoomType;
 import com.halo.core_bridge.api.interview.repository.InterviewRoomRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
@@ -100,16 +101,33 @@ public class InterviewRoomService {
         if (update.getLocation() != null)
             findRoom.changeLocation(update.getLocation());
 
-        else if (update.getName() != null)
+        if (update.getName() != null)
             findRoom.changeName(update.getName());
 
-        else if (update.getCapacity() != null)
+        RoomType updatedRoomType = update.getRoomType();
+
+        if (updatedRoomType != null) {
+
+            if (updatedRoomType == RoomType.ONLINE) {
+
+                findRoom.changeCapacity(null); // 온라인룸은 수용인원 없음
+
+            } else if (updatedRoomType == RoomType.OFFLINE && update.getCapacity() == null) {
+
+                throw BaseException.from(BaseResponseStatus.NOT_PROVIDED_CAPACITY_FOR_OFFLINE_ROOM); // 오프라인룸은 수용인원 필수
+
+            }
+
+            findRoom.changeRoomType(updatedRoomType);
+        }
+
+        if (update.getCapacity() != null)
             findRoom.changeCapacity(update.getCapacity());
 
-        else if (update.getRoomType() != null)
+        if (update.getRoomType() != null)
             findRoom.changeRoomType(update.getRoomType());
 
-        else if (update.getDescription() != null)
+        if (update.getDescription() != null)
             findRoom.changeDescription(update.getDescription());
     }
 }
