@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.coverLetterDescription.model.dto;
 import com.halo.core_bridge.api.coverLetterDescription.model.entity.CoverLetterDescription;
 import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,7 @@ public class CoverLetterDescriptionDto {
     @Getter
     @AllArgsConstructor
     public static class CoverLetterDescriptionRequest{
+        @Size(max = 10000)
         private String description;
         private Long resumeId;
         private Long coverLetterTitleId;
@@ -30,6 +32,7 @@ public class CoverLetterDescriptionDto {
     @Builder
     public static class CoverLetterDescriptionResponse{
         private Long id;
+        @Size(max = 10000)
         private String description;
         private Long resumeId;
         private Long coverLetterId;
