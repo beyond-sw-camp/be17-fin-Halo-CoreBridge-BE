@@ -28,4 +28,11 @@ public class InterviewRoomController {
         InterviewRoomDto.Read findRoom = interviewRoomService.findById(interviewRoomId);
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(findRoom));
     }
+
+    @GetMapping
+    public ResponseEntity<BaseResponse<InterviewRoomDto.InterviewRoomList>> getInterviewRooms() {
+
+        InterviewRoomDto.InterviewRoomList findInterviewRooms = interviewRoomService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(findInterviewRooms));
+    }
 }
