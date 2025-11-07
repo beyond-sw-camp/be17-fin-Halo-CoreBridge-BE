@@ -46,4 +46,18 @@ public class InterviewRoomService {
             throw BaseException.from(BaseResponseStatus.GLOBAL_EXCEPTION);
         }
     }
+
+    /**
+     * 면접 장소 상세 조회
+     * @param interviewRoomId 조회하기 위한 면접 장소 <code>id</code>
+     * @return <code>InterviewRoomDto.Read</code>
+     * @throws BaseException <code>id</code>에 맞는 데이터가 없는 경우 예외 발생
+     */
+    public InterviewRoomDto.Read findById(Long interviewRoomId) {
+
+        Room findRoom = interviewRoomRepository.findById(interviewRoomId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_INTERVIEW_ROOM));
+
+        return InterviewRoomDto.Read.fromEntity(findRoom);
+    }
 }

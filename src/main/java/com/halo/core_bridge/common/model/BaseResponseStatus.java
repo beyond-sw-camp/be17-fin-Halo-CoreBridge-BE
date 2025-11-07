@@ -87,7 +87,8 @@ public enum BaseResponseStatus {
     RECRUIT_PROCESS_CANT_DELETE(false, 74002, "채용 프로세스에 지원자가 존재하면 삭제 할 수 없습니다."),
 
     // 면접
-    DUPLICATE_INTERVIEW_ROOM(false, 75000, "면접 장소는 중복 될 수 없습니다.");
+    DUPLICATE_INTERVIEW_ROOM(false, 75000, "면접 장소는 중복 될 수 없습니다."),
+    NOT_FOUND_INTERVIEW_ROOM(false, 75001, "면접 장소를 찾을 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;
