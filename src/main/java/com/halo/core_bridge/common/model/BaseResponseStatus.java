@@ -88,7 +88,8 @@ public enum BaseResponseStatus {
 
     // 면접
     DUPLICATE_INTERVIEW_ROOM(false, 75000, "면접 장소는 중복 될 수 없습니다."),
-    NOT_FOUND_INTERVIEW_ROOM(false, 75001, "면접 장소를 찾을 수 없습니다.");
+    NOT_FOUND_INTERVIEW_ROOM(false, 75001, "면접 장소를 찾을 수 없습니다."),
+    NOT_PROVIDED_CAPACITY_FOR_OFFLINE_ROOM(false, 75002, "오프라인 장소에는 수용인원이 필요합니다.");
 
     private final boolean isSuccess;
     private final int code;

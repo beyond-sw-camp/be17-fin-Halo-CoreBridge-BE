@@ -67,4 +67,14 @@ public class InterviewRoomDto {
                     .build();
         }
     }
+
+    @Getter
+    public static class Update {
+
+        private String name;
+        private String location;
+        private RoomType roomType;
+        private Integer capacity;
+        private String description;
+    }
 }

@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.interview.service;
 
 import com.halo.core_bridge.api.interview.model.dto.InterviewRoomDto;
 import com.halo.core_bridge.api.interview.model.entity.Room;
+import com.halo.core_bridge.api.interview.model.enums.RoomType;
 import com.halo.core_bridge.api.interview.repository.InterviewRoomRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
@@ -82,5 +83,51 @@ public class InterviewRoomService {
         // 삭제하려는 장소에 면접일정이 등록되어있는지 확인하는 로직 추후 추가 예정
 
         interviewRoomRepository.deleteById(interviewRoomId);
+    }
+
+
+    /**
+     * 면접 장소를 수정합니다.
+     * @param roomId - 수정할 면접 장소의 <code>id</code>
+     * @param update - 수정데이터
+     * @throws BaseException 존재하지 않는 면접일 경우 예외 발생
+     */
+    @Transactional
+    public void update(Long roomId, InterviewRoomDto.Update update) {
+
+        Room findRoom = interviewRoomRepository.findById(roomId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_INTERVIEW_ROOM));
+
+        if (update.getLocation() != null)
+            findRoom.changeLocation(update.getLocation());
+
+        if (update.getName() != null)
+            findRoom.changeName(update.getName());
+
+        RoomType updatedRoomType = update.getRoomType();
+
+        if (updatedRoomType != null) {
+
+            if (updatedRoomType == RoomType.ONLINE) {
+
+                findRoom.changeCapacity(null); // 온라인룸은 수용인원 없음
+
+            } else if (updatedRoomType == RoomType.OFFLINE && update.getCapacity() == null) {
+
+                throw BaseException.from(BaseResponseStatus.NOT_PROVIDED_CAPACITY_FOR_OFFLINE_ROOM); // 오프라인룸은 수용인원 필수
+
+            }
+
+            findRoom.changeRoomType(updatedRoomType);
+        }
+
+        if (update.getCapacity() != null)
+            findRoom.changeCapacity(update.getCapacity());
+
+        if (update.getRoomType() != null)
+            findRoom.changeRoomType(update.getRoomType());
+
+        if (update.getDescription() != null)
+            findRoom.changeDescription(update.getDescription());
     }
 }
