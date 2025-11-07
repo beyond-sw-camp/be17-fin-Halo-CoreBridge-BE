@@ -5,6 +5,8 @@ import com.halo.core_bridge.api.interview.model.enums.RoomType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 public class InterviewRoomDto {
 
     @Getter
@@ -13,7 +15,7 @@ public class InterviewRoomDto {
         private String name;
         private String location;
         private RoomType roomType;
-        private int capacity;
+        private Integer capacity;
         private String description;
 
         public Room toEntity() {
@@ -35,7 +37,7 @@ public class InterviewRoomDto {
         private String name;
         private String location;
         private RoomType roomType;
-        private int capacity;
+        private Integer capacity;
         private String description;
 
         public static Read fromEntity(Room entity) {
@@ -46,6 +48,22 @@ public class InterviewRoomDto {
                     .roomType(entity.getRoomType())
                     .capacity(entity.getCapacity())
                     .description(entity.getDescription())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class InterviewRoomList {
+
+        private List<InterviewRoomDto.Read> interviewRooms;
+
+        public static  InterviewRoomList fromEntity(List<Room> rooms) {
+
+            return InterviewRoomDto.InterviewRoomList.builder()
+                    .interviewRooms(
+                            rooms.stream().map(InterviewRoomDto.Read::fromEntity).toList()
+                    )
                     .build();
         }
     }
