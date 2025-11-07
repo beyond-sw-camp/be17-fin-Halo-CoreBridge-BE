@@ -11,6 +11,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -59,5 +61,15 @@ public class InterviewRoomService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_INTERVIEW_ROOM));
 
         return InterviewRoomDto.Read.fromEntity(findRoom);
+    }
+
+    /**
+     * 면접 장소 목록 조회
+     * @return <code>InterviewRoomDto.InterviewRoomList</code> 면접 장소의 목록을 저장한 DTO
+     */
+    public InterviewRoomDto.InterviewRoomList findAll() {
+
+        List<Room> rooms = interviewRoomRepository.findAll();
+        return InterviewRoomDto.InterviewRoomList.fromEntity(rooms);
     }
 }
