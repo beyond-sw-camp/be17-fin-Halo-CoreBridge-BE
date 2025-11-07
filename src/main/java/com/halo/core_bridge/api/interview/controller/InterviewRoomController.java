@@ -1,8 +1,11 @@
 package com.halo.core_bridge.api.interview.controller;
 
 import com.halo.core_bridge.api.interview.model.dto.InterviewRoomDto;
+import com.halo.core_bridge.api.interview.repository.InterviewRoomRepository;
 import com.halo.core_bridge.api.interview.service.InterviewRoomService;
+import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponse;
+import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class InterviewRoomController {
 
     private final InterviewRoomService interviewRoomService;
+    private final InterviewRoomRepository interviewRoomRepository;
 
     @PostMapping
     public ResponseEntity<BaseResponse<Object>> createRoom(@RequestBody InterviewRoomDto.Create create) {
@@ -34,5 +38,16 @@ public class InterviewRoomController {
 
         InterviewRoomDto.InterviewRoomList findInterviewRooms = interviewRoomService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(findInterviewRooms));
+    }
+
+    @DeleteMapping("/{interviewRoomId}")
+    public ResponseEntity<BaseResponse<Object>> deleteInterviewRoom(@PathVariable Long interviewRoomId) {
+
+        if (!interviewRoomRepository.existsById(interviewRoomId)) {
+            throw BaseException.from(BaseResponseStatus.NOT_FOUND_INTERVIEW_ROOM);
+        }
+
+        interviewRoomService.deleteById(interviewRoomId);
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("면접 장소 삭제 완료"));
     }
 }
