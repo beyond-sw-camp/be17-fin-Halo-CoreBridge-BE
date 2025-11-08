@@ -4,26 +4,36 @@ import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.mail.service.NewAccountPasswordResetMailService;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.api.users.model.entity.UserRole;
+import com.halo.core_bridge.api.users.repository.UserQueryRepository;
 import com.halo.core_bridge.api.users.repository.UserRepository;
 import com.halo.core_bridge.api.users.service.PasswordService;
 import com.halo.core_bridge.api.users.service.UserRoleService;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+
+import static com.halo.core_bridge.api.admin.model.AdminDto.*;
 
 @Service
 @RequiredArgsConstructor
 public class AdminUserService {
     
     private final UserRepository userRepository;
+    private final UserQueryRepository userQueryRepository;
 
     private final UserRoleService userRoleService;
     private final PasswordService passwordService;
     private final NewAccountPasswordResetMailService newAccountPasswordResetMailService;
+
+    private final int pageSize = 10;
 
     /**
      * 관리자 권한으로 계정을 추가합니다.
@@ -32,7 +42,7 @@ public class AdminUserService {
      * @throws BaseException 이메일이 이미 존재하면 예외 발생
      */
     @Transactional
-    public Long save(AdminDto.UserCreate userCreate) {
+    public Long save(UserCreate userCreate) {
 
         if (userRepository.existsByEmail(userCreate.getEmail())) {
             throw BaseException.from(BaseResponseStatus.DUPLICATE_USER_EMAIL);
@@ -52,5 +62,23 @@ public class AdminUserService {
         newAccountPasswordResetMailService.sendToEmail(savedUser.getEmail());
 
         return savedUser.getId();
+    }
+
+    /**
+     * 채용 담당자, 면접관 권한을 가진 계정 목록을 조회하는 기능 <br>
+     * @param roleType - 권한 유형, <code>null</code>이면 채용 담당자과 면접관 권한을 모두 가지고 온다.
+     * @return 권한 유형에 따른 계정 목록
+     */
+    @Transactional(readOnly = true)
+    public AccountList findAccounts(String roleType, int page, String keyword) {
+
+        PageRequest pageable = PageRequest.of(page, pageSize, Sort.by("id").descending());
+
+        if (roleType == null) {
+            return AccountList.from(userQueryRepository.searchUsers(List.of("채용 담당자", "면접관"), keyword, pageable));
+        }
+
+        UserRole findUserRole = userRoleService.findByName(roleType);
+        return AccountList.from(userQueryRepository.searchUsers(List.of(findUserRole.getName()), keyword, pageable));
     }
 }
