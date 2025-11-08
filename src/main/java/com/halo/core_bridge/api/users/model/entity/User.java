@@ -35,14 +35,14 @@ public class User extends BaseEntity {
 
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate birth;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String phone;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -17,8 +17,8 @@ public class PasswordResetMailService extends BaseMailService {
 
     @Value("${password.reset.redirect.url}")
     private String REDIRECT_LINK;
-    private String uuid;
-    private String email;
+    protected String uuid;
+    protected String email;
 
     public PasswordResetMailService(JavaMailSender mailSender, StringRedisTemplate redisTemplate) {
         super(mailSender, MailSend.PASSWORD_RESET_MAIL.getSubject());
@@ -32,9 +32,17 @@ public class PasswordResetMailService extends BaseMailService {
         uuid = createUuid();
         MimeMessage mimeMessage = createMimeMessage(email);
 
-        redisTemplate.opsForValue().set(createRedisKey(email), uuid, Duration.ofMinutes(5));
+        if (getTimeout() == null) {
+            redisTemplate.opsForValue().set(createRedisKey(email), uuid);
+        } else {
+            redisTemplate.opsForValue().set(createRedisKey(email), uuid, getTimeout());
+        }
 
         mailSender.send(mimeMessage);
+    }
+
+    protected Duration getTimeout() {
+        return Duration.ofMinutes(5);
     }
 
     @Override
@@ -66,7 +74,7 @@ public class PasswordResetMailService extends BaseMailService {
         return UUID.randomUUID().toString();
     }
 
-    private String createURI(String uuid, String email) {
+    protected String createURI(String uuid, String email) {
         return REDIRECT_LINK.concat("?token=").concat(uuid).concat("&email=").concat(email);
     }
 
