@@ -1,6 +1,6 @@
 package com.halo.core_bridge.api.interview.model.entity;
 
-import com.halo.core_bridge.api.interview.model.enums.RoomType;
+import com.halo.core_bridge.api.interview.model.enums.InterviewType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +25,7 @@ public class Room {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RoomType roomType;
+    private InterviewType interviewType;
 
     @Column(nullable = false)
     private String description;
@@ -41,8 +41,8 @@ public class Room {
         this.location = newLocation;
     }
 
-    public void changeRoomType(RoomType newRoomType) {
-        this.roomType = newRoomType;
+    public void changeRoomType(InterviewType newInterviewType) {
+        this.interviewType = newInterviewType;
     }
 
     public void changeDescription(String newDescription) {

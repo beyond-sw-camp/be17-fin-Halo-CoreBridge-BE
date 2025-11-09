@@ -1,7 +1,7 @@
 package com.halo.core_bridge.api.interview.model.dto;
 
 import com.halo.core_bridge.api.interview.model.entity.Room;
-import com.halo.core_bridge.api.interview.model.enums.RoomType;
+import com.halo.core_bridge.api.interview.model.enums.InterviewType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,7 +14,7 @@ public class InterviewRoomDto {
 
         private String name;
         private String location;
-        private RoomType roomType;
+        private InterviewType interviewType;
         private Integer capacity;
         private String description;
 
@@ -22,7 +22,7 @@ public class InterviewRoomDto {
             return Room.builder()
                     .name(this.name)
                     .location(this.location)
-                    .roomType(this.roomType)
+                    .interviewType(this.interviewType)
                     .capacity(this.capacity)
                     .description(this.description)
                     .build();
@@ -36,7 +36,7 @@ public class InterviewRoomDto {
         private Long id;
         private String name;
         private String location;
-        private RoomType roomType;
+        private InterviewType interviewType;
         private Integer capacity;
         private String description;
 
@@ -45,7 +45,7 @@ public class InterviewRoomDto {
                     .id(entity.getId())
                     .name(entity.getName())
                     .location(entity.getLocation())
-                    .roomType(entity.getRoomType())
+                    .interviewType(entity.getInterviewType())
                     .capacity(entity.getCapacity())
                     .description(entity.getDescription())
                     .build();
@@ -73,7 +73,7 @@ public class InterviewRoomDto {
 
         private String name;
         private String location;
-        private RoomType roomType;
+        private InterviewType interviewType;
         private Integer capacity;
         private String description;
     }
