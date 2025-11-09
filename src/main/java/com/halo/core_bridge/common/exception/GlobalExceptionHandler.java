@@ -3,6 +3,8 @@ package com.halo.core_bridge.common.exception;
 import com.halo.core_bridge.common.model.BaseResponse;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -49,6 +51,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(httpStatusCodeMapper(e.getStatusCode().value()))
                 .body(
                         BaseResponse.error(BaseResponseStatus.FIELD_VALIDATE_ERROR, errors)
+                );
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<BaseResponse<?>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.error("[DataIntegrityViolation] {}", e.getMessage());
+
+        Throwable cause = e.getCause();
+
+        if (cause instanceof ConstraintViolationException || e.getMostSpecificCause().getMessage().toLowerCase().contains("foreign key")) {
+            log.error("[ConstraintViolationException] {}", e.getMessage());
+            return ResponseEntity
+                    .status(
+                            BaseResponseStatus.FAILED_DELETE_DATA.getCode()
+                    )
+                    .body(
+                            BaseResponse.error(BaseResponseStatus.FAILED_DELETE_DATA)
+                    );
+        }
+
+        // 기타 제약 위반
+        return ResponseEntity
+                .status(
+                        BaseResponseStatus.DATABASE_ERROR.getCode()
+                )
+                .body(
+                        BaseResponse.error(BaseResponseStatus.DATABASE_ERROR)
                 );
     }
 }
