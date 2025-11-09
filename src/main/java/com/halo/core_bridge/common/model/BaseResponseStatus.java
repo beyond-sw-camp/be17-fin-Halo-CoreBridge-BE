@@ -56,6 +56,7 @@ public enum BaseResponseStatus {
      * 50000 : Database 오류
      */
     DATABASE_ERROR(false, 50001, "데이터베이스 연결에 실패하였습니다."),
+    FAILED_DELETE_DATA(false, 50002, "연관된 데이터가 있어 유저를 삭제 할 수 없습니다."),
 
     /**
      * 60000 : Server 오류
