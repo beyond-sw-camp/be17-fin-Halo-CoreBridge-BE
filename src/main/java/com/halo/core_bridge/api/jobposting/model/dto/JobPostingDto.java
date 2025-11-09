@@ -143,6 +143,10 @@ public class JobPostingDto {
 
         private String additionalInfo;
 
+        @NotNull(message = "면접관을 필수로 등록해야합니다.")
+        @Size(min = 1, message = "한명 이상의 면접관을 선택해주세요.")
+        private List<Long> interviewers;
+
         public JobPosting toEntity(Long createdByUserId) {
             return JobPosting.builder()
                     .title(title)
