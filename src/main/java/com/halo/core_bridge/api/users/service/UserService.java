@@ -1,14 +1,22 @@
 package com.halo.core_bridge.api.users.service;
 
+import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.api.users.model.entity.User;
+import com.halo.core_bridge.api.users.model.entity.UserRole;
+import com.halo.core_bridge.api.users.repository.UserQueryRepository;
 import com.halo.core_bridge.api.users.repository.UserRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +24,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordService passwordService;
+    private final UserQueryRepository userQueryRepository;
+    private final UserRoleService userRoleService;
 
     public Long save(UserDto.Create createUser) {
         try {
@@ -75,5 +85,25 @@ public class UserService {
         );
 
         return UserDto.Read.from(findUser);
+    }
+
+    /**
+     * 계정을 무한 스크롤로 조회하는 기능
+     * @param roleType 권한 유형, <code>null</code>이면 채용 담당자과 면접관 권한을 모두 가지고 온다.
+     * @param page 페이지 번호
+     * @param keyword 검색어
+     * @return AccountInfiniteList 계정 목록
+     */
+    @Transactional(readOnly = true)
+    public AdminDto.AccountInfiniteList findInfiniteAccounts(String roleType, int page, String keyword) {
+
+        PageRequest pageable = PageRequest.of(page, 10, Sort.by("id").descending());
+
+        if (roleType == null) {
+            return AdminDto.AccountInfiniteList.from(userQueryRepository.findInterviewers(List.of("채용 담당자", "면접관"), keyword, pageable));
+        }
+
+        UserRole findUserRole = userRoleService.findByName(roleType);
+        return AdminDto.AccountInfiniteList.from(userQueryRepository.findInterviewers(List.of(findUserRole.getName()), keyword, pageable));
     }
 }
