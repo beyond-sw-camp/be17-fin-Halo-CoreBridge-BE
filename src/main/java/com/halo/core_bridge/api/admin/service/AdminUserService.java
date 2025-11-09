@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.admin.service;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.mail.service.NewAccountPasswordResetMailService;
 import com.halo.core_bridge.api.users.model.entity.User;
@@ -11,6 +12,7 @@ import com.halo.core_bridge.api.users.service.UserRoleService;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +24,7 @@ import java.util.UUID;
 
 import static com.halo.core_bridge.api.admin.model.AdminDto.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminUserService {
@@ -80,5 +83,22 @@ public class AdminUserService {
 
         UserRole findUserRole = userRoleService.findByName(roleType);
         return AccountList.from(userQueryRepository.searchUsers(List.of(findUserRole.getName()), keyword, pageable));
+    }
+
+    /**
+     * 계정을 삭제하는 기능
+     * @param userId 삭제할 계정의 식별자 <code>id</code>
+     * @throws BaseException 계정이 존재하지 않으면 예외 발생
+     */
+    @Transactional
+    public void deleteById(Long userId) {
+
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("[ERROR] {}", BaseResponseStatus.NOT_FOUND_USER.getMessage());
+                    return BaseException.from(BaseResponseStatus.NOT_FOUND_USER);
+                });
+
+        userRepository.delete(findUser);
     }
 }
