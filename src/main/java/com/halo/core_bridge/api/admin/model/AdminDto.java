@@ -40,6 +40,7 @@ public class AdminDto {
     @Builder
     public static class Account {
 
+        private Long id;
         private String name;
         private String email;
         private String roleType;
@@ -50,6 +51,7 @@ public class AdminDto {
         public static Account from(User entity) {
 
             return Account.builder()
+                    .id(entity.getId())
                     .name(entity.getName())
                     .email(entity.getEmail())
                     .createdAt(entity.getCreatedAt())

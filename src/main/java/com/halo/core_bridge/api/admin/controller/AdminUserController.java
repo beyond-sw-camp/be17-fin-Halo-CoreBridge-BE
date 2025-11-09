@@ -32,4 +32,11 @@ public class AdminUserController {
         AccountList findAccounts = adminUserService.findAccounts(roleType, page, keyword);
         return ResponseEntity.ok(BaseResponse.success(findAccounts));
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<BaseResponse<Object>> deleteAccount(@PathVariable Long userId) {
+
+        adminUserService.deleteById(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("계정이 삭제되었습니다."));
+    }
 }
