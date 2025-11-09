@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.interview.model.entity;
 
 import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
+import com.halo.core_bridge.api.interview.model.enums.InterviewType;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.common.model.BaseEntity;
@@ -35,11 +36,15 @@ public class Interview extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Resume resume;
+    @Column(nullable = false)
+    private String location;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private InterviewType interviewType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Room room;
+    private Resume resume;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private RecruitProcess  recruitProcess;
