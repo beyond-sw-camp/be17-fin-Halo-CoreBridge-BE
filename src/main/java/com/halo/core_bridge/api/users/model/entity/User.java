@@ -48,7 +48,7 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private UserRole userRole;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Image profileImage;
 
     public void updatePassword(String encodedPassword) {
