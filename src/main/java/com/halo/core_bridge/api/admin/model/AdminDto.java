@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -78,6 +79,27 @@ public class AdminDto {
                     .currentPage(users.getNumber())
                     .totalElements(users.getTotalElements())
                     .totalPages(users.getTotalPages())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class AccountInfiniteList {
+
+        private List<Account> accounts;
+        private int currentPage;
+        private boolean hasNext;
+
+
+        public static AccountInfiniteList from(Slice<User> users) {
+
+            return AccountInfiniteList.builder()
+                    .accounts(
+                            users.getContent().stream().map(Account::from).toList()
+                    )
+                    .currentPage(users.getNumber())
+                    .hasNext(users.hasNext())
                     .build();
         }
     }

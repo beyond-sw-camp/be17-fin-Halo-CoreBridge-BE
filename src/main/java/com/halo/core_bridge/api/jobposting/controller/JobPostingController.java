@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.jobposting.controller;
 
 
 import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
+import com.halo.core_bridge.api.interview.service.InterviewerService;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
@@ -35,6 +36,7 @@ public class JobPostingController {
     private final JobPostingSkillService jobPostingSkillService;
     private final RecruitProcessService recruitProcessService;
     private final CoverLetterTitleService coverLetterTitleService;
+    private final InterviewerService interviewerService;
 
     //채용공고 등록
     @Operation(
@@ -84,6 +86,9 @@ public class JobPostingController {
         jobPostingSkillService.saveAll(request.getTechStack(), jobPostingId);
         recruitProcessService.create(request.getRecruitProcess(), jobPostingId);
         coverLetterTitleService.create(request.getCoverLetterTitles(), jobPostingId);
+
+        // 면접관 등록
+        interviewerService.saveAll(jobPostingId, request.getInterviewers());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("채용공고 등록완료"));
     }

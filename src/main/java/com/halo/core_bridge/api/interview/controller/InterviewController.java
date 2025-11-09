@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.interview.controller;
 import com.halo.core_bridge.api.interview.contents.SwaggerInterviewContents;
 import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.service.InterviewService;
+import com.halo.core_bridge.api.users.service.UserService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,10 +14,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static com.halo.core_bridge.api.admin.model.AdminDto.AccountInfiniteList;
 
 @Tag(name = "면접", description = "면접 등록 API")
 @RestController
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class InterviewController {
 
     private final InterviewService interviewService;
+    private final UserService userService;
 
     @Operation(
             summary = "면접 등록",
@@ -53,5 +54,13 @@ public class InterviewController {
     public ResponseEntity<BaseResponse<Object>> createInterview(@RequestBody InterviewDto.Create interviewRequest) {
         interviewService.save(interviewRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success("면접을 등록하였습니다."));
+    }
+
+    @GetMapping
+    public ResponseEntity<BaseResponse<Object>> getInterviews(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(name = "search", required = false) String keyword) {
+
+        AccountInfiniteList findAccounts = userService.findInfiniteAccounts("면접관", page, keyword);
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(findAccounts));
     }
 }
