@@ -79,6 +79,7 @@ public enum BaseResponseStatus {
     PDF_NOT_FOUND(false, 70009, "PDF를 찾을 수 없습니다."),
     UNSUPPORTED_FILE_TYPE(false, 70009, "지원하지 않는 형식입니다."),
     FILE_TOO_LARGE(false, 700010, "용량을 초과하였습니다."),
+    DELETE_NOT_ALLOWED_DURING_APPLICATION(false, 700011, "접수 기간 중에는 채용공고를 삭제할 수 없습니다."),
 
     JOB_POSTING_SCHEDULE_NOT_FOUND(false, 71001, "존재하지 않는 공고 일정입니다."),
     PROCESS_SCHEDULE_NOT_FOUND(false, 72001, "존재하지 않는 프로세스 일정입니다."),
