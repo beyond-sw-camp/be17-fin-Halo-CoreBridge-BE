@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.schedule.jobprocess.model.dto;
 
+import com.halo.core_bridge.api.schedule.jobprocess.model.enums.RecurrenceType;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,11 @@ public class JobProcessScheduleDto {
         private String notes;
         @NotBlank private String status; // scheduled, completed, cancelled
 
+        // Recurring 필드
+        private RecurrenceType recurrenceType;
+        private Integer recurrenceInterval;
+        private LocalDate recurrenceEndDate;
+
         @NotNull private Long assignedTo;
     }
 
@@ -48,6 +54,11 @@ public class JobProcessScheduleDto {
         private String interviewer;
         private String notes;
         private String status;
+
+        // Recurring 필드
+        private RecurrenceType recurrenceType;
+        private Integer recurrenceInterval;
+        private LocalDate recurrenceEndDate;
 
         private Long assignedTo;
     }
@@ -70,6 +81,12 @@ public class JobProcessScheduleDto {
         private String interviewer;
         private String notes;
         private String status;
+
+        // Recurring 필드
+        private RecurrenceType recurrenceType;
+        private Integer recurrenceInterval;
+        private LocalDate recurrenceEndDate;
+        private Long parentScheduleId;
 
         private Long jobPostingId;
         private Long assignedTo;

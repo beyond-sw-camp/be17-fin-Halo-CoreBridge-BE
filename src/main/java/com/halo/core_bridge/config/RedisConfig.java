@@ -1,6 +1,6 @@
 package com.halo.core_bridge.config;
 
-import com.halo.core_bridge.api.schedule.notification.subscriber.RedisNotificationSubscriber;
+//import com.halo.core_bridge.api.schedule.notification.subscriber.RedisNotificationSubscriber;
 import com.halo.core_bridge.api.token.refresh.model.dto.RefreshTokenDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @RequiredArgsConstructor
 public class RedisConfig {
 
-    private final RedisNotificationSubscriber redisNotificationSubscriber;
+//    private final RedisNotificationSubscriber redisNotificationSubscriber;
 
     @Value("${redis.host}")
     private String host;
@@ -55,6 +55,7 @@ public class RedisConfig {
         return redisTemplate;
     }
 
+    /*
     // notifications 채널
     @Bean
     public ChannelTopic notificationTopic() {
@@ -79,4 +80,5 @@ public class RedisConfig {
         container.addMessageListener(listenerAdapter, notificationTopic);
         return container;
     }
+    */
 }
