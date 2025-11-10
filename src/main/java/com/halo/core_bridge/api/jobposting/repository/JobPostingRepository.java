@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
+public interface JobPostingRepository extends JpaRepository<JobPosting, Long>, JobPostingQueryRepository {
     @EntityGraph(attributePaths = {"department"})
     @Query("SELECT j FROM JobPosting j ORDER BY j.createdAt DESC")
     List<JobPosting> findAllWithDepartment();

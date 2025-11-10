@@ -30,7 +30,7 @@ public class JobPostingService {
     private final JobPostingSkillRepository jobPostingSkillRepository;
     private final ResumeRepository resumeRepository;
     private final RecruitProcessRepository recruitProcessRepository;
-    private final CoverLetterTitleRepository  coverLetterTitleRepository;
+    private final CoverLetterTitleRepository coverLetterTitleRepository;
 
     // 채용공고 등록
     @Transactional
@@ -44,36 +44,12 @@ public class JobPostingService {
     // 채용공고 리스트 조회
     @Transactional(readOnly = true)
     public List<JobPostingDto.JobPostingListResponseDto> getJobPostingList() {
-        // 전체 공고 조회
-        List<JobPosting> postings = jobPostingRepository.findAllWithDepartment();
-
-        List<JobPostingDto.JobPostingListResponseDto> resultList = new ArrayList<>();
-
-        for (JobPosting job : postings) {
-            int applicantCount = resumeRepository.countByJobPostingId(job.getId());
-
-            // 단계별 현황
-            List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting(job);
-            List<JobPostingDto.JobPostingListResponseDto.ProcessSummary> processSummaries = new ArrayList<>();
-
-            for (RecruitProcess process : processes) {
-                int count = resumeRepository.countByRecruitProcess(process);
-
-                processSummaries.add(
-                        JobPostingDto.JobPostingListResponseDto.ProcessSummary.builder()
-                                .stageName(process.getName())
-                                .orderIndex(process.getOrderIdx())
-                                .count(count)
-                                .build()
-                );
-            }
-
-            JobPostingDto.JobPostingListResponseDto dto = JobPostingDto.JobPostingListResponseDto.fromEntity(job, applicantCount, processSummaries);
-
-            resultList.add(dto);
-        }
-
-        return resultList;
+        /**
+         * 채용공고 리스트 조회 (성능 개선 버전)
+         * - 채용공고, 부서, 단계별 지원자 수를 한 번에 조회
+         * - N+1 문제 완전 제거
+         */
+        return jobPostingRepository.findAllJobPostingSummaries();
     }
 
     // 상세조회
@@ -176,7 +152,7 @@ public class JobPostingService {
         JobPosting jobPosting = jobPostingRepository.findById(id).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
         LocalDateTime now = LocalDateTime.now();
 
-        if(now.isAfter(jobPosting.getApplyStartDate()) && now.isBefore(jobPosting.getHireEndDate())) {
+        if (now.isAfter(jobPosting.getApplyStartDate()) && now.isBefore(jobPosting.getHireEndDate())) {
             throw BaseException.from(DELETE_NOT_ALLOWED_DURING_APPLICATION);
         }
         // 조건 통과 시 삭제
