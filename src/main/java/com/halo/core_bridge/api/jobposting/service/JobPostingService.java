@@ -16,9 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.halo.core_bridge.common.model.BaseResponseStatus.DELETE_NOT_ALLOWED_DURING_APPLICATION;
 import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_NOT_FOUND;
 
 @Service
@@ -171,6 +173,13 @@ public class JobPostingService {
 
     @Transactional
     public void deleteJobPosting(Long id) {
+        JobPosting jobPosting = jobPostingRepository.findById(id).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
+        LocalDateTime now = LocalDateTime.now();
+
+        if(now.isAfter(jobPosting.getApplyStartDate()) && now.isBefore(jobPosting.getHireEndDate())) {
+            throw BaseException.from(DELETE_NOT_ALLOWED_DURING_APPLICATION);
+        }
+        // 조건 통과 시 삭제
         jobPostingRepository.deleteById(id);
     }
 }
