@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
-import com.halo.core_bridge.api.resume.model.entity.Resume;
-import com.halo.core_bridge.api.resume.model.entity.ResumeSkill;
 import com.halo.core_bridge.api.users.model.entity.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -16,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class JobPostingDto {
@@ -695,6 +692,39 @@ public class JobPostingDto {
 
     }
 
+    @Getter
+    @Builder
+    public static class SearchQuery {
+        private String keyword;
+        private int page;
+
+        public static SearchQuery from(String keyword, int page) {
+            return SearchQuery.builder()
+                    .keyword(keyword)
+                    .page(page)
+                    .build();
+        }
+    }
+
+
+    @Getter
+    @Builder
+    public static class JobPostingListDto {
+
+        List<JobPostingListResponseDto> jobPostings;
+        private int currentPage;
+        private int totalPages;
+        private long totalElements;
+
+        public static JobPostingListDto from(List<JobPostingListResponseDto> jobPostings, int currentPage, int totalPages, long totalElements) {
+            return JobPostingListDto.builder()
+                    .jobPostings(jobPostings)
+                    .currentPage(currentPage)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .build();
+        }
+    }
 }
 
 
