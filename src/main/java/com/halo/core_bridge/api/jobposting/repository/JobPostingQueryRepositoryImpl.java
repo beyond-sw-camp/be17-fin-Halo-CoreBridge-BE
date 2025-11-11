@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.jobposting.repository;
 
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
+import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.organization.model.entity.QDepartment;
@@ -145,5 +146,128 @@ public class JobPostingQueryRepositoryImpl implements JobPostingQueryRepository 
                     );
                 })
                 .toList();
+    }
+
+    @Override
+    public JobPostingDto.DetailResponse findJobPostingDetail(Long jobPostingId) {
+        // Q 클래스 초기화
+        QJobPosting jobPosting = QJobPosting.jobPosting;
+        QDepartment department = QDepartment.department;
+        QResume resume = QResume.resume;
+        QRecruitProcess process = QRecruitProcess.recruitProcess;
+        QJobPostingSkill skill = QJobPostingSkill.jobPostingSkill;
+
+        // ✅ 1️⃣ 공고 + 부서 + 지원자 수 기본 정보
+        Tuple base = queryFactory
+                .select(
+                        jobPosting.id,
+                        jobPosting.summary,
+                        jobPosting.responsibilities,
+                        jobPosting.requirements,
+                        jobPosting.preferred,
+                        jobPosting.benefits,
+                        jobPosting.additionalInfo,
+                        jobPosting.createdAt,
+                        jobPosting.applyStartDate,
+                        jobPosting.applyEndDate,
+                        jobPosting.hireEndDate,
+                        jobPosting.headcount,
+                        jobPosting.workingHours,
+                        jobPosting.location,
+                        jobPosting.contactName,
+                        jobPosting.contactEmail,
+                        department.name,
+                        resume.id.countDistinct()
+                )
+                .from(jobPosting)
+                .leftJoin(jobPosting.department, department)
+                .leftJoin(jobPosting.resumes, resume)
+                .where(jobPosting.id.eq(jobPostingId))
+                .groupBy(
+                        jobPosting.id,
+                        jobPosting.summary,
+                        jobPosting.responsibilities,
+                        jobPosting.requirements,
+                        jobPosting.preferred,
+                        jobPosting.benefits,
+                        jobPosting.additionalInfo,
+                        jobPosting.createdAt,
+                        jobPosting.applyStartDate,
+                        jobPosting.applyEndDate,
+                        jobPosting.hireEndDate,
+                        jobPosting.headcount,
+                        jobPosting.workingHours,
+                        jobPosting.location,
+                        jobPosting.contactName,
+                        jobPosting.contactEmail,
+                        department.name
+                )
+                .fetchOne();
+
+        // ✅ 2️⃣ 프로세스 별도 조회 (ORDER 순서 유지)
+        List<RecruitProcessDto.Read> recruitProcesses = queryFactory
+                .select(
+                        process.id,
+                        process.name,
+                        process.colorCode,
+                        process.orderIdx
+                )
+                .from(process)
+                .where(process.jobPosting.id.eq(jobPostingId))
+                .orderBy(process.orderIdx.asc())
+                .fetch()
+                .stream()
+                .map(t -> RecruitProcessDto.Read.builder()
+                        .id(t.get(process.id))
+                        .name(t.get(process.name))
+                        .colorCode(t.get(process.colorCode))
+                        .orderIdx(t.get(process.orderIdx))
+                        .build())
+                .toList();
+
+        // ✅ 3️⃣ 기술스택 별도 조회
+        List<String> skills = queryFactory
+                .select(skill.name)
+                .from(skill)
+                .where(skill.jobPosting.id.eq(jobPostingId))
+                .distinct()
+                .fetch();
+
+        // ✅ 4️⃣ 상태(status) 계산
+        String status = computeStatus(base.get(jobPosting.applyStartDate), base.get(jobPosting.hireEndDate));
+
+        // ✅ 5️⃣ 최종 DTO 조립
+        JobPostingDto.DetailResponse detailResponse = JobPostingDto.DetailResponse.builder()
+                .id(base.get(jobPosting.id))
+                .summary(base.get(jobPosting.summary))
+                .responsibilities(base.get(jobPosting.responsibilities))
+                .requirements(base.get(jobPosting.requirements))
+                .preferred(base.get(jobPosting.preferred))
+                .benefits(base.get(jobPosting.benefits))
+                .additionalInfo(base.get(jobPosting.additionalInfo))
+                .status(status)
+                .createDate(base.get(jobPosting.createdAt))
+                .applyStartDate(base.get(jobPosting.applyStartDate))
+                .applyEndDate(base.get(jobPosting.applyEndDate))
+                .hireEndDate(base.get(jobPosting.hireEndDate))
+                .headCount(base.get(jobPosting.headcount))
+                .applicantCount(base.get(resume.id.countDistinct()).intValue())
+                .skills(skills)
+                .recruitProcesses(recruitProcesses)
+                .workingHours(base.get(jobPosting.workingHours))
+                .location(base.get(jobPosting.location))
+                .contactName(base.get(jobPosting.contactName))
+                .contactEmail(base.get(jobPosting.contactEmail))
+                .build();
+
+        return detailResponse;
+    }
+
+    // ✅ 상태 계산 메서드
+    private String computeStatus(LocalDateTime applyStart, LocalDateTime hireEnd) {
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(applyStart)) return "예정";
+        else if (now.isAfter(hireEnd)) return "마감";
+        else return "채용중";
     }
 }

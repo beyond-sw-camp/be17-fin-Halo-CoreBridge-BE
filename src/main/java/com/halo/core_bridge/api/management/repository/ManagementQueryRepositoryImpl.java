@@ -26,7 +26,7 @@ public class ManagementQueryRepositoryImpl implements ManagementQueryRepository 
     public ManagementDto findManagementByJobPostingId(Long jobPostingId) {
 
         // ===============================
-        // 0️⃣ Q-Class 초기화
+        // Q-Class 초기화
         // ===============================
         QRecruitProcess process = QRecruitProcess.recruitProcess;
         QResume resume = QResume.resume;
@@ -35,7 +35,7 @@ public class ManagementQueryRepositoryImpl implements ManagementQueryRepository 
 
 
         // ===============================
-        // 1️⃣ JOIN으로 필요한 데이터 조회
+        // OIN으로 필요한 데이터 조회
         // -------------------------------
         // recruit_process 기준으로 resume, user, career 조인
         // career가 여러 개일 수 있으므로 flat 결과로 받음
@@ -61,7 +61,7 @@ public class ManagementQueryRepositoryImpl implements ManagementQueryRepository 
 
 
         // ===============================
-        // 2️⃣ 이력서별 총 근속연수 계산
+        //  이력서별 총 근속연수 계산
         // -------------------------------
         // 동일한 resume.id 에 대해 career 여러 개일 수 있으므로
         // Stream groupingBy 로 근속연수 합산
@@ -81,14 +81,14 @@ public class ManagementQueryRepositoryImpl implements ManagementQueryRepository 
 
 
         // ===============================
-        // 3️⃣ Stage별 DTO 그룹핑 + 중복 제거
+        // Stage별 DTO 그룹핑 + 중복 제거
         // -------------------------------
         // Stage별(RecruitProcess)로 applicants를 누적하되,
         // 같은 resumeId 가 career 여러 개일 경우 중복 방지
         // ===============================
         Map<Long, ManagementDto.StageDto> stageMap = new LinkedHashMap<>();
 
-        // ✅ Stage별 중복 방지를 위해 각 Stage마다 별도의 Set 사용
+        // Stage별 중복 방지를 위해 각 Stage마다 별도의 Set 사용
         Map<Long, Set<Long>> stageResumeSet = new HashMap<>();
 
         for (Tuple tuple : tuples) {
@@ -112,7 +112,7 @@ public class ManagementQueryRepositoryImpl implements ManagementQueryRepository 
             Long resumeId = tuple.get(resume.id);
             if (resumeId == null) continue;
 
-            // ✅ 같은 Stage 안에서 동일한 지원자가 여러 Career로 중복 조회되는 경우 제거
+            // 같은 Stage 안에서 동일한 지원자가 여러 Career로 중복 조회되는 경우 제거
             if (stageResumeSet.get(processId).contains(resumeId)) continue;
             stageResumeSet.get(processId).add(resumeId);
 
@@ -139,7 +139,7 @@ public class ManagementQueryRepositoryImpl implements ManagementQueryRepository 
 
 
         // ===============================
-        // 4️⃣ Stage 리스트 구성 및 DTO 반환
+        //  Stage 리스트 구성 및 DTO 반환
         // ===============================
         List<ManagementDto.StageDto> stages = new ArrayList<>(stageMap.values());
 

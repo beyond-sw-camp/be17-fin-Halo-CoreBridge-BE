@@ -10,7 +10,6 @@ import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
-import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,16 +27,13 @@ import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_N
 public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
     private final JobPostingSkillRepository jobPostingSkillRepository;
-    private final ResumeRepository resumeRepository;
     private final RecruitProcessRepository recruitProcessRepository;
     private final CoverLetterTitleRepository coverLetterTitleRepository;
 
     // 채용공고 등록
     @Transactional
     public Long save(JobPostingDto.CreateRequest dto, Long UserId) {
-
         JobPosting jobPosting = jobPostingRepository.save(dto.toEntity(UserId));
-
         return jobPosting.getId();
     }
 
@@ -54,16 +50,8 @@ public class JobPostingService {
 
     // 상세조회
     @Transactional(readOnly = true)
-    public JobPostingDto.DetailResponse getDetail(Long id) {
-
-        JobPosting jp = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
-
-        List<RecruitProcess> jobPostingProcess = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(id);
-
-        int applicantCounts = resumeRepository.countByJobPostingId(id);
-
-        return JobPostingDto.DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
+    public JobPostingDto.DetailResponse getDetail(Long jobPostingId) {
+        return jobPostingRepository.findJobPostingDetail(jobPostingId);
     }
 
     //편집용 조회
