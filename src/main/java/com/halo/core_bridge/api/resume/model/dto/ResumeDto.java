@@ -129,31 +129,14 @@ public class ResumeDto {
     @Builder
     public static class ApplicantResponse {
         private Long id;
-
         private String name;
         private String email;
         private CareerType careerType;
         private List<String> skills;
         private String degree;
         private int certificateCount;
-
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         private LocalDateTime applyDate;
         private String stageName;
-
-        public static ApplicantResponse fromEntity(JobPosting jobPosting, Resume resume) {
-
-            return ApplicantResponse.builder()
-                    .id(resume.getId())
-                    .name(resume.getUser().getName())
-                    .email(resume.getUser().getEmail())
-                    .careerType(jobPosting.getCareerType())
-                    .skills(resume.getResumeSkills().stream().map(ResumeSkill::getName).collect(Collectors.toList()))
-                    .degree(resume.getEducations().get(resume.getEducations().size() - 1).getDegree())
-                    .certificateCount(resume.getCertificates().size())
-                    .applyDate(resume.getCreatedAt())
-                    .stageName(resume.getProcess().getName())
-                    .build();
-        }
     }
 }
