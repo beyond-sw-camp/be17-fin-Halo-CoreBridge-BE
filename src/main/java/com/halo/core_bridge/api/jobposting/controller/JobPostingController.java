@@ -1,16 +1,13 @@
 package com.halo.core_bridge.api.jobposting.controller;
 
 
-import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.interview.service.InterviewerService;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
-import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
+import com.halo.core_bridge.api.jobposting.service.JobPostingEsService;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.api.jobposting.service.JobPostingSkillService;
 import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
-import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
-import com.halo.core_bridge.api.resume.service.ResumeService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,6 +37,7 @@ public class JobPostingController {
     private final RecruitProcessService recruitProcessService;
     private final CoverLetterTitleService coverLetterTitleService;
     private final InterviewerService interviewerService;
+    private final JobPostingEsService jobPostingEsService;
 
     //채용공고 등록
     @Operation(
@@ -298,6 +296,7 @@ public class JobPostingController {
         SearchQuery searchQuery = SearchQuery.from(keyword, page);
 
         JobPostingListDto jobPostingListDto = jobPostingService.searchJobPostings(searchQuery);
+//        JobPostingListDto jobPostingListDto = jobPostingEsService.searchJobPostings(searchQuery);
         return ResponseEntity.ok(BaseResponse.success(jobPostingListDto));
     }
 }
