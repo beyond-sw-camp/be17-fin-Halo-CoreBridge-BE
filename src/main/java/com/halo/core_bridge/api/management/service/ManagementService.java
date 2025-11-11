@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.management.service;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.api.management.model.dto.ManagementDto;
+import com.halo.core_bridge.api.management.repository.ManagementQueryRepository;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
@@ -20,21 +21,11 @@ import java.util.List;
 public class ManagementService {
     private final RecruitProcessRepository recruitProcessRepository;
     private final ResumeRepository resumeRepository;
+    private final ManagementQueryRepository managementQueryRepository;
 
     @Transactional(readOnly = true)
     public ManagementDto getManagement(Long jobPostingId) {
-        // 해당 공고의 채용 프로세스 조회
-        List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(jobPostingId);
-
-        // 각 단계별 지원자 조회
-        List<ManagementDto.StageDto> stageDtos = processes.stream()
-                .map(process -> {
-                    List<Resume> resumes = resumeRepository.findByJobPostingIdAndProcessId(jobPostingId, process.getId());
-                    return ManagementDto.StageDto.from(process, resumes);
-                })
-                .toList();
-
-        return ManagementDto.of(jobPostingId, stageDtos);
+        return managementQueryRepository.findManagementByJobPostingId(jobPostingId);
     }
 
     @Transactional
