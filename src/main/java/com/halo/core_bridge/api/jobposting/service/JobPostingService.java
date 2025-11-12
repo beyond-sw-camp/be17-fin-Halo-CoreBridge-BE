@@ -12,6 +12,7 @@ import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingsQueryRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
+import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,8 @@ public class JobPostingService {
     private final RecruitProcessRepository recruitProcessRepository;
     private final CoverLetterTitleRepository  coverLetterTitleRepository;
     private final JobPostingsQueryRepository jobPostingsQueryRepository;
+    private final ResumeRepository resumeRepository;
+
 
     // 채용공고 등록
     @Transactional
