@@ -1,6 +1,6 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
-import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
+import com.halo.core_bridge.common.model.BaseEntity;
 import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RecruitProcess {
+public class RecruitProcess extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
