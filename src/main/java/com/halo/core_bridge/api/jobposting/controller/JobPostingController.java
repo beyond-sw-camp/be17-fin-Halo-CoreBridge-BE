@@ -4,12 +4,10 @@ package com.halo.core_bridge.api.jobposting.controller;
 import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.interview.service.InterviewerService;
 import com.halo.core_bridge.api.jobposting.contents.SwaggerJobPostingContents;
-import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
+import com.halo.core_bridge.api.jobposting.service.JobPostingEsService;
 import com.halo.core_bridge.api.jobposting.service.JobPostingService;
 import com.halo.core_bridge.api.jobposting.service.JobPostingSkillService;
 import com.halo.core_bridge.api.jobposting.service.RecruitProcessService;
-import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
-import com.halo.core_bridge.api.resume.service.ResumeService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/job-postings")
@@ -37,6 +37,7 @@ public class JobPostingController {
     private final RecruitProcessService recruitProcessService;
     private final CoverLetterTitleService coverLetterTitleService;
     private final InterviewerService interviewerService;
+    private final JobPostingEsService jobPostingEsService;
 
     //채용공고 등록
     @Operation(
@@ -46,7 +47,7 @@ public class JobPostingController {
                     description = "채용공고 등록 요청 예시",
                     required = true,
                     content = @Content(
-                            schema = @Schema(implementation = JobPostingDto.CreateRequest.class),
+                            schema = @Schema(implementation = CreateRequest.class),
                             examples = @ExampleObject(
                                     name = "JobPosting Create Example",
                                     value = SwaggerJobPostingContents.JOB_POSTING_CREATE_REQUEST
@@ -77,7 +78,7 @@ public class JobPostingController {
     @PostMapping
     public ResponseEntity<BaseResponse<String>> createJobPosting(
 //            @AuthenticationPrincipal UserDto.Auth auth,
-            @RequestBody @Validated JobPostingDto.CreateRequest request) {
+            @RequestBody @Validated CreateRequest request) {
         Long userId = 1L;
         //채용공고 저장후 채용공고id 값 저장
         Long jobPostingId = jobPostingService.save(request, userId);
@@ -124,8 +125,8 @@ public class JobPostingController {
     )
     @GetMapping
     public ResponseEntity
-            <BaseResponse<List<JobPostingDto.JobPostingListResponseDto>>> getAllJobPostings() {
-        List<JobPostingDto.JobPostingListResponseDto> list = jobPostingService.getJobPostingList();
+            <BaseResponse<List<JobPostingListResponseDto>>> getAllJobPostings() {
+        List<JobPostingListResponseDto> list = jobPostingService.getJobPostingList();
         return ResponseEntity.ok(BaseResponse.success(list));
     }
 
@@ -167,8 +168,8 @@ public class JobPostingController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<JobPostingDto.DetailResponse>> getJobPostingDetail(@PathVariable Long id) {
-        JobPostingDto.DetailResponse detail = jobPostingService.getDetail(id);
+    public ResponseEntity<BaseResponse<DetailResponse>> getJobPostingDetail(@PathVariable Long id) {
+        DetailResponse detail = jobPostingService.getDetail(id);
         return ResponseEntity.ok(BaseResponse.success(detail)); // HTTP 200 OK
     }
 
@@ -206,16 +207,16 @@ public class JobPostingController {
             }
     )
     @GetMapping("/header/{id}")
-    public ResponseEntity<BaseResponse<JobPostingDto.HeaderResponse>>  getJobPostingHeader(@PathVariable Long id) {
-        JobPostingDto.HeaderResponse headerDetail = jobPostingService.getHeaderDetail(id);
+    public ResponseEntity<BaseResponse<HeaderResponse>>  getJobPostingHeader(@PathVariable Long id) {
+        HeaderResponse headerDetail = jobPostingService.getHeaderDetail(id);
         return ResponseEntity.ok(BaseResponse.success(headerDetail));
     }
 
 
     //채용공고 update를 위한 바꾸고자 하는 채용공고 데이터 가공 없이 그대로 반환용 end-point
     @GetMapping("/{id}/edit")
-    public ResponseEntity<BaseResponse<JobPostingDto.EditResponse>> getJobPostingForEdit(@PathVariable Long id) {
-        JobPostingDto.EditResponse result = jobPostingService.getEditResponse(id);
+    public ResponseEntity<BaseResponse<EditResponse>> getJobPostingForEdit(@PathVariable Long id) {
+        EditResponse result = jobPostingService.getEditResponse(id);
         return ResponseEntity.ok(BaseResponse.success(result));
     }
 
@@ -252,7 +253,7 @@ public class JobPostingController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<BaseResponse<String>> updateJobPosting(@PathVariable Long id,
-                                                                 @Valid @RequestBody JobPostingDto.UpdateRequest request) {
+                                                                 @Valid @RequestBody UpdateRequest request) {
         jobPostingService.updateJobPosting(id, request);
         return ResponseEntity.ok(BaseResponse.success("수정 완료"));
     }
@@ -288,5 +289,14 @@ public class JobPostingController {
         return ResponseEntity.ok(BaseResponse.success("채용공고 삭제 완료"));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<BaseResponse<JobPostingListDto>> searchJobPostings(@RequestParam(required = false) String keyword,
+                                                                            @RequestParam(required = false, defaultValue = "0") int page) {
 
+        SearchQuery searchQuery = SearchQuery.from(keyword, page);
+
+        JobPostingListDto jobPostingListDto = jobPostingService.searchJobPostings(searchQuery);
+//        JobPostingListDto jobPostingListDto = jobPostingEsService.searchJobPostings(searchQuery);
+        return ResponseEntity.ok(BaseResponse.success(jobPostingListDto));
+    }
 }

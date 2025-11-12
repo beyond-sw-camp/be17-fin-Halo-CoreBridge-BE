@@ -56,6 +56,16 @@ public class JobProcessScheduleController {
         return ResponseEntity.noContent().build();
     }
 
+    /** 반복 일정 시리즈 전체 삭제 */
+    @DeleteMapping("/{id}/series")
+    public ResponseEntity<BaseResponse<Void>> deleteRecurringSeries(
+            @PathVariable Long jobPostingId,
+            @PathVariable Long id) {
+
+        service.deleteRecurringSeries(jobPostingId, id);
+        return ResponseEntity.noContent().build();
+    }
+
     /** 스케줄 목록 조회 (공고별) */
     @GetMapping
     public ResponseEntity<BaseResponse<List<JobProcessScheduleDto.Response>>> list(
@@ -76,5 +86,25 @@ public class JobProcessScheduleController {
                 BaseResponse.success(service.getByPosting(jobPostingId, id))
         );
     }
-}
 
+    /** 스케줄 공유 */
+    @PostMapping("/{id}/share")
+    public ResponseEntity<BaseResponse<Void>> share(
+            @PathVariable Long jobPostingId,
+            @PathVariable Long id,
+            @Valid @RequestBody JobProcessScheduleDto.ShareRequest req) {
+
+        service.share(id, req);
+        return ResponseEntity.ok(BaseResponse.success(null));
+    }
+
+    /** 일괄 공유 */
+    @PostMapping("/share/bulk")
+    public ResponseEntity<BaseResponse<Void>> bulkShare(
+            @PathVariable Long jobPostingId,
+            @Valid @RequestBody JobProcessScheduleDto.BulkShareRequest req) {
+
+        service.bulkShare(req);
+        return ResponseEntity.ok(BaseResponse.success(null));
+    }
+}

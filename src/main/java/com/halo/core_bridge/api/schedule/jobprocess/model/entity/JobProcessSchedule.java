@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.schedule.jobprocess.model.entity;
 
 import com.halo.core_bridge.api.schedule.jobprocess.model.dto.JobProcessScheduleDto;
+import com.halo.core_bridge.api.schedule.jobprocess.model.enums.RecurrenceType;
 import com.halo.core_bridge.api.users.model.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,6 +57,18 @@ public class JobProcessSchedule {
     @Column(nullable = false)
     private String status; // scheduled, completed, cancelled
 
+    /** Recurring 기능 */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private RecurrenceType recurrenceType = RecurrenceType.NONE;
+
+    private Integer recurrenceInterval; // 반복 간격 (예: 2주마다 = 2)
+
+    private LocalDate recurrenceEndDate; // 반복 종료일
+
+    private Long parentScheduleId; // 반복 일정의 원본 ID (자동 생성된 일정만 가짐)
+
     /** 공고 정보 + 담당자 */
     @Column(nullable = false)
     private Long jobPostingId;
@@ -86,6 +99,9 @@ public class JobProcessSchedule {
                 .interviewer(dto.getInterviewer())
                 .notes(dto.getNotes())
                 .status(dto.getStatus())
+                .recurrenceType(dto.getRecurrenceType() != null ? dto.getRecurrenceType() : RecurrenceType.NONE)
+                .recurrenceInterval(dto.getRecurrenceInterval())
+                .recurrenceEndDate(dto.getRecurrenceEndDate())
                 .assignedTo(assigned)
                 .build();
     }
@@ -105,6 +121,9 @@ public class JobProcessSchedule {
         this.interviewer = dto.getInterviewer();
         this.notes = dto.getNotes();
         this.status = dto.getStatus();
+        this.recurrenceType = dto.getRecurrenceType() != null ? dto.getRecurrenceType() : this.recurrenceType;
+        this.recurrenceInterval = dto.getRecurrenceInterval() != null ? dto.getRecurrenceInterval() : this.recurrenceInterval;
+        this.recurrenceEndDate = dto.getRecurrenceEndDate() != null ? dto.getRecurrenceEndDate() : this.recurrenceEndDate;
         this.assignedTo = assigned;
     }
 }

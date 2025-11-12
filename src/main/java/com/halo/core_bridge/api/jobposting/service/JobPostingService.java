@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.jobposting.service;
 
+import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
 import com.halo.core_bridge.api.coverLetterTitle.repository.CoverLetterTitleRepository;
@@ -9,9 +10,13 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
+import com.halo.core_bridge.api.jobposting.repository.JobPostingsQueryRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto.*;
 import static com.halo.core_bridge.common.model.BaseResponseStatus.DELETE_NOT_ALLOWED_DURING_APPLICATION;
 import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_NOT_FOUND;
 
@@ -28,11 +34,13 @@ public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
     private final JobPostingSkillRepository jobPostingSkillRepository;
     private final RecruitProcessRepository recruitProcessRepository;
-    private final CoverLetterTitleRepository coverLetterTitleRepository;
+    private final CoverLetterTitleRepository  coverLetterTitleRepository;
+    private final JobPostingsQueryRepository jobPostingsQueryRepository;
 
     // 채용공고 등록
     @Transactional
-    public Long save(JobPostingDto.CreateRequest dto, Long UserId) {
+    public Long save(CreateRequest dto, Long UserId) {
+
         JobPosting jobPosting = jobPostingRepository.save(dto.toEntity(UserId));
         return jobPosting.getId();
     }
@@ -56,7 +64,7 @@ public class JobPostingService {
 
     //편집용 조회
     @Transactional(readOnly = true)
-    public JobPostingDto.EditResponse getEditResponse(Long jobPostingId) {
+    public EditResponse getEditResponse(Long jobPostingId) {
         JobPosting jp = jobPostingRepository.findById(jobPostingId).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
         List<CoverLetterTitle> questionnaires = coverLetterTitleRepository.findAllByJobPostingId(jobPostingId);
@@ -66,20 +74,20 @@ public class JobPostingService {
             resultList.add(CoverLetterTitleDto.CoverLetterTitleResponse.from(title));
         }
 
-        return JobPostingDto.EditResponse.fromEntity(jp, resultList);
+        return EditResponse.fromEntity(jp, resultList);
     }
 
     //채용공고 헤더(기본정보) 조회요청
     @Transactional(readOnly = true)
-    public JobPostingDto.HeaderResponse getHeaderDetail(Long id) {
+    public HeaderResponse getHeaderDetail(Long id) {
         JobPosting jobPosting = jobPostingRepository.findById(id)
                 .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
-        return JobPostingDto.HeaderResponse.fromEntity(jobPosting);
+        return HeaderResponse.fromEntity(jobPosting);
     }
 
     @Transactional
-    public void updateJobPosting(Long id, JobPostingDto.UpdateRequest request) {
+    public void updateJobPosting(Long id, UpdateRequest request) {
         JobPosting jobPosting = jobPostingRepository.findById(id)
                 .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
 
@@ -145,5 +153,49 @@ public class JobPostingService {
         }
         // 조건 통과 시 삭제
         jobPostingRepository.deleteById(id);
+    }
+
+    /**
+     * 키워드로 검색 하는 기능
+     * @param searchQuery 검색 쿼리 파라미터가 저장된 DTO
+     */
+    public JobPostingListDto searchJobPostings(SearchQuery searchQuery) {
+
+        PageRequest pageable = PageRequest.of(searchQuery.getPage(), 10, Sort.by("id").descending());
+
+        Page<JobPosting> findJobPostings = jobPostingsQueryRepository.searchJobPostings(searchQuery, pageable);
+
+        List<JobPostingListResponseDto> resultList = new ArrayList<>();
+
+        for (JobPosting job : findJobPostings.getContent()) {
+            int applicantCount = resumeRepository.countByJobPostingId(job.getId());
+
+            // 단계별 현황
+            List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting(job);
+            List<JobPostingListResponseDto.ProcessSummary> processSummaries = new ArrayList<>();
+
+            for (RecruitProcess process : processes) {
+                int count = resumeRepository.countByRecruitProcess(process);
+
+                processSummaries.add(
+                        JobPostingListResponseDto.ProcessSummary.builder()
+                                .stageName(process.getName())
+                                .orderIndex(process.getOrderIdx())
+                                .count(count)
+                                .build()
+                );
+            }
+
+            JobPostingListResponseDto dto = JobPostingListResponseDto.fromEntity(job, applicantCount, processSummaries);
+
+            resultList.add(dto);
+        }
+
+        return JobPostingListDto.from(
+                resultList,
+                findJobPostings.getNumber(),
+                findJobPostings.getTotalPages(),
+                findJobPostings.getTotalElements()
+        );
     }
 }

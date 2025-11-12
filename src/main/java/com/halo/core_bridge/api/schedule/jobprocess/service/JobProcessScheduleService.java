@@ -3,10 +3,13 @@ package com.halo.core_bridge.api.schedule.jobprocess.service;
 import com.halo.core_bridge.api.schedule.jobprocess.model.dto.JobProcessScheduleDto;
 import com.halo.core_bridge.api.schedule.jobprocess.model.entity.JobProcessSchedule;
 import com.halo.core_bridge.api.schedule.jobprocess.model.entity.JobProcessScheduleShare;
+import com.halo.core_bridge.api.schedule.jobprocess.model.enums.RecurrenceType;
 import com.halo.core_bridge.api.schedule.jobprocess.repository.JobProcessScheduleRepository;
 import com.halo.core_bridge.api.schedule.jobprocess.repository.JobProcessScheduleShareRepository;
+import com.halo.core_bridge.api.schedule.notification.model.dto.NotificationDto;
 import com.halo.core_bridge.api.schedule.notification.model.enums.NotificationType;
 import com.halo.core_bridge.api.schedule.notification.service.NotificationService;
+import com.halo.core_bridge.api.users.model.UserRoleType;
 import com.halo.core_bridge.api.users.model.entity.User;
 import com.halo.core_bridge.api.users.repository.UserRepository;
 import com.halo.core_bridge.common.exception.BaseException;
@@ -15,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,7 +32,7 @@ public class JobProcessScheduleService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
-    /** 일정 생성 */
+    /** 일정 생성 (Recurring 지원) */
     public JobProcessScheduleDto.Response create(Long jobPostingId, JobProcessScheduleDto.Create dto) {
 
         if (jobPostingId == null) {
@@ -38,25 +43,93 @@ public class JobProcessScheduleService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER));
 
         JobProcessSchedule entity = JobProcessSchedule.from(dto, assignee);
-        entity.setJobPostingId(jobPostingId); // ✅ URL 값 강제 주입
+        entity.setJobPostingId(jobPostingId);
 
         JobProcessSchedule saved = repository.save(entity);
 
-        notificationService.publishNotification(
-                dto.getAssignedTo(),
-                NotificationType.JOB_PROCESS_CREATED,
-                "새로운 채용 일정이 등록되었습니다.",
-                dto.getTitle() + " (" + dto.getScheduleType() + ")",
-                "/recruiter/schedule"
+        // Recurring 일정 생성
+        if (dto.getRecurrenceType() != null && dto.getRecurrenceType() != RecurrenceType.NONE) {
+            createRecurringSchedules(saved, dto, assignee);
+        }
+
+        notificationService.createAndDispatch(
+                NotificationDto.Request.builder()
+                        .userId(assignee.getId())
+                        .role(UserRoleType.valueOf(assignee.getUserRole().getCode()))
+                        .type(NotificationType.PROCESS_SCHEDULE_CREATED)
+                        .title("새로운 프로세스 일정이 등록되었습니다.")
+                        .message(dto.getTitle() + " (" + dto.getScheduleType() + ")")
+                        .build()
         );
 
         return toDto(saved);
     }
 
+    /** Recurring 일정 자동 생성 */
+    private void createRecurringSchedules(JobProcessSchedule parent, JobProcessScheduleDto.Create dto, User assignee) {
+        LocalDate currentDate = dto.getStartDate();
+        LocalDate endDate = dto.getRecurrenceEndDate() != null ? dto.getRecurrenceEndDate() : dto.getStartDate().plusMonths(6);
+
+        int interval = dto.getRecurrenceInterval() != null ? dto.getRecurrenceInterval() : 1;
+
+        List<JobProcessSchedule> recurringSchedules = new ArrayList<>();
+
+        while (true) {
+            // 다음 일정 날짜 계산
+            currentDate = calculateNextDate(currentDate, dto.getRecurrenceType(), interval);
+
+            if (currentDate.isAfter(endDate)) {
+                break;
+            }
+
+            // 새로운 일정 생성
+            JobProcessSchedule recurring = JobProcessSchedule.builder()
+                    .scheduleType(parent.getScheduleType())
+                    .title(parent.getTitle())
+                    .candidateName(parent.getCandidateName())
+                    .position(parent.getPosition())
+                    .startDate(currentDate)
+                    .endDate(currentDate)
+                    .startTime(parent.getStartTime())
+                    .endTime(parent.getEndTime())
+                    .location(parent.getLocation())
+                    .priority(parent.getPriority())
+                    .interviewer(parent.getInterviewer())
+                    .notes(parent.getNotes())
+                    .status(parent.getStatus())
+                    .recurrenceType(RecurrenceType.NONE) // 생성된 일정은 반복하지 않음
+                    .parentScheduleId(parent.getId())
+                    .jobPostingId(parent.getJobPostingId())
+                    .assignedTo(assignee)
+                    .build();
+
+            recurringSchedules.add(recurring);
+
+            // 너무 많은 일정이 생성되는 것을 방지 (최대 52개, 약 1년)
+            if (recurringSchedules.size() >= 52) {
+                break;
+            }
+        }
+
+        if (!recurringSchedules.isEmpty()) {
+            repository.saveAll(recurringSchedules);
+        }
+    }
+
+    /** 다음 날짜 계산 */
+    private LocalDate calculateNextDate(LocalDate currentDate, RecurrenceType type, int interval) {
+        return switch (type) {
+            case DAILY -> currentDate.plusDays(interval);
+            case WEEKLY -> currentDate.plusWeeks(interval);
+            case BIWEEKLY -> currentDate.plusWeeks(2 * interval);
+            case MONTHLY -> currentDate.plusMonths(interval);
+            default -> currentDate;
+        };
+    }
+
     /** 일정 수정 (URL의 jobPostingId가 진실) */
     public JobProcessScheduleDto.Response update(Long scheduleId, Long jobPostingId, JobProcessScheduleDto.Update dto) {
 
-        // 공고ID & 스케줄ID로 검색 (보안)
         JobProcessSchedule schedule = repository.findByIdAndJobPostingId(scheduleId, jobPostingId)
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.SCHEDULE_SHARE_NOT_FOUND));
 
@@ -64,14 +137,6 @@ public class JobProcessScheduleService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER));
 
         schedule.update(dto, assignee);
-
-        notificationService.publishNotification(
-                dto.getAssignedTo(),
-                NotificationType.JOB_PROCESS_UPDATED,
-                "채용 일정이 수정되었습니다.",
-                dto.getTitle() + " (" + dto.getScheduleType() + ")",
-                "/recruiter/schedule"
-        );
 
         return toDto(schedule);
     }
@@ -116,14 +181,20 @@ public class JobProcessScheduleService {
                 .orElseThrow(() -> BaseException.from(BaseResponseStatus.SCHEDULE_SHARE_NOT_FOUND));
 
         repository.delete(schedule);
+    }
 
-        notificationService.publishNotification(
-                schedule.getAssignedTo().getId(),
-                NotificationType.JOB_PROCESS_DELETED,
-                "채용 일정이 삭제되었습니다.",
-                schedule.getTitle(),
-                "/recruiter/schedule"
-        );
+    /** 반복 일정 전체 삭제 */
+    public void deleteRecurringSeries(Long jobPostingId, Long id) {
+        JobProcessSchedule schedule = repository.findByIdAndJobPostingId(id, jobPostingId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.SCHEDULE_SHARE_NOT_FOUND));
+
+        // 원본 일정인 경우 연결된 모든 반복 일정 삭제
+        if (schedule.getParentScheduleId() == null) {
+            List<JobProcessSchedule> relatedSchedules = repository.findByParentScheduleId(id);
+            repository.deleteAll(relatedSchedules);
+        }
+
+        repository.delete(schedule);
     }
 
     /** 공유 */
@@ -145,12 +216,14 @@ public class JobProcessScheduleService {
                 );
             }
 
-            notificationService.publishNotification(
-                    userId,
-                    NotificationType.JOB_PROCESS_SHARED,
-                    "채용 일정이 공유되었습니다.",
-                    schedule.getTitle(),
-                    "/recruiter/schedule"
+            notificationService.createAndDispatch(
+                    NotificationDto.Request.builder()
+                            .userId(userId)
+                            .role(UserRoleType.valueOf(user.getUserRole().getCode()))
+                            .type(NotificationType.JOB_PROCESS_SHARED)
+                            .title("채용 프로세스 일정이 공유되었습니다.")
+                            .message(schedule.getTitle())
+                            .build()
             );
         }
     }
@@ -177,12 +250,14 @@ public class JobProcessScheduleService {
                     );
                 }
 
-                notificationService.publishNotification(
-                        userId,
-                        NotificationType.JOB_PROCESS_SHARED,
-                        "여러 채용 일정이 공유되었습니다.",
-                        schedule.getTitle(),
-                        "/recruiter/schedule"
+                notificationService.createAndDispatch(
+                        NotificationDto.Request.builder()
+                                .userId(userId)
+                                .role(UserRoleType.valueOf(user.getUserRole().getCode()))
+                                .type(NotificationType.JOB_PROCESS_SHARED)
+                                .title("여러 채용 프로세스 일정이 공유되었습니다.")
+                                .message(schedule.getTitle())
+                                .build()
                 );
             }
         }
@@ -205,6 +280,10 @@ public class JobProcessScheduleService {
                 .interviewer(e.getInterviewer())
                 .notes(e.getNotes())
                 .status(e.getStatus())
+                .recurrenceType(e.getRecurrenceType())
+                .recurrenceInterval(e.getRecurrenceInterval())
+                .recurrenceEndDate(e.getRecurrenceEndDate())
+                .parentScheduleId(e.getParentScheduleId())
                 .jobPostingId(e.getJobPostingId())
                 .assignedTo(e.getAssignedTo().getId())
                 .sharedWith(
@@ -215,4 +294,3 @@ public class JobProcessScheduleService {
                 .build();
     }
 }
-
