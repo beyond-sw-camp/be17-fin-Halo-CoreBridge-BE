@@ -1,6 +1,5 @@
 package com.halo.core_bridge.api.jobposting.service;
 
-import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
 import com.halo.core_bridge.api.coverLetterTitle.repository.CoverLetterTitleRepository;
@@ -21,7 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,43 +163,84 @@ public class JobPostingService {
      * 키워드로 검색 하는 기능
      * @param searchQuery 검색 쿼리 파라미터가 저장된 DTO
      */
-    public JobPostingListDto searchJobPostings(SearchQuery searchQuery) {
+    public JobPostingPage searchJobPostings(SearchQuery searchQuery) {
 
         PageRequest pageable = PageRequest.of(searchQuery.getPage(), 10, Sort.by("id").descending());
 
-        Page<JobPosting> findJobPostings = jobPostingsQueryRepository.searchJobPostings(searchQuery, pageable);
+        Page<JobPostingQuery> resultPage = jobPostingsQueryRepository.searchJobPostings(searchQuery, pageable);
+        List<JobPostingQuery> findJobPostings = resultPage.getContent();
 
-        List<JobPostingListResponseDto> resultList = new ArrayList<>();
-
-        for (JobPosting job : findJobPostings.getContent()) {
-            int applicantCount = resumeRepository.countByJobPostingId(job.getId());
-
-            // 단계별 현황
-            List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting(job);
-            List<JobPostingListResponseDto.ProcessSummary> processSummaries = new ArrayList<>();
-
-            for (RecruitProcess process : processes) {
-                int count = resumeRepository.countByRecruitProcess(process);
-
-                processSummaries.add(
-                        JobPostingListResponseDto.ProcessSummary.builder()
-                                .stageName(process.getName())
-                                .orderIndex(process.getOrderIdx())
-                                .count(count)
-                                .build()
-                );
-            }
-
-            JobPostingListResponseDto dto = JobPostingListResponseDto.fromEntity(job, applicantCount, processSummaries);
-
-            resultList.add(dto);
-        }
-
-        return JobPostingListDto.from(
-                resultList,
-                findJobPostings.getNumber(),
-                findJobPostings.getTotalPages(),
-                findJobPostings.getTotalElements()
+        return JobPostingPage.from(
+                toJobPostingResp(findJobPostings),
+                resultPage.getNumber(),
+                resultPage.getTotalPages(),
+                resultPage.getTotalElements()
         );
+    }
+
+    private List<JobPostingsResp> toJobPostingResp(List<JobPostingQuery> findJobPostings) {
+        return findJobPostings.stream().map(jobPosting ->
+                JobPostingsResp.from(
+                        jobPosting,
+                        computeStatus(jobPosting.getApplyStartDate(), jobPosting.getHireEndDate()),
+                        computeDDay(jobPosting.getHireEndDate()),
+                        computeProgressByPeriod(jobPosting.getApplyStartDate(), jobPosting.getHireEndDate())
+                )
+        ).toList();
+    }
+
+    // 채용 상태 계산("예정" / "채용중" / "마감")
+
+    /**
+     * 접수 시작일과 채용 마감일을 사용하여 채용 상태를 계산한다.
+     * @param start 접수 시작일
+     * @param end 채용 마감일
+     * @return 채용 상태 문자열
+     */
+    private String computeStatus(LocalDateTime start, LocalDateTime end) {
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(start)) return "예정";
+        if (now.isAfter(end)) return "마감";
+        return "채용중";
+    }
+
+    /**
+     * D-Day를 계산한다
+     * @param end 채용 마감일
+     * @return D-Day 문자열
+     */
+    private String computeDDay(LocalDateTime end) {
+        long diff = ChronoUnit.DAYS.between(LocalDate.now(), end.toLocalDate());
+
+        if (diff > 0) {
+            return "D-" + diff;
+        } else if (diff == 0) {
+            return "D-Day";
+        } else {
+            return "마감";
+        }
+    }
+
+    /**
+     * 채용 진행률을 계산한다.
+     * @param startDate 채용 시작일
+     * @param endDate 채용 마감일
+     * @return 채용 진행률
+     */
+    private Integer computeProgressByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+
+        LocalDate today = LocalDate.now();
+        LocalDate start = startDate.toLocalDate();
+        LocalDate end = endDate.toLocalDate();
+
+        long totalDays = ChronoUnit.DAYS.between(start, end);
+
+        long passedDays = ChronoUnit.DAYS.between(start, today);
+        double progress = (double) passedDays / totalDays * 100;
+
+        if (progress < 0) return 0;
+        if (progress > 100) return 100;
+
+        return (int) Math.round(progress);
     }
 }
