@@ -5,6 +5,7 @@ import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -689,6 +690,115 @@ public class JobPostingDto {
                     .totalElements(totalElements)
                     .totalPages(totalPages)
                     .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class JobPostingQuery {
+
+        private Long id;
+        private String title;
+        private String departmentName;
+        private EmploymentType employmentType;
+        private CareerType careerType;
+        private LocalDateTime hireEndDate;
+        private LocalDateTime applyStartDate;
+        private Long applicantCount;
+        List<RecruitProcessDto.ProcessSummary> processSummaries;
+
+        public static JobPostingQuery from(Long id,
+                                           String title,
+                                           String departmentName,
+                                           EmploymentType employmentType,
+                                           CareerType careerType,
+                                           LocalDateTime hireEndDate,
+                                           LocalDateTime applyStartDate,
+                                           Long applicantCount,
+                                           List<RecruitProcessDto.ProcessSummary> processSummaries) {
+
+            return JobPostingQuery.builder()
+                    .id(id)
+                    .title(title)
+                    .departmentName(departmentName)
+                    .employmentType(employmentType)
+                    .careerType(careerType)
+                    .hireEndDate(hireEndDate)
+                    .applyStartDate(applyStartDate)
+                    .applicantCount(applicantCount)
+                    .processSummaries(processSummaries)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class JobPostingsResp {
+        private Long id;
+        private String title;
+        private String summaryText;
+        private String departmentName;
+        private EmploymentType employmentType;
+        private CareerType careerType;
+        private String status;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDate hireEndDate;
+        private String dday;
+        private Long applicantCount;
+        private Integer progressPercent;
+        private List<RecruitProcessDto.ProcessSummary> processSummaries;
+
+        public static JobPostingsResp from(JobPostingQuery query, String status, String dDay, Integer progressPercent) {
+
+            return JobPostingsResp.builder()
+                    .id(query.getId())
+                    .title(query.getTitle())
+                    .departmentName(query.getDepartmentName())
+                    .employmentType(query.getEmploymentType())
+                    .careerType(query.getCareerType())
+                    .hireEndDate(query.getHireEndDate().toLocalDate())
+                    .applicantCount(query.getApplicantCount())
+                    .processSummaries(query.getProcessSummaries())
+                    .dday(dDay)
+                    .status(status)
+                    .summaryText(buildSummaryText(query.getCareerType(), query.getEmploymentType()))
+                    .progressPercent(progressPercent)
+                    .build();
+        }
+
+        private static String buildSummaryText(CareerType careerType, EmploymentType employmentType) {
+            String exp = careerType.getLabel();
+            String emp = employmentType.getLabel();
+            return exp + " · " + emp;
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class JobPostingPage {
+        private List<JobPostingsResp> jobPostings;
+        private int currentPage;
+        private int totalPages;
+        private long totalElements;
+
+        public static JobPostingPage from(List<JobPostingsResp> jobPostings, int currentPage, int totalPages, long totalElements) {
+
+            return JobPostingPage.builder()
+                    .jobPostings(jobPostings)
+                    .currentPage(currentPage)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .build();
+
         }
     }
 }

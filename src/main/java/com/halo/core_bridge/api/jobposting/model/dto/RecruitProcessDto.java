@@ -6,8 +6,7 @@ import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
@@ -109,5 +108,38 @@ public class RecruitProcessDto {
         private String name;
         private ColorCode colorCode;
         private Long jobPostingId;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ProcessSummary {
+        private String stageName;
+        private Long count;
+        private Integer orderIndex;
+
+        public static ProcessSummary from(ProcessCount processCount) {
+
+            return ProcessSummary.builder()
+                    .stageName(processCount.stageName)
+                    .orderIndex(processCount.orderIndex)
+                    .count(processCount.count)
+                    .build();
+
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ProcessCount {
+        private Long jobPostingId;
+        private String stageName;
+        private Long count;
+        private Integer orderIndex;
     }
 }
