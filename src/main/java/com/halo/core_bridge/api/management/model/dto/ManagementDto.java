@@ -1,42 +1,26 @@
 package com.halo.core_bridge.api.management.model.dto;
 
-import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
-import com.halo.core_bridge.api.resume.model.entity.Resume;
-import com.halo.core_bridge.api.users.model.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ManagementDto {
     private Long jobPostingId;
     private List<StageDto> stages;
 
     @Getter
     @Builder
-    @NoArgsConstructor
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class StageDto {
         private Long id;
         private String name;
         private String colorCode;
         private List<ApplicantDto> applicants;
-
-        public static StageDto from(RecruitProcess process, List<Resume> resumes) {
-            return StageDto.builder()
-                    .id(process.getId())
-                    .name(process.getName())
-                    .colorCode(process.getColorCode().toString())
-                    .applicants(resumes.stream().map(ApplicantDto::from).toList())
-                    .build();
-        }
     }
 
     @Getter
@@ -46,33 +30,8 @@ public class ManagementDto {
     public static class ApplicantDto {
         private Long id;
         private String name;
-        private double experience;
-        private long daysSinceApplied;
-
-        public static ApplicantDto from(Resume resume) {
-
-            User user = resume.getUser();
-
-            //접수일 계산
-            long days = ChronoUnit.DAYS.between(resume.getApplied_at(), LocalDateTime.now());
-
-            // 경력계산
-            double totalYears = resume.getCareers().stream()
-                    .mapToDouble(career -> {
-                        LocalDate end = (career.getEndDate() != null) ? career.getEndDate().toLocalDate() : LocalDate.now();
-                        return ChronoUnit.DAYS.between(career.getStartDate().toLocalDate(), end) / 365.0;
-                    })
-                    .sum();
-
-
-            return ApplicantDto.builder()
-                    .id(resume.getId())
-                    .name(user.getName())
-                    .experience(Math.round(totalYears * 10) / 10.0)
-                    .daysSinceApplied(days)
-                    .build();
-        }
-
+        private double experience;        // DB에서 계산된 경력연수
+        private long daysSinceApplied;    // DB 또는 QueryDSL에서 계산된 접수 후 경과일
     }
 
     public static ManagementDto of(Long jobPostingId, List<StageDto> stages) {

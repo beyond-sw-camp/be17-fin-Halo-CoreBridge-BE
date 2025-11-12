@@ -12,8 +12,6 @@ import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingsQueryRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
-import com.halo.core_bridge.api.resume.repository.ResumeRepository;
-import com.halo.core_bridge.api.users.model.entity.UserRole;
 import com.halo.core_bridge.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,7 +33,6 @@ import static com.halo.core_bridge.common.model.BaseResponseStatus.JOB_POSTING_N
 public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
     private final JobPostingSkillRepository jobPostingSkillRepository;
-    private final ResumeRepository resumeRepository;
     private final RecruitProcessRepository recruitProcessRepository;
     private final CoverLetterTitleRepository  coverLetterTitleRepository;
     private final JobPostingsQueryRepository jobPostingsQueryRepository;
@@ -45,57 +42,24 @@ public class JobPostingService {
     public Long save(CreateRequest dto, Long UserId) {
 
         JobPosting jobPosting = jobPostingRepository.save(dto.toEntity(UserId));
-
         return jobPosting.getId();
     }
 
     // 채용공고 리스트 조회
     @Transactional(readOnly = true)
-    public List<JobPostingListResponseDto> getJobPostingList() {
-        // 전체 공고 조회
-        List<JobPosting> postings = jobPostingRepository.findAllWithDepartment();
-
-        List<JobPostingListResponseDto> resultList = new ArrayList<>();
-
-        for (JobPosting job : postings) {
-            int applicantCount = resumeRepository.countByJobPostingId(job.getId());
-
-            // 단계별 현황
-            List<RecruitProcess> processes = recruitProcessRepository.findByJobPosting(job);
-            List<JobPostingListResponseDto.ProcessSummary> processSummaries = new ArrayList<>();
-
-            for (RecruitProcess process : processes) {
-                int count = resumeRepository.countByRecruitProcess(process);
-
-                processSummaries.add(
-                        JobPostingListResponseDto.ProcessSummary.builder()
-                                .stageName(process.getName())
-                                .orderIndex(process.getOrderIdx())
-                                .count(count)
-                                .build()
-                );
-            }
-
-            JobPostingListResponseDto dto = JobPostingListResponseDto.fromEntity(job, applicantCount, processSummaries);
-
-            resultList.add(dto);
-        }
-
-        return resultList;
+    public List<JobPostingDto.JobPostingListResponseDto> getJobPostingList() {
+        /**
+         * 채용공고 리스트 조회 (성능 개선 버전)
+         * - 채용공고, 부서, 단계별 지원자 수를 한 번에 조회
+         * - N+1 문제 완전 제거
+         */
+        return jobPostingRepository.findAllJobPostingSummaries();
     }
 
     // 상세조회
     @Transactional(readOnly = true)
-    public DetailResponse getDetail(Long id) {
-
-        JobPosting jp = jobPostingRepository.findById(id)
-                .orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
-
-        List<RecruitProcess> jobPostingProcess = recruitProcessRepository.findByJobPosting_IdOrderByOrderIdxAsc(id);
-
-        int applicantCounts = resumeRepository.countByJobPostingId(id);
-
-        return DetailResponse.fromEntity(jp, jobPostingProcess, applicantCounts);
+    public JobPostingDto.DetailResponse getDetail(Long jobPostingId) {
+        return jobPostingRepository.findJobPostingDetail(jobPostingId);
     }
 
     //편집용 조회
@@ -184,7 +148,7 @@ public class JobPostingService {
         JobPosting jobPosting = jobPostingRepository.findById(id).orElseThrow(() -> BaseException.from(JOB_POSTING_NOT_FOUND));
         LocalDateTime now = LocalDateTime.now();
 
-        if(now.isAfter(jobPosting.getApplyStartDate()) && now.isBefore(jobPosting.getHireEndDate())) {
+        if (now.isAfter(jobPosting.getApplyStartDate()) && now.isBefore(jobPosting.getHireEndDate())) {
             throw BaseException.from(DELETE_NOT_ALLOWED_DURING_APPLICATION);
         }
         // 조건 통과 시 삭제

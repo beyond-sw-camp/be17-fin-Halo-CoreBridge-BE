@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface ResumeRepository extends JpaRepository<Resume, Long> {
+public interface ResumeRepository extends JpaRepository<Resume, Long>, ApplicantQueryRepository {
     List<Resume> findByJobPostingIdAndProcessId(Long jobPostingId, Long processId);
 
     List<Resume> findByJobPostingId(Long jobPostingId);

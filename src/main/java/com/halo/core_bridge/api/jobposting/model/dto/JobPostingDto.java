@@ -383,40 +383,6 @@ public class JobPostingDto {
 
         private String contactName;
         private String contactEmail;
-
-        public static DetailResponse fromEntity(JobPosting entity, List<RecruitProcess> process, Integer applicantCount) {
-
-            List<String> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
-            String status = HeaderResponse.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
-            List<RecruitProcessDto.Read> recruitProcesses = process.stream().map(RecruitProcessDto.Read::from).toList();
-
-            return DetailResponse.builder()
-                    .id(entity.getId())
-                    .summary(entity.getSummary())
-                    .responsibilities(entity.getResponsibilities())
-                    .requirements(entity.getRequirements())
-                    .preferred(entity.getPreferred())
-                    .benefits(entity.getBenefits())
-                    .additionalInfo(entity.getAdditionalInfo())
-                    .status(status)
-                    .createDate(entity.getCreatedAt())
-                    .applyStartDate(entity.getApplyStartDate())
-                    .applyEndDate(entity.getApplyEndDate())
-                    .hireEndDate(entity.getHireEndDate())
-                    .headCount(entity.getHeadcount())
-                    .applicantCount(applicantCount)
-                    .skills(skills)
-                    .recruitProcesses(recruitProcesses)
-                    .workingHours(entity.getWorkingHours())
-                    .location(entity.getLocation())
-                    .contactName(entity.getContactName())
-                    .contactEmail(entity.getContactEmail())
-                    .build();
-
-
-        }
-
-
     }
 
     @Getter
