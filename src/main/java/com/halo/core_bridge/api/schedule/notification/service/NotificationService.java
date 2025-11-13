@@ -119,7 +119,13 @@ public class NotificationService {
         log.info("📧 [NotificationService] 이메일 대상 조회: {}건", targets.size());
 
         return targets.stream()
-                .map(NotificationDto.Response::from)
+                .map(n -> {
+                    // 1) user 이메일 조회
+                    String email = userRepository.findEmailByUserId(n.getUserId());
+
+                    // 2) email 포함한 Response 반환
+                    return NotificationDto.Response.from(n, email);
+                })
                 .collect(Collectors.toList());
     }
 
