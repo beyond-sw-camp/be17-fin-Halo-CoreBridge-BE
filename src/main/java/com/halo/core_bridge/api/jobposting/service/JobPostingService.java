@@ -8,6 +8,7 @@ import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
+import com.halo.core_bridge.api.jobposting.model.entity.TechStack;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingsQueryRepository;
@@ -103,7 +104,7 @@ public class JobPostingService {
             List<JobPostingSkill> newSkills = request.getTechStack().stream()
                     .map(skill -> JobPostingSkill.builder()
                             .jobPosting(jobPosting)
-                            .name(skill)
+                            .name(TechStack.valueOf(skill))
                             .build())
                     .toList();
             jobPostingSkillRepository.saveAll(newSkills);

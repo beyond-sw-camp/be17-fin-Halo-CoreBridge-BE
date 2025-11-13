@@ -15,7 +15,9 @@ public class JobPostingSkill extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+
+    @Enumerated(EnumType.STRING)
+    private TechStack name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference

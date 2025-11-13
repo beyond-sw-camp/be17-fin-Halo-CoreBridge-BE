@@ -226,7 +226,7 @@ public class JobPostingQueryRepositoryImpl implements JobPostingQueryRepository 
                 .toList();
 
         // ✅ 3️⃣ 기술스택 별도 조회
-        List<String> skills = queryFactory
+        List<TechStack> skills = queryFactory
                 .select(skill.name)
                 .from(skill)
                 .where(skill.jobPosting.id.eq(jobPostingId))

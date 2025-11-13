@@ -19,7 +19,7 @@ public class JobPostingSkillService {
 
         List<JobPostingSkill> jobPostingSkills = skillNames.stream()
                 .map(name -> JobPostingSkill.builder()
-                        .name(name)
+                        .name(TechStack.valueOf(name))
                         .jobPosting(JobPosting.builder().id(jobPostingId).build())
                         .build())
                 .toList();
