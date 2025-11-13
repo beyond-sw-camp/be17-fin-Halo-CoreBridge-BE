@@ -43,4 +43,13 @@ public class Notification {
 
     public void markSent() { this.status = DeliveryStatus.SENT; }
     public void increaseRetry() { this.retryCount++; }
+
+    public void markEmailSent() {
+        this.status = DeliveryStatus.EMAIL_SENT;
+    }
+
+    public void markRead() {
+        this.status = DeliveryStatus.READ;
+    }
+
 }

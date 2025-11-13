@@ -1,6 +1,8 @@
 package com.halo.core_bridge.api.schedule.notification.controller;
 
 import com.halo.core_bridge.api.schedule.notification.model.dto.NotificationDto;
+import com.halo.core_bridge.api.schedule.notification.model.enums.DeliveryStatus;
+import com.halo.core_bridge.api.schedule.notification.repository.NotificationRepository;
 import com.halo.core_bridge.api.schedule.notification.service.NotificationService;
 import com.halo.core_bridge.api.users.model.UserRoleType;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
@@ -67,6 +69,11 @@ public class NotificationController {
         return ResponseEntity.ok(service.createAndDispatch(request));
     }
 
+    @PostMapping("/hooks/n8n/email-sent/{id}")
+    public ResponseEntity<Void> markEmailSent(@PathVariable Long id) {
+        service.markEmailSent(id);   // 🔥 핵심
+        return ResponseEntity.ok().build();
+    }
 
     // ========== 알림 조회 ==========
 
@@ -136,12 +143,21 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 미전송 알림 조회 (n8n용)
+     * GET /api/notifications/unsent
+     */
+    @GetMapping("/unsent")
+    public ResponseEntity<List<NotificationDto.Response>> getUnsentNotifications() {
+        List<NotificationDto.Response> unsentNotifications = service.getUnsentNotifications();
+        return ResponseEntity.ok(unsentNotifications);
+    }
+
     // ========== 모니터링 (관리자용) ==========
 
     /**
      * SSE 연결 상태 조회
      * GET /api/notifications/status
-     *
      * 관리자만 접근 가능하도록 설정 필요
      */
     @GetMapping("/status")
