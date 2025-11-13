@@ -11,6 +11,11 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  batch:
+    job:
+      enabled: false              # Job 자동 실행 방지
+    jdbc:
+      initialize-schema: never
   mail:
     host: smtp.gmail.com
     port: 587

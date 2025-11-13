@@ -1,6 +1,9 @@
 package com.halo.core_bridge.config;
 
-//import com.halo.core_bridge.api.schedule.notification.subscriber.RedisNotificationSubscriber;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.halo.core_bridge.api.schedule.notification.infra.RedisNotificationSubscriber;
 import com.halo.core_bridge.api.token.refresh.model.dto.RefreshTokenDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +23,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @RequiredArgsConstructor
 public class RedisConfig {
 
-//    private final RedisNotificationSubscriber redisNotificationSubscriber;
+    private final RedisNotificationSubscriber redisNotificationSubscriber;
 
     @Value("${redis.host}")
     private String host;
@@ -55,30 +58,55 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    /*
-    // notifications 채널
+    // ✅ Notification 용 RedisTemplate (JSON 직렬화)
+    @Bean
+    public RedisTemplate<String, Object> notificationRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+
+        // ✅ JavaTimeModule 등록된 ObjectMapper 생성
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // ✅ 권장 직렬화기: GenericJackson2JsonRedisSerializer
+        GenericJackson2JsonRedisSerializer serializer =
+                new GenericJackson2JsonRedisSerializer(objectMapper);
+
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(serializer);
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(serializer);
+
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+
+    // ✅ 알림 채널
     @Bean
     public ChannelTopic notificationTopic() {
-        return new ChannelTopic("notifications");
+        return new ChannelTopic("notification_channel");
     }
 
-    // Redis 메시지 수신용 listenerAdapter
+    // ✅ MessageListenerAdapter - Subscriber의 onMessage 메서드 연결
     @Bean
-    public MessageListenerAdapter listenerAdapter() {
-        return new MessageListenerAdapter(redisNotificationSubscriber);
+    public MessageListenerAdapter messageListenerAdapter() {
+        return new MessageListenerAdapter(redisNotificationSubscriber, "onMessage");
     }
 
-    // Redis Pub/Sub 리스너 컨테이너 구성
+    // ✅ 구독 컨테이너 (Subscriber를 채널에 등록)
     @Bean
-    public RedisMessageListenerContainer redisContainer(
+    public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter,
+            MessageListenerAdapter messageListenerAdapter,
             ChannelTopic notificationTopic
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, notificationTopic);
+
+        // ✅ 핵심: MessageListenerAdapter를 notificationTopic에 등록
+        container.addMessageListener(messageListenerAdapter, notificationTopic);
+
         return container;
     }
-    */
 }
