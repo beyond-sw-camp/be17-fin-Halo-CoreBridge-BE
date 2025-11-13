@@ -40,6 +40,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             @Param("since") Long since
     );
 
+    @Query("SELECT n FROM Notification n WHERE (n.status = 'UNSENT' OR n.status = 'SENT') AND n.status <> 'EMAIL_SENT' AND n.status <> 'READ'")
+    List<Notification> findEmailTargets();
+
+
     /**
      * 편의 메서드: 최근 24시간 미전송 알림 조회
      */
