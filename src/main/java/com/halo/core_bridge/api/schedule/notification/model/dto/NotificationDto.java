@@ -57,6 +57,7 @@ public class NotificationDto {
     public static class Response {
         private final Long id;
         private final Long userId;
+        private final String userEmail;
         private final UserRoleType role;
         private final NotificationType type;
         private final String title;
@@ -64,10 +65,31 @@ public class NotificationDto {
         private final DeliveryStatus status;
         private final long timestamp;
 
+        /**
+         *  기존 코드 호환용 오버로드 (email 없이도 생성 가능)
+         */
         public static Response from(Notification entity) {
             return Response.builder()
                     .id(entity.getId())
                     .userId(entity.getUserId())
+                    .userEmail(null)   // 기본값
+                    .role(entity.getRole())
+                    .type(entity.getType())
+                    .title(entity.getTitle())
+                    .message(entity.getMessage())
+                    .status(entity.getStatus())
+                    .timestamp(entity.getTimestamp())
+                    .build();
+        }
+
+        /**
+         *  email 포함 버전 (n8n 이메일 발송 등)
+         */
+        public static Response from(Notification entity, String email) {
+            return Response.builder()
+                    .id(entity.getId())
+                    .userId(entity.getUserId())
+                    .userEmail(email)
                     .role(entity.getRole())
                     .type(entity.getType())
                     .title(entity.getTitle())
