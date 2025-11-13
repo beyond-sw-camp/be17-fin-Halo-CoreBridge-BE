@@ -110,6 +110,19 @@ public class NotificationService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<NotificationDto.Response> getEmailTargetNotifications() {
+
+        // UNSENT + SENT but not READ + not EMAIL_SENT
+        List<Notification> targets = repository.findEmailTargets();
+
+        log.info("📧 [NotificationService] 이메일 대상 조회: {}건", targets.size());
+
+        return targets.stream()
+                .map(NotificationDto.Response::from)
+                .collect(Collectors.toList());
+    }
+
     // ========== 알림 생성 및 전송 ==========
 
     /**
