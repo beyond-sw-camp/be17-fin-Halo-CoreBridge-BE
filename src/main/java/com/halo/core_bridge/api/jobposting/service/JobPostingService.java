@@ -1,6 +1,5 @@
 package com.halo.core_bridge.api.jobposting.service;
 
-import com.halo.core_bridge.api.admin.model.AdminDto;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
 import com.halo.core_bridge.api.coverLetterTitle.repository.CoverLetterTitleRepository;
@@ -9,9 +8,9 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPostingSkill;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.model.entity.TechStack;
+import com.halo.core_bridge.api.jobposting.repository.JobPostingQueryRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingSkillRepository;
-import com.halo.core_bridge.api.jobposting.repository.JobPostingsQueryRepository;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.common.exception.BaseException;
@@ -22,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Qualifier;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class JobPostingService {
     private final JobPostingSkillRepository jobPostingSkillRepository;
     private final RecruitProcessRepository recruitProcessRepository;
     private final CoverLetterTitleRepository  coverLetterTitleRepository;
-    private final JobPostingsQueryRepository jobPostingsQueryRepository;
+    private final JobPostingQueryRepository jobPostingQueryRepository;
     private final ResumeRepository resumeRepository;
 
 
@@ -167,7 +167,7 @@ public class JobPostingService {
 
         PageRequest pageable = PageRequest.of(searchQuery.getPage(), 10, Sort.by("id").descending());
 
-        Page<JobPosting> findJobPostings = jobPostingsQueryRepository.searchJobPostings(searchQuery, pageable);
+        Page<JobPosting> findJobPostings = jobPostingQueryRepository.searchJobPostings(searchQuery, pageable);
 
         List<JobPostingListResponseDto> resultList = new ArrayList<>();
 
