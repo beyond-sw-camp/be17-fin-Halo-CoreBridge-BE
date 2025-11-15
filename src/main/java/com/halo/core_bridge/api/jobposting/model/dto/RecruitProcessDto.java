@@ -1,15 +1,17 @@
 package com.halo.core_bridge.api.jobposting.model.dto;
 
+import com.halo.core_bridge.api.jobposting.model.document.JobPostingDocument;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.common.model.ColorCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
+
+import static com.halo.core_bridge.api.jobposting.model.document.JobPostingDocument.*;
 
 public class RecruitProcessDto {
 
@@ -109,5 +111,47 @@ public class RecruitProcessDto {
         private String name;
         private ColorCode colorCode;
         private Long jobPostingId;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ProcessSummary {
+        private String stageName;
+        private Long count;
+        private Integer orderIndex;
+
+        public static ProcessSummary from(ProcessCount processCount) {
+
+            return ProcessSummary.builder()
+                    .stageName(processCount.stageName)
+                    .orderIndex(processCount.orderIndex)
+                    .count(processCount.count)
+                    .build();
+
+        }
+
+        public static ProcessSummary from(ProcessInfo processInfo) {
+
+            return ProcessSummary.builder()
+                    .stageName(processInfo.getName())
+                    .orderIndex(processInfo.getOrderIdx())
+                    .count(processInfo.getApplicantCount())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ProcessCount {
+        private Long jobPostingId;
+        private String stageName;
+        private Integer orderIndex;
+        private Long count;
     }
 }
