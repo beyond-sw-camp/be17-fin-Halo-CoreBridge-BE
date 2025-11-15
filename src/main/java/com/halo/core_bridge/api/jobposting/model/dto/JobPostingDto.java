@@ -2,10 +2,10 @@ package com.halo.core_bridge.api.jobposting.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
+import com.halo.core_bridge.api.jobposting.model.document.JobPostingDocument;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
-import com.querydsl.core.annotations.QueryProjection;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -773,6 +773,24 @@ public class JobPostingDto {
                     .build();
         }
 
+        public static JobPostingsResp fromJobPostingDocument(JobPostingDocument query, String status, String dDay, Integer progressPercent) {
+
+            return JobPostingsResp.builder()
+                    .id(query.getId())
+                    .title(query.getTitle())
+                    .departmentName(query.getDepartmentName())
+                    .employmentType(query.getEmploymentType())
+                    .careerType(query.getCareerType())
+                    .hireEndDate(query.getApplyEndDate().toLocalDate())
+                    .applicantCount(query.getApplicantCount())
+                    .processSummaries(query.getProcesses().stream().map(RecruitProcessDto.ProcessSummary::from).toList())
+                    .dday(dDay)
+                    .status(status)
+                    .summaryText(buildSummaryText(query.getCareerType(), query.getEmploymentType()))
+                    .progressPercent(progressPercent)
+                    .build();
+        }
+
         private static String buildSummaryText(CareerType careerType, EmploymentType employmentType) {
             String exp = careerType.getLabel();
             String emp = employmentType.getLabel();
@@ -799,6 +817,18 @@ public class JobPostingDto {
                     .totalPages(totalPages)
                     .build();
 
+        }
+
+        public static JobPostingPage fromJobPostingDocument(List<JobPostingDocument> jobPostingDocuments, int currentPage, int totalPages, long totalElements) {
+
+            return JobPostingPage.builder()
+                    .jobPostings(jobPostingDocuments.stream().map(
+                            document -> JobPostingsResp.fromJobPostingDocument(document, document.getStatus(), document.getDDay(), document.getProgressRate())
+                    ).toList())
+                    .currentPage(currentPage)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .build();
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.jobposting.model.dto;
 
+import com.halo.core_bridge.api.jobposting.model.document.JobPostingDocument;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.common.model.ColorCode;
@@ -9,6 +10,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
+
+import static com.halo.core_bridge.api.jobposting.model.document.JobPostingDocument.*;
 
 public class RecruitProcessDto {
 
@@ -129,6 +132,15 @@ public class RecruitProcessDto {
                     .build();
 
         }
+
+        public static ProcessSummary from(ProcessInfo processInfo) {
+
+            return ProcessSummary.builder()
+                    .stageName(processInfo.getName())
+                    .orderIndex(processInfo.getOrderIdx())
+                    .count(processInfo.getApplicantCount())
+                    .build();
+        }
     }
 
     @Getter
@@ -139,7 +151,7 @@ public class RecruitProcessDto {
     public static class ProcessCount {
         private Long jobPostingId;
         private String stageName;
-        private Long count;
         private Integer orderIndex;
+        private Long count;
     }
 }
