@@ -17,4 +17,17 @@ public interface ResumeRepository extends JpaRepository<Resume, Long>, Applicant
 
     @Query("SELECT COUNT(r) FROM Resume r WHERE r.process = :recruitProcess")
     int countByRecruitProcess(RecruitProcess recruitProcess);
+
+    // 지원자의 프로필 지원 개수 조회용
+    long countByUserId(Long userId);
+
+    // 지원자의 마이페이지: Resume + JobPosting + Process fetch join
+    @Query("""
+    select r from Resume r
+    join fetch r.jobPosting jp
+    join fetch r.process p
+    where r.user.id = :userId
+    order by r.createdAt desc
+""")
+    List<Resume> findByUserIdWithPostingAndProcess(Long userId);
 }
