@@ -76,6 +76,10 @@ public class JobPosting extends BaseEntity {
 
     private Integer salaryMin;
     private Integer salaryMax;
+
+    @Column(
+            columnDefinition = "TINYINT(1)"
+    )
     private Boolean salaryNegotiable;
 
     //근무 조건
