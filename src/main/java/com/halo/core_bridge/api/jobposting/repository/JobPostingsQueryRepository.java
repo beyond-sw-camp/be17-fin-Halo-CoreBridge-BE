@@ -1,16 +1,15 @@
 package com.halo.core_bridge.api.jobposting.repository;
 
-import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
 import com.halo.core_bridge.api.jobposting.model.entity.QJobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.QRecruitProcess;
 import com.halo.core_bridge.api.organization.model.entity.QDepartment;
 import com.halo.core_bridge.api.resume.model.entity.QResume;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,30 +48,23 @@ public class JobPostingsQueryRepository {
 
         List<JobPostingQuery> searchJobPostings = jpaQueryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 JobPostingQuery.class,
-                                jobPosting.id.as("id"),
-                                jobPosting.title.as("title"),
-                                jobPosting.department.name.as("departmentName"),
-                                jobPosting.applyStartDate.as("applyStartDate"),
-                                jobPosting.hireEndDate.as("hireEndDate"),
-                                jobPosting.careerType.as("careerType"),
-                                jobPosting.employmentType.as("employmentType"),
-                                resume.count().as(countAlias)
+                                jobPosting.id,
+                                jobPosting.title,
+                                jobPosting.department.name,
+                                jobPosting.employmentType,
+                                jobPosting.careerType,
+                                jobPosting.hireEndDate,
+                                jobPosting.applyStartDate,
+                                JPAExpressions.select(resume.count())
+                                        .from(resume)
+                                        .where(resume.jobPosting.eq(jobPosting)),
+                                Expressions.nullExpression(List.class)
                         )
                 )
                 .from(jobPosting)
                 .join(jobPosting.department, department)
-                .leftJoin(resume).on(resume.jobPosting.eq(jobPosting))
-                .groupBy(
-                        jobPosting.id,
-                        jobPosting.title,
-                        jobPosting.department.name,
-                        jobPosting.employmentType,
-                        jobPosting.careerType,
-                        jobPosting.hireEndDate,
-                        jobPosting.applyStartDate
-                )
                 .orderBy(jobPosting.id.desc())
                 .where(condition)
                 .offset(pageable.getOffset())
@@ -88,23 +80,19 @@ public class JobPostingsQueryRepository {
 
         List<RecruitProcessDto.ProcessCount> processCounts = jpaQueryFactory
                 .select(
-                        Projections.fields(
+                        Projections.constructor(
                                 RecruitProcessDto.ProcessCount.class,
-                                jobPosting.id.as("jobPostingId"),
-                                recruitProcess.name.as("stageName"),
-                                recruitProcess.orderIdx.as("orderIndex"),
-                                resume.count().as("count")
+                                jobPosting.id,
+                                recruitProcess.name,
+                                recruitProcess.orderIdx,
+                                JPAExpressions.select(resume.count())
+                                        .from(resume)
+                                        .where(resume.jobPosting.eq(jobPosting))
                         )
                 )
                 .from(recruitProcess)
                 .join(recruitProcess.jobPosting, jobPosting)
-                .leftJoin(resume).on(resume.process.eq(recruitProcess))
                 .where(jobPosting.id.in(jobIds))
-                .groupBy(
-                        jobPosting.id,
-                        recruitProcess.name,
-                        recruitProcess.orderIdx
-                )
                 .orderBy(recruitProcess.orderIdx.asc())
                 .fetch();
 
