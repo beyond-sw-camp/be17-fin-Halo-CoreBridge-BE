@@ -93,10 +93,8 @@ public class JobPostingDto {
         @Size(max = 1000, message = "우대 사항은 1000자 이하로 입력해주세요.")
         private String preferred;
 
-        @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
-        private List<
-                @Size(max = 20, message = "기술명은 20자 이하로 입력해주세요.")
-                        String> techStack; // ex) ["Java", "Spring", "Vue"]
+        @Size(min = 1, message = "기술 스택은 최소 1개 이상 선택해주세요.")
+        private List<String> techStack;
 
 
         @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
@@ -310,14 +308,14 @@ public class JobPostingDto {
         private CareerType careerType;
         private Integer minExperience;
         private Integer maxExperience;
-        private List<String> skills;
+        private List<TechStack> skills;
         private SalaryType salaryType;
         private Integer salaryMin;
         private Integer salaryMax;
         private Boolean SalaryNegotiable;
 
         public static HeaderResponse fromEntity(JobPosting entity) {
-            List<String> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
+            List<TechStack> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
             String status = HeaderResponse.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
             return HeaderResponse.builder()
                     .id(entity.getId())
@@ -376,7 +374,7 @@ public class JobPostingDto {
         private Integer headCount; //모집 인원
         private Integer applicantCount; //지원자 수
 
-        private List<String> skills;
+        private List<TechStack> skills;
         private List<RecruitProcessDto.Read> recruitProcesses;
 
         private String workingHours;
@@ -417,7 +415,7 @@ public class JobPostingDto {
         private String requirements;
         private String preferred;
 
-        private List<String> techStack; // ex) ["Java", "Spring Boot"]
+        private List<TechStack> techStack; // ex) ["Java", "Spring Boot"]
 
         private List<RecruitProcessDto.Read> recruitProcess;
         private List<CoverLetterTitleDto.CoverLetterTitleResponse> coverLetterTitles;

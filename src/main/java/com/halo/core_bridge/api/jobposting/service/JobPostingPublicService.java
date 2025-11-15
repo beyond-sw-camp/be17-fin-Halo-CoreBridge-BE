@@ -2,8 +2,12 @@ package com.halo.core_bridge.api.jobposting.service;
 
 import com.halo.core_bridge.api.jobposting.model.dto.PublicJobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
+import com.halo.core_bridge.api.jobposting.repository.JobPostingQueryRepository;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
+import com.halo.core_bridge.api.jobposting.repository.PublicJobPostingQueryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,15 +16,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JobPostingPublicService {
 
-    private final JobPostingRepository jobPostingRepository;
 
-    /**
-     * 지원자가 보는 채용 공고 리스트를 조회한다.
-     * @return <code>PublicJobPostingDto.Jobs</code> - 조회 DTO
-     */
-    public PublicJobPostingDto.Jobs findAllJobs() {
+    private final PublicJobPostingQueryRepository  publicJobPostingQueryRepository;
 
-        List<JobPosting> jobs = jobPostingRepository.findAll();
-        return PublicJobPostingDto.Jobs.from(jobs);
+
+    // 지원자 입장 채용공고 전체조회(QueryDsl 기반)
+    public PublicJobPostingDto.Jobs searchPublicJobs(PublicJobPostingDto.PublicJobSearchRequest req, Pageable pageable) {
+
+        Page<JobPosting> pageResult =
+                publicJobPostingQueryRepository.searchPublicJobs(req, pageable);
+
+        return PublicJobPostingDto.Jobs.from(
+                pageResult.getContent(),
+                pageResult.getTotalElements(),
+                pageResult.isLast()
+        );
     }
 }
