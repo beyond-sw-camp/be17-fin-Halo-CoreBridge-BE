@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.interview.service;
 
+import com.halo.core_bridge.api.interview.model.dto.InterviewerDto;
 import com.halo.core_bridge.api.interview.model.entity.Interviewer;
 import com.halo.core_bridge.api.interview.repository.InterviewerRepository;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.halo.core_bridge.api.interview.model.dto.InterviewerDto.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,5 +40,12 @@ public class InterviewerService {
                 .toList();
 
         interviewerRepository.saveAll(interviewers);
+    }
+
+
+    public InterviewerList findInterviewersByJobPostingId(Long JobPostingId) {
+
+        List<Interviewer> findAll = interviewerRepository.findAllByJobPosting_Id((JobPostingId));
+        return InterviewerList.from(findAll);
     }
 }
