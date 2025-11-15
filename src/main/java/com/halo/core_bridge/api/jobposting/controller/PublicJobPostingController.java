@@ -2,8 +2,6 @@ package com.halo.core_bridge.api.jobposting.controller;
 
 import com.halo.core_bridge.api.jobposting.contents.SwaggerPublicJobPostingContents;
 import com.halo.core_bridge.api.jobposting.model.dto.PublicJobPostingDto;
-import com.halo.core_bridge.api.jobposting.model.entity.CareerType;
-import com.halo.core_bridge.api.jobposting.model.entity.TechStack;
 import com.halo.core_bridge.api.jobposting.service.JobPostingPublicService;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,9 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "공개 채용 공고", description = "공개용 채용 공고 목록 조회 API")
 @RestController
@@ -47,9 +46,9 @@ public class PublicJobPostingController {
 
             }
     )
-    @PostMapping("/search")
+    @GetMapping("/search")
     public ResponseEntity<BaseResponse<Object>> getPublicJobPostingList(
-            @RequestBody PublicJobPostingDto.PublicJobSearchRequest req
+            @ModelAttribute PublicJobPostingDto.PublicJobSearchRequest req
     ) {
         Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
 
