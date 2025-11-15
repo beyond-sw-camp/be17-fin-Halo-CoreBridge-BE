@@ -10,7 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class InterviewDto {
 
@@ -19,13 +21,13 @@ public class InterviewDto {
     public static class Create {
 
         @NotNull(message = "면접 시작 시간은 필수입니다.")
-        private LocalDateTime startDateTime;
+        private LocalDate startDate;
+
+        @NotNull(message = "면접 시작 시간은 필수입니다.")
+        private LocalTime startTime;
 
         @Min(value = 1, message = "면접 소요 시간은 1분 이상이어야 합니다.")
         private int duration;
-
-        @NotNull(message = "면접 상태는 필수입니다.")
-        private InterviewStatus status;
 
         private String description;
 
@@ -44,9 +46,11 @@ public class InterviewDto {
         public Interview toEntity() {
             return Interview.builder()
                     .duration(this.duration)
-                    .status(this.status)
+                    .status(InterviewStatus.SCHEDULED)
                     .description(this.description)
-                    .startDateTime(this.startDateTime)
+                    .startDateTime(
+                            LocalDateTime.of(this.startDate, this.startTime)
+                    )
                     .location(this.location)
                     .interviewType(this.interviewType)
                     .resume(
