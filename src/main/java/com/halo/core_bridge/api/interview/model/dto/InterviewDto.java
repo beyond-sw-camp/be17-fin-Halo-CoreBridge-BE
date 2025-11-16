@@ -185,4 +185,28 @@ public class InterviewDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class Reminder {
+
+        private Long id;
+        private String email;
+        private String name;
+        private LocalDate startDate;
+        private LocalTime startTime;
+        private String location;
+
+        public static Reminder from(Interview interview) {
+
+            return Reminder.builder()
+                    .id(interview.getId())
+                    .email(interview.getResume().getUser().getEmail())
+                    .name(interview.getResume().getUser().getName())
+                    .startDate(interview.getStartDateTime().toLocalDate())
+                    .startTime(interview.getStartDateTime().toLocalTime())
+                    .location(interview.getInterviewType().equals(InterviewType.ONLINE) ? "온라인" : interview.getLocation())
+                    .build();
+        }
+    }
 }

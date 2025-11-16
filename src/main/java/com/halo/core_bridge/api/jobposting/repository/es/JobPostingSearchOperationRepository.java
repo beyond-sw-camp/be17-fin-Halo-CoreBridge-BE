@@ -26,7 +26,7 @@ public class JobPostingSearchOperationRepository implements JobPostingSearchRepo
 
         NativeQuery query;
         if (keyword == null || keyword.isBlank()) {
-            // 🔥 키워드 없으면 전체 조회
+            // 키워드 없으면 전체 조회
             query = new NativeQueryBuilder()
                     .withQuery(q ->
                             q.matchAll(
