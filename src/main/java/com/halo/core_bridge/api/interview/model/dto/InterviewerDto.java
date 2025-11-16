@@ -1,20 +1,26 @@
 package com.halo.core_bridge.api.interview.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.halo.core_bridge.api.interview.model.entity.Interviewer;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
 public class InterviewerDto {
 
+    @Setter
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class InterviewerInfo {
 
         private Long id;
         private String name;
         private String email;
+
+        @JsonIgnore
+        private Long jobPostingId;
 
         public static InterviewerInfo from(Interviewer entity) {
             return InterviewerInfo.builder()
