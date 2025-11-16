@@ -2,7 +2,6 @@ package com.halo.core_bridge.api.interview.service;
 
 import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.entity.Interview;
-import com.halo.core_bridge.api.interview.model.entity.Room;
 import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
 import com.halo.core_bridge.api.interview.repository.InterviewRepository;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
@@ -15,7 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,9 +41,6 @@ class InterviewServiceTest {
                 .recruitProcess(
                         RecruitProcess.builder().id(1L).build()
                 )
-                .room(
-                        Room.builder().id(1L).build()
-                )
                 .resume(
                         Resume.builder().id(1L).build()
                 )
@@ -53,12 +51,11 @@ class InterviewServiceTest {
                 .build();
 
         InterviewDto.Create interviewCreateDto = InterviewDto.Create.builder()
-                .startDateTime(LocalDateTime.now())
-                .status(InterviewStatus.ONGOING)
+                .startDate(LocalDate.now())
+                .startTime(LocalTime.now())
                 .description("면접상세")
                 .duration(60)
                 .recruiterProcessId(1L)
-                .roomId(1L)
                 .resumeId(1L)
                 .build();
 
