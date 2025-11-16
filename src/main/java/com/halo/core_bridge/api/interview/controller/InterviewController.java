@@ -1,6 +1,7 @@
 package com.halo.core_bridge.api.interview.controller;
 
 import com.halo.core_bridge.api.interview.contents.SwaggerInterviewContents;
+import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
 import com.halo.core_bridge.api.interview.service.InterviewService;
 import com.halo.core_bridge.common.model.BaseResponse;
@@ -61,5 +62,12 @@ public class InterviewController {
 
         Interviews search = interviewService.search(SearchQuery.from(page, status, keyword));
         return ResponseEntity.ok(BaseResponse.success(search));
+    }
+
+    @GetMapping("/{interviewId}")
+    public ResponseEntity<BaseResponse<InterviewDto.Read>> getInterview(@PathVariable("interviewId") Long interviewId) {
+
+        Read findInterview = interviewService.findByInterviewId(interviewId);
+        return ResponseEntity.ok(BaseResponse.success(findInterview));
     }
 }
