@@ -20,6 +20,9 @@ public class InterviewerDto {
         private String email;
 
         @JsonIgnore
+        private Long interviewId;
+
+        @JsonIgnore
         private Long jobPostingId;
 
         public static InterviewerInfo from(Interviewer entity) {
