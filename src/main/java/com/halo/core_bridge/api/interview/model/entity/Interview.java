@@ -54,4 +54,8 @@ public class Interview extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private RecruitProcess  recruitProcess;
+
+    public void cancelInterview() {
+        this.status = InterviewStatus.CANCELLED;
+    }
 }
