@@ -116,7 +116,7 @@ public class ResumeService {
             responseDto.setPhone(user.getPhone());
         }
 
-        if (resume.getPdf() != null) {
+        if (resume.getPdf() != null && !resume.getPdf().isEmpty()) {
             responseDto.setPdf(PdfDto.PdfResponseDto.from(resume.getPdf().get(0)));
         }
         return responseDto;

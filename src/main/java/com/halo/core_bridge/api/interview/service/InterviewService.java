@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.interview.service;
 
+import com.halo.core_bridge.api.interview.model.dto.InterviewChatDto;
 import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.dto.InterviewerDto;
 import com.halo.core_bridge.api.interview.model.entity.Interview;
@@ -150,5 +151,14 @@ public class InterviewService {
         );
 
         findInterview.cancelInterview();
+    }
+
+    public InterviewChatDto.ResumeLoadForInfo findResumeLoadInfo(Long interviewId) {
+
+        Interview findInterview = interviewRepository.findWithResumeByInterviewId(interviewId);
+
+        return InterviewChatDto.ResumeLoadForInfo.from(
+                findInterview.getResume().getJobPosting().getId(), findInterview.getResume().getId()
+        );
     }
 }

@@ -36,4 +36,7 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 
     @Query("select u.email from Interview i join i.resume r join r.user u where i.id = :interviewId")
     String findApplicantEmailByInterviewId(Long interviewId);
+
+    @Query("select i from Interview i join fetch i.resume r where i.id = :interviewId")
+    Interview findWithResumeByInterviewId(@Param("interviewId") Long interviewId);
 }
