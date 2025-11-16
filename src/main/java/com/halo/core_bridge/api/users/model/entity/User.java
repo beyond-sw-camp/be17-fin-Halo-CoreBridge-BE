@@ -8,9 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+@BatchSize(size = 100)
 @Entity
 @Builder
 @Getter
@@ -48,8 +52,8 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private UserRole userRole;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Image profileImage;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> profileImage = new ArrayList<>();
 
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;

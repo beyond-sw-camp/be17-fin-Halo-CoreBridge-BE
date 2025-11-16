@@ -52,8 +52,8 @@ public class Resume extends BaseEntity {
     @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ResumeSkill> resumeSkills = new ArrayList<>();
 
-    @OneToOne(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Pdf pdf;
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pdf> pdf = new ArrayList<>();
 
 
     // 채용공고관리(칸반) 데이터 불러오기 위해 다대일 연결
