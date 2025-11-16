@@ -7,5 +7,6 @@ import org.springframework.data.domain.Pageable;
 public interface InterviewQueryRepository {
 
     Page<InterviewDto.Read> search(InterviewDto.SearchQuery searchQuery, Pageable pageable);
+    Page<InterviewDto.Read> searchV2(InterviewDto.SearchQuery searchQuery, Pageable pageable);
 
 }

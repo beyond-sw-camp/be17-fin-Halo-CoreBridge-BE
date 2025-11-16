@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.halo.core_bridge.api.interview.model.dto.InterviewDto.Create;
 import static com.halo.core_bridge.api.interview.model.dto.InterviewDto.Interviews;
@@ -45,6 +44,7 @@ public class InterviewService {
     private final UserRepository userRepository;
 
     private final InterviewCancelMailService interviewCancelMailService;
+    private final InterviewAssignmentService interviewAssignmentService;
 
     @Transactional
     public Long save(Create create) {
@@ -54,11 +54,13 @@ public class InterviewService {
         }
 
         Long resumeProcessId;
+        Long jobPostingId;
 
         try {
 
             Resume findResume = resumeService.findById(create.getResumeId());
             resumeProcessId = findResume.getProcess().getId();
+            jobPostingId = findResume.getJobPosting().getId();
 
         } catch (RuntimeException e) {
             throw BaseException.from(BaseResponseStatus.RESUME_NOT_FOUND);
@@ -69,6 +71,8 @@ public class InterviewService {
         }
 
         Interview savedInterview = interviewRepository.save(create.toEntity());
+
+        interviewAssignmentService.createAssignmentsForInterview(savedInterview, jobPostingId);
         return savedInterview.getId();
     }
 
@@ -77,6 +81,14 @@ public class InterviewService {
         PageRequest pageable = PageRequest.of(searchQuery.getPage(), 10, Sort.by("id").descending());
 
         Page<InterviewDto.Read> search = interviewQueryRepository.search(searchQuery, pageable);
+        return Interviews.fromSearch(search.getContent(), search.getNumber(), search.getTotalPages(), search.getTotalElements());
+    }
+
+    public Interviews searchV2(InterviewDto.SearchQuery searchQuery) {
+
+        PageRequest pageable = PageRequest.of(searchQuery.getPage(), 10, Sort.by("id").descending());
+
+        Page<InterviewDto.Read> search = interviewQueryRepository.searchV2(searchQuery, pageable);
         return Interviews.fromSearch(search.getContent(), search.getNumber(), search.getTotalPages(), search.getTotalElements());
     }
 

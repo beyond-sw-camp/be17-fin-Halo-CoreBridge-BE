@@ -4,6 +4,8 @@ import com.halo.core_bridge.api.interview.contents.SwaggerInterviewContents;
 import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
 import com.halo.core_bridge.api.interview.service.InterviewService;
+import com.halo.core_bridge.api.users.model.UserRoleType;
+import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.halo.core_bridge.api.interview.model.dto.InterviewDto.*;
@@ -58,10 +61,20 @@ public class InterviewController {
     @GetMapping
     public ResponseEntity<BaseResponse<Interviews>> getInterviews(@RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(required = false, name = "search") String keyword,
-                                                                  @RequestParam(required = false) InterviewStatus status) {
+                                                                  @RequestParam(required = false) InterviewStatus status,
+                                                                  @AuthenticationPrincipal UserDto.Auth auth) {
+
+        if (auth.getRole().equals(UserRoleType.ROLE_INTERVIEWER.name())) {
+
+            Interviews search = interviewService.searchV2(
+                    SearchQuery.from(page, status, keyword, auth.getId())
+            );
+
+            return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(search));
+        }
 
         Interviews search = interviewService.search(SearchQuery.from(page, status, keyword));
-        return ResponseEntity.ok(BaseResponse.success(search));
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(search));
     }
 
     @GetMapping("/{interviewId}")

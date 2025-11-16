@@ -8,6 +8,7 @@ import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
 import com.halo.core_bridge.api.interview.model.enums.InterviewType;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
+import com.halo.core_bridge.api.users.model.UserRoleType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -176,12 +177,22 @@ public class InterviewDto {
         private String keyword;
         private int page;
         private InterviewStatus status;
+        private Long userId;
 
         public static SearchQuery from(int page, InterviewStatus status, String keyword) {
             return SearchQuery.builder()
                     .page(page)
                     .status(status)
                     .keyword(keyword)
+                    .build();
+        }
+
+        public static SearchQuery from(int page, InterviewStatus status, String keyword, Long userId) {
+            return SearchQuery.builder()
+                    .page(page)
+                    .status(status)
+                    .keyword(keyword)
+                    .userId(userId)
                     .build();
         }
     }
