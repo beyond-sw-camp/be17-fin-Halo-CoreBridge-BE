@@ -3,6 +3,7 @@ package com.halo.core_bridge.api.interview.repository;
 import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.dto.InterviewerDto.InterviewerInfo;
 import com.halo.core_bridge.api.interview.model.entity.QInterview;
+import com.halo.core_bridge.api.interview.model.entity.QInterviewAssignment;
 import com.halo.core_bridge.api.interview.model.entity.QInterviewer;
 import com.halo.core_bridge.api.jobposting.model.entity.QJobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.QRecruitProcess;
@@ -32,6 +33,7 @@ public class InterviewQueryRepositoryImpl implements  InterviewQueryRepository {
     private final QJobPosting jobPosting = QJobPosting.jobPosting;
     private final QResume resume = QResume.resume;
     private final QUser user = QUser.user;
+    private final QInterviewAssignment interviewAssignment = QInterviewAssignment.interviewAssignment;
 
     @Override
     public Page<InterviewDto.Read> search(InterviewDto.SearchQuery searchQuery, Pageable pageable) {
@@ -106,6 +108,81 @@ public class InterviewQueryRepositoryImpl implements  InterviewQueryRepository {
                 .fetchOne();
 
         return new PageImpl<>(read, pageable, total != null ? total : 0);
+    }
+
+    public Page<InterviewDto.Read> searchV2(InterviewDto.SearchQuery searchQuery, Pageable pageable) {
+
+        BooleanBuilder condition = new BooleanBuilder();
+
+        // 검색 조건
+        if (hasText(searchQuery.getKeyword())) {
+            condition.and(interview.resume.user.name.containsIgnoreCase(searchQuery.getKeyword()));
+        }
+
+        if (searchQuery.getStatus() != null) {
+            condition.and(interview.status.eq(searchQuery.getStatus()));
+        }
+
+        List<InterviewDto.Read> findInterview = jpaQueryFactory
+                .select(
+                        Projections.fields(
+                                InterviewDto.Read.class,
+                                interview.id.as("id"),
+                                interview.startDateTime.as("startDateTime"),
+                                interview.duration.as("duration"),
+                                interview.location.as("location"),
+                                interview.interviewType.as("interviewType"),
+                                interview.status.as("interviewStatus"),
+                                interview.description.as("description"),
+                                user.name.as("name"),
+                                recruitProcess.name.as("process")
+                        )
+                )
+                .from(interviewAssignment)
+                .leftJoin(interviewAssignment.interview, interview)
+                .leftJoin(interview.resume, resume)
+                .leftJoin(resume.user, user)
+                .leftJoin(interview.recruitProcess, recruitProcess)
+                .where(condition)
+                .where(interviewAssignment.interviewer.id.eq(searchQuery.getUserId()))
+                .orderBy(interview.startDateTime.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 면접관들 목록을 찾아야한다. 면접관들은 InterviewAssginment에서 인터뷰 id로 찾을 수 있다.
+
+        List<InterviewerInfo> interviewerInfoList = jpaQueryFactory.select(
+                        Projections.fields(
+                                InterviewerInfo.class,
+                                interviewAssignment.id.as("id"),
+                                user.name.as("name"),
+                                user.email.as("email"),
+                                interview.id.as("interviewId")
+                        ))
+                .from(interviewAssignment)
+                .leftJoin(interviewAssignment.interview, interview)
+                .leftJoin(interviewAssignment.interviewer, user)
+                .fetch();
+
+        Map<Long, List<InterviewerInfo>> interviewerByInterviewId = interviewerInfoList.stream().collect(
+                Collectors.groupingBy(InterviewerInfo::getInterviewId)
+        );
+
+        findInterview.forEach(r -> r.setInterviewers(
+                interviewerByInterviewId.getOrDefault(r.getId(), List.of()))
+        );
+
+        Long total = jpaQueryFactory
+                .select(interview.count())
+                .from(interviewAssignment)
+                .join(interviewAssignment.interview, interview)
+                .join(interviewAssignment.interviewer, user)
+                .where(condition)
+                .where(user.id.eq(searchQuery.getUserId()))
+                .fetchOne();
+
+        return new PageImpl<>(findInterview, pageable, total != null ? total : 0);
     }
 
     private boolean hasText(String str) {
