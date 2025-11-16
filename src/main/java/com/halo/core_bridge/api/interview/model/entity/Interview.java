@@ -43,6 +43,12 @@ public class Interview extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private InterviewType interviewType;
 
+    @Column(nullable = false)
+    private boolean reminderSent;
+
+    @Column(nullable = true)
+    private LocalDateTime reminderSentAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Resume resume;
 
