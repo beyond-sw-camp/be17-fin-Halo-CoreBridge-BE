@@ -70,4 +70,12 @@ public class InterviewController {
         Read findInterview = interviewService.findByInterviewId(interviewId);
         return ResponseEntity.ok(BaseResponse.success(findInterview));
     }
+
+    @PostMapping("/{interviewId}/cancel")
+    public ResponseEntity<BaseResponse<Object>> cancelInterview(@PathVariable("interviewId") Long interviewId,
+                                                                @RequestBody InterviewDto.Cancel cancelRequest) {
+
+        interviewService.cancelInterview(interviewId, cancelRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success("면접을 취소하였습니다."));
+    }
 }

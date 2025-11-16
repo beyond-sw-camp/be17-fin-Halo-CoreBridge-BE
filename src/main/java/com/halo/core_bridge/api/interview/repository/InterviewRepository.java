@@ -33,4 +33,7 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
              where i.id = :id
             """)
     void markReminderSent(@Param("id") Long id, @Param("now") LocalDateTime now);
+
+    @Query("select u.email from Interview i join i.resume r join r.user u where i.id = :interviewId")
+    String findApplicantEmailByInterviewId(Long interviewId);
 }

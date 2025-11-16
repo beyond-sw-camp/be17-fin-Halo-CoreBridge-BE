@@ -4,11 +4,13 @@ import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.dto.InterviewerDto;
 import com.halo.core_bridge.api.interview.model.entity.Interview;
 import com.halo.core_bridge.api.interview.model.entity.Interviewer;
+import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
 import com.halo.core_bridge.api.interview.repository.InterviewQueryRepository;
 import com.halo.core_bridge.api.interview.repository.InterviewRepository;
 import com.halo.core_bridge.api.interview.repository.InterviewerRepository;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.RecruitProcessRepository;
+import com.halo.core_bridge.api.mail.service.InterviewCancelMailService;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.resume.repository.ResumeRepository;
 import com.halo.core_bridge.api.resume.service.ResumeService;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.halo.core_bridge.api.interview.model.dto.InterviewDto.Create;
 import static com.halo.core_bridge.api.interview.model.dto.InterviewDto.Interviews;
@@ -40,6 +43,8 @@ public class InterviewService {
     private final InterviewerRepository interviewerRepository;
     private final RecruitProcessRepository recruitProcessRepository;
     private final UserRepository userRepository;
+
+    private final InterviewCancelMailService interviewCancelMailService;
 
     @Transactional
     public Long save(Create create) {
@@ -104,5 +109,34 @@ public class InterviewService {
                         findInterviewers.stream().map(InterviewerDto.InterviewerInfo::from).toList()
                 )
                 .build();
+    }
+
+    @Transactional
+    public void cancelInterview(Long interviewId, InterviewDto.Cancel cancelRequest) {
+
+        Interview findInterview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.INTERVIEW_NOT_FOUND));
+
+        if (!findInterview.getStatus().equals(InterviewStatus.SCHEDULED)) {
+            throw BaseException.from(BaseResponseStatus.CANNOT_CANCEL_INTERVIEW);
+        }
+
+        Resume findResume = resumeRepository.findById(findInterview.getResume().getId())
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.RESUME_NOT_FOUND));
+
+//        User findUser = userRepository.findById(findResume.getUser().getId())
+//                .orElseThrow(() -> BaseException.from(BaseResponseStatus.NOT_FOUND_USER));
+
+        List<Interviewer> findInterviewers = interviewerRepository.findAllByJobPosting_Id(findResume.getJobPosting().getId());
+
+        String cancelEmail = interviewRepository.findApplicantEmailByInterviewId(interviewId);
+
+        interviewCancelMailService.sendToEmail(cancelEmail, cancelRequest.getCancelReason());
+
+        findInterviewers.stream().map(Interviewer::getUser).forEach(
+                user -> interviewCancelMailService.sendToEmail(user.getEmail(), cancelRequest.getCancelReason())
+        );
+
+        findInterview.cancelInterview();
     }
 }

@@ -209,4 +209,11 @@ public class InterviewDto {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class Cancel {
+
+        private String cancelReason;
+    }
 }
