@@ -21,8 +21,8 @@ public class Image extends BaseEntity {
     private Long fileSize;
     private Boolean isDeleted;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @Builder

@@ -1,5 +1,8 @@
 package com.halo.core_bridge.api.interview.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.halo.core_bridge.api.interview.model.entity.Interview;
 import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
 import com.halo.core_bridge.api.interview.model.enums.InterviewType;
@@ -7,12 +10,15 @@ import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+
+import static com.halo.core_bridge.api.interview.model.dto.InterviewerDto.InterviewerInfo;
 
 public class InterviewDto {
 
@@ -59,6 +65,123 @@ public class InterviewDto {
                     .recruitProcess(
                             RecruitProcess.builder().id(recruiterProcessId).build()
                     )
+                    .build();
+        }
+    }
+
+    @Setter
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Read {
+
+        private Long id;
+        private String name;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+        private LocalDateTime startDateTime;
+        private int duration;
+        private String process;
+
+        @JsonIgnore
+        private InterviewType interviewType;
+        private String location;
+
+        @JsonIgnore
+        private InterviewStatus interviewStatus;
+        private String description;
+        private List<InterviewerInfo> interviewers;
+
+        @JsonProperty("interviewType")
+        public Map<String, Object> getInterviewTypeJson() {
+            if (interviewType == null) return null;
+
+            return Map.of(
+                    "code", interviewType.name(),
+                    "label", interviewType.getName()
+            );
+        }
+
+        @JsonProperty("interviewStatus")
+        public Map<String, Object> getInterviewStatusJson() {
+            if (interviewStatus == null) return null;
+
+            return Map.of(
+                    "code", interviewStatus.name(),
+                    "label", interviewStatus.getName()
+            );
+        }
+
+        @JsonIgnore
+        private Long jobPostingId;
+
+        public static InterviewDto.Read from(Interview entity) {
+
+            return Read.builder()
+                    .id(entity.getId())
+                    .name(entity.getResume().getUser().getName())
+                    .startDateTime(entity.getStartDateTime())
+                    .duration(entity.getDuration())
+                    .process(entity.getRecruitProcess().getName())
+                    .interviewType(entity.getInterviewType())
+                    .location(entity.getLocation())
+                    .interviewStatus(entity.getStatus())
+                    .description(entity.getDescription())
+                    .interviewers(
+                            entity
+                                    .getResume()
+                                    .getJobPosting()
+                                    .getInterviewers()
+                                    .stream()
+                                    .map(InterviewerInfo::from)
+                                    .toList()
+                    )
+                    .build();
+        }
+
+    }
+
+    @Getter
+    @Builder
+    public static class Interviews {
+        private List<Read> interviews;
+        private int currentPage;
+        private int totalPages;
+        private long totalElements;
+
+        public static Interviews from(List<Interview> interviews) {
+            return Interviews.builder()
+                    .interviews(
+                            interviews.stream().map(Read::from).toList()
+                    )
+                    .build();
+        }
+
+        public static Interviews fromSearch(List<Read> interviews, int currentPage, int totalPages, long totalElements) {
+            return Interviews.builder()
+                    .interviews(interviews)
+                    .currentPage(currentPage)
+                    .totalPages(totalPages)
+                    .totalElements(totalElements)
+                    .build();
+        }
+
+    }
+
+    @Getter
+    @Builder
+    public static class SearchQuery {
+
+        private String keyword;
+        private int page;
+        private InterviewStatus status;
+
+        public static SearchQuery from(int page, InterviewStatus status, String keyword) {
+            return SearchQuery.builder()
+                    .page(page)
+                    .status(status)
+                    .keyword(keyword)
                     .build();
         }
     }
