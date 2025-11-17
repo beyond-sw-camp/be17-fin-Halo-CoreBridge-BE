@@ -56,6 +56,10 @@ dependencies {
 	// Spring Batch
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 
+	// WebFlux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+
 	// Lombok & DB & Test
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -63,6 +67,9 @@ dependencies {
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	// actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'

@@ -11,4 +11,10 @@ import java.util.Optional;
 public interface CoverLetterDescriptionRepository extends JpaRepository<CoverLetterDescription, Long> {
     @Query("SELECT d FROM CoverLetterDescription d " + "JOIN FETCH d.coverLetterTitle t " + "WHERE d.resume.id = :resumeId AND t.jobPostingId = :jobPostingId")
     List<CoverLetterDescription> findAllByResumeIdAndJobPostingId(@Param("resumeId") Long resumeId, @Param("jobPostingId") Long jobPostingId);
+
+    String findByResumeId(Long resumeId);
+
+    @Query("select c.description from CoverLetterDescription c where c.resume.id = :resumeId")
+    String findDescriptionByResumeId(Long resumeId);
+
 }

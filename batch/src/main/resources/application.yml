@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: core-bridge-batch
+
+  # DataSource ??
+  datasource:
+    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:corebridge}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5  # Batch? ? ??? ??
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # JPA ??
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Batch? DDL ?? ? ?
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        show_sql: false
+    open-in-view: false
+
+  # Redis ??
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+  # Batch ??
+  batch:
+    job:
+      enabled: false  # ? ?? ?? ?? (?????? ??)
+    jdbc:
+      initialize-schema: always  # Batch ????? ??? ?? ??
+
+# ?? ?? (API? ?? ??)
+server:
+  port: 8081
+
+# ?? ??
+logging:
+  level:
+    com.halo.core_bridge.batch: INFO
+    org.springframework.batch: INFO
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

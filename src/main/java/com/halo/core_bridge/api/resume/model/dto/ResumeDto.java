@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.resume.model.dto;
 
+import com.halo.core_bridge.api.coverLetterDescription.model.dto.CoverLetterDescriptionDto;
 import com.halo.core_bridge.api.pdf.model.dto.PdfDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
@@ -39,6 +40,8 @@ public class ResumeDto {
         private List<OverseasExperienceDto> overseasExperiences;
         @Schema(description = "이력서 기술 스택 목록")
         private List<ResumeSkillDto> resumeSkills;
+
+        private List<CoverLetterDescriptionDto.CoverLetterDescriptionRequest> descriptions;
     }
 
     @Getter @Setter @Builder

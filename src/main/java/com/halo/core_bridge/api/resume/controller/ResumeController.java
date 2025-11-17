@@ -45,6 +45,8 @@ public class ResumeController {
             @RequestPart(value = "file", required = false) MultipartFile file) {
         Long userId = auth.getId();
         Long resumeId = resumeService.create(dto, userId, file);
+
+
         return ResponseEntity.ok(resumeId);
     }
 
@@ -87,6 +89,8 @@ public class ResumeController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(descriptionIds);
+
+
     }
 
     @GetMapping("/{resumeId}/cover-letter-descriptions")
