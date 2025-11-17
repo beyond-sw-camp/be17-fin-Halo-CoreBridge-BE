@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface PublicJobPostingQueryRepository {
-    Page<JobPosting> searchPublicJobs(
+    Page<PublicJobPostingDto.JobRaw> searchPublicJobs(
             PublicJobPostingDto.PublicJobSearchRequest req,
             Pageable pageable
     );
