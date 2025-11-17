@@ -13,4 +13,6 @@ public interface InterviewAssignmentRepository extends JpaRepository<InterviewAs
     List<InterviewAssignment> findByInterviewer(User interviewer);
 
     Optional<InterviewAssignment> findByInterviewAndInterviewer(Interview interview, User interviewer);
+
+    Optional<InterviewAssignment> findByInterview_IdAndInterviewer_Id(Long interviewId, Long interviewerId);
 }

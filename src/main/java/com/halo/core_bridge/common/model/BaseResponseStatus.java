@@ -97,6 +97,11 @@ public enum BaseResponseStatus {
     INTERVIEW_NOT_FOUND(false, 75005, "존재하지 않는 면접입니다."),
     CANNOT_CANCEL_INTERVIEW(false, 75006, "취소 할 수 없는 면접입니다."),
 
+    // 평가
+    NOT_FOUND_ASSIGNMENT(false, 76000, "존재하지 않는 면접관입니다."),
+    CANNOT_MODIFY_EVALUATION(false, 76001, "평가는 수정하지 못합니다."),
+    NOT_FOUND_INTERVIEW_ASSIGNMENT(false, 76002, "존재하지 않는 면접관입니다"),
+
     // 사용자
     NOT_FOUND_USER_ROLE(false, 75002, "권한을 찾을 수 없습니다.");
 
