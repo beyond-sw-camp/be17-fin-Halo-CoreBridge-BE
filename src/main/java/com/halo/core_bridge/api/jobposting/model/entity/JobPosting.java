@@ -19,7 +19,14 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "job_posting")
+@Table(
+        name = "job_posting",
+        indexes = {
+                @Index(name = "idx_job_posting_title", columnList = "title"),
+                @Index(name = "idx_job_posting_careerType", columnList = "career_type"),
+                @Index(name = "idx_job_posting_created_at", columnList = "created_at")
+        }
+)
 public class JobPosting extends BaseEntity {
 
     @Id
