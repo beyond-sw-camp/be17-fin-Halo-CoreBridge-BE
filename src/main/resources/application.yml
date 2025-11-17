@@ -46,6 +46,10 @@ spring:
       ssl:
         verification-mode: none
 
+  jpa:
+    properties:
+      hibernate.hibernate.default_batch_fetch_size: 100
+
 redis:
   host: ${REDIS_HOST}
   port: ${REDIS_PORT}

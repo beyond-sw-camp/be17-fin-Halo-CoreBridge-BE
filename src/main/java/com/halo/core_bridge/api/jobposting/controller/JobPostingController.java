@@ -290,13 +290,20 @@ public class JobPostingController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<BaseResponse<JobPostingListDto>> searchJobPostings(@RequestParam(required = false) String keyword,
-                                                                            @RequestParam(required = false, defaultValue = "0") int page) {
+    public ResponseEntity<BaseResponse<JobPostingPage>> searchJobPostings(@RequestParam(required = false) String keyword,
+                                                                          @RequestParam(required = false, name = "search_type", defaultValue = "sql") String searchType,
+                                                                          @RequestParam(required = false, defaultValue = "0") int page) {
 
         SearchQuery searchQuery = SearchQuery.from(keyword, page);
 
-        JobPostingListDto jobPostingListDto = jobPostingService.searchJobPostings(searchQuery);
-//        JobPostingListDto jobPostingListDto = jobPostingEsService.searchJobPostings(searchQuery);
-        return ResponseEntity.ok(BaseResponse.success(jobPostingListDto));
+        JobPostingPage jobPostingPages = null;
+
+        if (searchType.equals("es")) {
+            jobPostingPages = jobPostingEsService.searchJobPostings(searchQuery);
+        } else if(searchType.equals("sql")) {
+            jobPostingPages = jobPostingService.searchJobPostings(searchQuery);
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(jobPostingPages));
     }
 }

@@ -30,6 +30,30 @@ public abstract class BaseMailService {
         mailSender.send(mimeMessage);
     }
 
+    // 새로운 메서드: 동적 HTML 받기
+    public void sendToEmail(String email, String html) {
+        MimeMessage mimeMessage = createMimeMessage(email, html);
+        mailSender.send(mimeMessage);
+    }
+
+    protected MimeMessage createMimeMessage(String email, String html) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper messageHelper =
+                    new MimeMessageHelper(mimeMessage, true, DEFAULT_ENCODE);
+
+            messageHelper.setTo(email);
+            messageHelper.setSubject(subject);
+            messageHelper.setText(html, IS_HTML);
+
+        } catch (MessagingException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return mimeMessage;
+    }
+
     /**
      * MimeMessage 생성
      *

@@ -94,6 +94,8 @@ public enum BaseResponseStatus {
     NOT_PROVIDED_CAPACITY_FOR_OFFLINE_ROOM(false, 75002, "오프라인 장소에는 수용인원이 필요합니다."),
     ALREADY_SCHEDULED_INTERVIEW(false, 75003, "해당 지원자는 이미 면접을 예약하였습니다"),
     RESUME_PROCESS_NOT_MATCH(false, 75004, "이력서와 채용 프로세스가 일치하지 않습니다"),
+    INTERVIEW_NOT_FOUND(false, 75005, "존재하지 않는 면접입니다."),
+    CANNOT_CANCEL_INTERVIEW(false, 75006, "취소 할 수 없는 면접입니다."),
 
     // 사용자
     NOT_FOUND_USER_ROLE(false, 75002, "권한을 찾을 수 없습니다.");

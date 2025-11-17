@@ -21,8 +21,8 @@ public class Pdf extends BaseEntity {
     private Long fileSize;
     private Boolean isDeleted = false;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resume_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resume_id", unique = true)
     private Resume resume;
 
     @Builder

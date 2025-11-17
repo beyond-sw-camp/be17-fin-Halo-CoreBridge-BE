@@ -145,7 +145,7 @@ public class UserDto {
                     .gender(entity.getGender().getName())
                     .phone(entity.getPhone())
                     .type(entity.getUserRole().getName())
-                    .profileUrl(entity.getProfileImage().getSavedPath())
+                    .profileUrl(entity.getProfileImage().get(0).getSavedPath())
                     .build();
         }
     }

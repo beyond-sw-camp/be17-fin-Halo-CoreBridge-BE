@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,10 +46,15 @@ public class PublicJobPostingController {
 
             }
     )
-    @GetMapping
-    public ResponseEntity<BaseResponse<Object>> getPublicJobPostingList() {
+    @GetMapping("/search")
+    public ResponseEntity<BaseResponse<Object>> getPublicJobPostingList(
+            @ModelAttribute PublicJobPostingDto.PublicJobSearchRequest req
+    ) {
+        Pageable pageable = PageRequest.of(req.getPage(), req.getSize());
 
-        PublicJobPostingDto.Jobs jobs = jobPostingPublicService.findAllJobs();
-        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(jobs));
+        PublicJobPostingDto.Jobs response =
+                jobPostingPublicService.searchPublicJobs(req, pageable);
+
+        return ResponseEntity.ok(BaseResponse.success(response));
     }
 }

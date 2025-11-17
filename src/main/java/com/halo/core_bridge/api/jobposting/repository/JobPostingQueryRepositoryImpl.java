@@ -1,21 +1,28 @@
 package com.halo.core_bridge.api.jobposting.repository;
 
 import com.halo.core_bridge.api.jobposting.model.dto.JobPostingDto;
+import com.halo.core_bridge.api.jobposting.model.dto.PublicJobPostingDto;
 import com.halo.core_bridge.api.jobposting.model.dto.RecruitProcessDto;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.organization.model.entity.QDepartment;
 import com.halo.core_bridge.api.resume.model.entity.QResume;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Repository
+import static io.jsonwebtoken.lang.Strings.hasText;
+
+@Repository("jobPostingQueryRepository")
 @RequiredArgsConstructor
 public class JobPostingQueryRepositoryImpl implements JobPostingQueryRepository {
 
@@ -226,7 +233,7 @@ public class JobPostingQueryRepositoryImpl implements JobPostingQueryRepository 
                 .toList();
 
         // ✅ 3️⃣ 기술스택 별도 조회
-        List<String> skills = queryFactory
+        List<TechStack> skills = queryFactory
                 .select(skill.name)
                 .from(skill)
                 .where(skill.jobPosting.id.eq(jobPostingId))
@@ -270,4 +277,42 @@ public class JobPostingQueryRepositoryImpl implements JobPostingQueryRepository 
         else if (now.isAfter(hireEnd)) return "마감";
         else return "채용중";
     }
+
+    @Override
+    public Page<JobPosting> searchJobPostings(JobPostingDto.SearchQuery keyword, Pageable pageable) {
+
+        QJobPosting jobPosting = QJobPosting.jobPosting;
+        QDepartment department = QDepartment.department;
+
+        BooleanBuilder condition = new BooleanBuilder();
+
+        // 검색 조건
+        if (hasText(keyword.getKeyword())) {
+            condition.and(jobPosting.title.containsIgnoreCase(keyword.getKeyword()));
+        }
+
+        List<JobPosting> results = queryFactory
+                .selectFrom(jobPosting)
+                .join(jobPosting.department, department).fetchJoin()
+                .where(condition)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+
+        Long total = queryFactory
+                .select(jobPosting.count())
+                .from(jobPosting)
+                .where(condition)
+                .fetchOne();
+
+        return new PageImpl<>(results, pageable, total != null ? total : 0);
+
+    }
+
+    private boolean hasText(String str) {
+        return str != null && !str.isBlank();
+    }
+
+
 }

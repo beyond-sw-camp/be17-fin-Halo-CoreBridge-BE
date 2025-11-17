@@ -17,6 +17,14 @@ public interface RecruitProcessRepository extends JpaRepository<RecruitProcess, 
 
     void deleteAllByJobPosting(JobPosting jobPosting);
 
+    // 지원자가 지원한 채용공고 전체조회
+    @Query("""
+        select rp from RecruitProcess rp
+        where rp.jobPosting.id in :jobPostingIds
+        order by rp.jobPosting.id asc, rp.orderIdx asc
+        """)
+    List<RecruitProcess> findAllByJobPostingIds(@Param("jobPostingIds") List<Long> jobPostingIds);
+
     /**
      * <code>JobPostingId</code>의 채용 프로세스들 중에서 <br>
      * <code>orderIdx</code>가 </code><code>fromIdx</code>부터 <code>toIdx</code> 범위의 <code>orderIdx</code>값들을 1씩 증가 시킨다.

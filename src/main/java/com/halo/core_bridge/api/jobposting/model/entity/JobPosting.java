@@ -1,7 +1,7 @@
 package com.halo.core_bridge.api.jobposting.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.halo.core_bridge.api.coverLetterTitle.model.entity.CoverLetterTitle;
+import com.halo.core_bridge.api.interview.model.entity.Interviewer;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.resume.model.entity.Resume;
 import com.halo.core_bridge.api.users.model.entity.User;
@@ -76,6 +76,10 @@ public class JobPosting extends BaseEntity {
 
     private Integer salaryMin;
     private Integer salaryMax;
+
+    @Column(
+            columnDefinition = "TINYINT(1)"
+    )
     private Boolean salaryNegotiable;
 
     //근무 조건
@@ -124,6 +128,7 @@ public class JobPosting extends BaseEntity {
     @JoinColumn(name = "created_user_id")
     private User createdUser; //등록한 유저
 
-
+    @OneToMany(mappedBy = "jobPosting")
+    private List<Interviewer> interviewers = new ArrayList<>(); //면접관
 
 }

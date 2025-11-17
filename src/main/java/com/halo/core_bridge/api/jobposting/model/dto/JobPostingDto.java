@@ -2,6 +2,7 @@ package com.halo.core_bridge.api.jobposting.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
+import com.halo.core_bridge.api.jobposting.model.document.JobPostingDocument;
 import com.halo.core_bridge.api.jobposting.model.entity.*;
 import com.halo.core_bridge.api.organization.model.entity.Department;
 import com.halo.core_bridge.api.users.model.entity.User;
@@ -92,10 +93,8 @@ public class JobPostingDto {
         @Size(max = 1000, message = "우대 사항은 1000자 이하로 입력해주세요.")
         private String preferred;
 
-        @NotEmpty(message = "기술 스택은 최소 1개 이상 입력해야 합니다.")
-        private List<
-                @Size(max = 20, message = "기술명은 20자 이하로 입력해주세요.")
-                        String> techStack; // ex) ["Java", "Spring", "Vue"]
+        @Size(min = 1, message = "기술 스택은 최소 1개 이상 선택해주세요.")
+        private List<String> techStack;
 
 
         @NotEmpty(message = "채용 프로세스는 최소 1개 이상 입력해야 합니다.")
@@ -309,14 +308,14 @@ public class JobPostingDto {
         private CareerType careerType;
         private Integer minExperience;
         private Integer maxExperience;
-        private List<String> skills;
+        private List<TechStack> skills;
         private SalaryType salaryType;
         private Integer salaryMin;
         private Integer salaryMax;
         private Boolean SalaryNegotiable;
 
         public static HeaderResponse fromEntity(JobPosting entity) {
-            List<String> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
+            List<TechStack> skills = entity.getSkills().stream().map(JobPostingSkill::getName).toList();
             String status = HeaderResponse.computeStatus(entity.getApplyStartDate(), entity.getHireEndDate());
             return HeaderResponse.builder()
                     .id(entity.getId())
@@ -375,7 +374,7 @@ public class JobPostingDto {
         private Integer headCount; //모집 인원
         private Integer applicantCount; //지원자 수
 
-        private List<String> skills;
+        private List<TechStack> skills;
         private List<RecruitProcessDto.Read> recruitProcesses;
 
         private String workingHours;
@@ -416,7 +415,7 @@ public class JobPostingDto {
         private String requirements;
         private String preferred;
 
-        private List<String> techStack; // ex) ["Java", "Spring Boot"]
+        private List<TechStack> techStack; // ex) ["Java", "Spring Boot"]
 
         private List<RecruitProcessDto.Read> recruitProcess;
         private List<CoverLetterTitleDto.CoverLetterTitleResponse> coverLetterTitles;
@@ -685,6 +684,145 @@ public class JobPostingDto {
         public static JobPostingListDto from(List<JobPostingListResponseDto> jobPostings, int currentPage, int totalPages, long totalElements) {
             return JobPostingListDto.builder()
                     .jobPostings(jobPostings)
+                    .currentPage(currentPage)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class JobPostingQuery {
+
+        private Long id;
+        private String title;
+        private String departmentName;
+        private EmploymentType employmentType;
+        private CareerType careerType;
+        private LocalDateTime hireEndDate;
+        private LocalDateTime applyStartDate;
+        private Long applicantCount;
+        List<RecruitProcessDto.ProcessSummary> processSummaries;
+
+        public static JobPostingQuery from(Long id,
+                                           String title,
+                                           String departmentName,
+                                           EmploymentType employmentType,
+                                           CareerType careerType,
+                                           LocalDateTime hireEndDate,
+                                           LocalDateTime applyStartDate,
+                                           Long applicantCount,
+                                           List<RecruitProcessDto.ProcessSummary> processSummaries) {
+
+            return JobPostingQuery.builder()
+                    .id(id)
+                    .title(title)
+                    .departmentName(departmentName)
+                    .employmentType(employmentType)
+                    .careerType(careerType)
+                    .hireEndDate(hireEndDate)
+                    .applyStartDate(applyStartDate)
+                    .applicantCount(applicantCount)
+                    .processSummaries(processSummaries)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class JobPostingsResp {
+        private Long id;
+        private String title;
+        private String summaryText;
+        private String departmentName;
+        private EmploymentType employmentType;
+        private CareerType careerType;
+        private String status;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        private LocalDate hireEndDate;
+        private String dday;
+        private Long applicantCount;
+        private Integer progressPercent;
+        private List<RecruitProcessDto.ProcessSummary> processSummaries;
+
+        public static JobPostingsResp from(JobPostingQuery query, String status, String dDay, Integer progressPercent) {
+
+            return JobPostingsResp.builder()
+                    .id(query.getId())
+                    .title(query.getTitle())
+                    .departmentName(query.getDepartmentName())
+                    .employmentType(query.getEmploymentType())
+                    .careerType(query.getCareerType())
+                    .hireEndDate(query.getHireEndDate().toLocalDate())
+                    .applicantCount(query.getApplicantCount())
+                    .processSummaries(query.getProcessSummaries())
+                    .dday(dDay)
+                    .status(status)
+                    .summaryText(buildSummaryText(query.getCareerType(), query.getEmploymentType()))
+                    .progressPercent(progressPercent)
+                    .build();
+        }
+
+        public static JobPostingsResp fromJobPostingDocument(JobPostingDocument query, String status, String dDay, Integer progressPercent) {
+
+            return JobPostingsResp.builder()
+                    .id(query.getId())
+                    .title(query.getTitle())
+                    .departmentName(query.getDepartmentName())
+                    .employmentType(query.getEmploymentType())
+                    .careerType(query.getCareerType())
+                    .hireEndDate(query.getApplyEndDate().toLocalDate())
+                    .applicantCount(query.getApplicantCount())
+                    .processSummaries(query.getProcesses().stream().map(RecruitProcessDto.ProcessSummary::from).toList())
+                    .dday(dDay)
+                    .status(status)
+                    .summaryText(buildSummaryText(query.getCareerType(), query.getEmploymentType()))
+                    .progressPercent(progressPercent)
+                    .build();
+        }
+
+        private static String buildSummaryText(CareerType careerType, EmploymentType employmentType) {
+            String exp = careerType.getLabel();
+            String emp = employmentType.getLabel();
+            return exp + " · " + emp;
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class JobPostingPage {
+        private List<JobPostingsResp> jobPostings;
+        private int currentPage;
+        private int totalPages;
+        private long totalElements;
+
+        public static JobPostingPage from(List<JobPostingsResp> jobPostings, int currentPage, int totalPages, long totalElements) {
+
+            return JobPostingPage.builder()
+                    .jobPostings(jobPostings)
+                    .currentPage(currentPage)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .build();
+
+        }
+
+        public static JobPostingPage fromJobPostingDocument(List<JobPostingDocument> jobPostingDocuments, int currentPage, int totalPages, long totalElements) {
+
+            return JobPostingPage.builder()
+                    .jobPostings(jobPostingDocuments.stream().map(
+                            document -> JobPostingsResp.fromJobPostingDocument(document, document.getStatus(), document.getDDay(), document.getProgressRate())
+                    ).toList())
                     .currentPage(currentPage)
                     .totalElements(totalElements)
                     .totalPages(totalPages)

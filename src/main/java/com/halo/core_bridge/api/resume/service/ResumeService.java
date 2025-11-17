@@ -145,7 +145,7 @@ public class ResumeService {
         }
 
         if (resume.getPdf() != null) {
-            responseDto.setPdf(PdfDto.PdfResponseDto.from(resume.getPdf()));
+            responseDto.setPdf(PdfDto.PdfResponseDto.from(resume.getPdf().get(0)));
         }
         return responseDto;
     }
