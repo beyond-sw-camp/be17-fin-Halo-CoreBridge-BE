@@ -79,3 +79,9 @@ management:
 
     elasticsearch:
       enabled: false
+
+ai:
+  base-url: "http://175.197.41.64:33398"
+
+n8n:
+  base-url: "http://localhost:5678/webhook-test"

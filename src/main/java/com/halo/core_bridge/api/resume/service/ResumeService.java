@@ -1,5 +1,8 @@
 package com.halo.core_bridge.api.resume.service;
 
+import com.halo.core_bridge.api.coverLetterDescription.model.entity.CoverLetterDescription;
+import com.halo.core_bridge.api.coverLetterDescription.repository.CoverLetterDescriptionRepository;
+import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.RecruitProcess;
 import com.halo.core_bridge.api.jobposting.repository.JobPostingRepository;
@@ -14,12 +17,15 @@ import com.halo.core_bridge.api.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -35,8 +41,10 @@ public class ResumeService {
     private final LanguageService languageService;
     private final OverseasExperienceService overseasExperienceService;
     private final ResumeSkillService resumeSkillService;
+    private final WebClient n8nWebClient;
     private final PdfRepository pdfRepository;
     private final JobPostingRepository jobPostingRepository;
+    private final CoverLetterDescriptionRepository coverLetterDescriptionRepository;
 
     @Value("${upload.path}")
     private String uploadPath;
@@ -98,8 +106,28 @@ public class ResumeService {
                     resumeSkillService.create(skillDto, saved.getId())
             );
         }
+//        String desc = coverLetterDescriptionRepository.findDescriptionByResumeId(saved.getId());
+
+//        System.out.println(saved.getId() + " " + desc + "🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤🐤");
+
+        // ⬇️ n8n Webhook Trigger 호출
+        sendToN8n(dto, userId);
 
         return saved.getId();
+    }
+
+    private void sendToN8n(ResumeDto.Create dto, Long userId) {
+        n8nWebClient.post()
+                .uri("/ai-analysis/process")  // base-url 뒤에 붙음
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of(
+                        "candidate_id", userId,
+                        "description", dto.getDescriptions().get(1).getDescription(),
+                        "resumeId", dto.getJobPostingId()
+                ))
+                .retrieve()
+                .bodyToMono(Void.class)
+                .subscribe(); // 비동기
     }
 
 
