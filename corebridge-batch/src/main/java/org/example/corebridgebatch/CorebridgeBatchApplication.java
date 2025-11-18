@@ -23,7 +23,7 @@ import java.util.UUID;
 public class CorebridgeBatchApplication {
 
     private static final String PUSHGATEWAY_URL =
-            "pushgateway-prometheus-pushgateway.monitor.svc.cluster.local:9091";
+            "175.197.41.64:33388";
 
     // 모듈 분리 전/후 구분을 위한 job 이름
     private static final String JOB_NAME = "corebridge_batch_job"; // 모듈 분리 후
