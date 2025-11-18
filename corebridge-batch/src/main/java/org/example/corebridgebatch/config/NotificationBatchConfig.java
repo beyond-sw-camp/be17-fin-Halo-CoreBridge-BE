@@ -191,6 +191,12 @@ public class NotificationBatchConfig {
                     .labelNames("module")
                     .register();
 
+            Gauge jobStatusGauge = Gauge.build()
+                    .name("corebridge_batch_status")
+                    .help("Batch Job Status (0=FAILED, 1=COMPLETED)")
+                    .labelNames("module")
+                    .register();
+
             @Override
             public void beforeJob(JobExecution jobExecution) {
                 log.info("🎬 배치 작업 시작");
@@ -198,6 +204,9 @@ public class NotificationBatchConfig {
 
             @Override
             public void afterJob(JobExecution jobExecution) {
+
+                // 💥 TRY/CATCH 밖에서 실행 → 실패해도 반드시 실행됨
+                log.info("📌 [AfterJob Listener] 실행됨. (성공/실패 무조건)");
 
                 try {
                     PushGateway pg = new PushGateway("pushgateway-prometheus-pushgateway.monitor.svc.cluster.local:9091");
@@ -214,20 +223,28 @@ public class NotificationBatchConfig {
                     long failed = jobExecution.getStepExecutions().stream()
                             .mapToLong(StepExecution::getSkipCount).sum();
 
+                    boolean isSuccess = jobExecution.getStatus() == BatchStatus.COMPLETED;
+
                     durationGauge.labels("corebridge-batch").set(duration);
                     processedGauge.labels("corebridge-batch").set(processed);
                     failedGauge.labels("corebridge-batch").set(failed);
 
-                    log.info("📊 AFTER metrics: duration={}ms, processed={}, failed={}",
-                            duration, processed, failed);
+                    // 🔥 성공 = 1, 실패 = 0 으로 기록
+                    jobStatusGauge.labels("corebridge-batch").set(isSuccess ? 1 : 0);
 
+                    log.info("📊 AFTER metrics: duration={}ms, processed={}, failed={}, success={}",
+                            duration, processed, failed, isSuccess);
+
+                    // 🔥 Job 성공/실패와 상관없이 pushAdd 실행
                     pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_after_job");
 
                 } catch (Exception e) {
                     log.error("❌ After metrics push 실패", e);
                 }
+
             }
         };
     }
+
 
 }
