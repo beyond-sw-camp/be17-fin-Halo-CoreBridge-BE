@@ -43,6 +43,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+
     // ELK
     implementation 'org.springframework.data:spring-data-elasticsearch'
     implementation 'co.elastic.clients:elasticsearch-java:8.15.2'
