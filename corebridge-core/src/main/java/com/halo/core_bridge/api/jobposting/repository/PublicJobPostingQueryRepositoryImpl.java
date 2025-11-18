@@ -5,6 +5,9 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.QJobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.QJobPostingSkill;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,14 +24,18 @@ public class PublicJobPostingQueryRepositoryImpl implements PublicJobPostingQuer
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<JobPosting> searchPublicJobs(
+    public Page<PublicJobPostingDto.JobRaw> searchPublicJobs(
             PublicJobPostingDto.PublicJobSearchRequest req,
             Pageable pageable
     ) {
         QJobPosting job = QJobPosting.jobPosting;
-        QJobPostingSkill skill = QJobPostingSkill.jobPostingSkill;
 
         BooleanBuilder where = new BooleanBuilder();
+
+        StringTemplate departmentName = Expressions.stringTemplate(
+                "COALESCE({0}, '')",
+                job.department.name
+        );
 
         // 🔍 제목 검색
         if (req.getKeyword() != null && !req.getKeyword().isBlank()) {
@@ -40,27 +47,29 @@ public class PublicJobPostingQueryRepositoryImpl implements PublicJobPostingQuer
             where.and(job.careerType.eq(req.getCareerType()));
         }
 
-        // 🔍 기술스택 검색
-        if (req.getTechStacks() != null && !req.getTechStacks().isEmpty()) {
-            where.and(skill.name.in(req.getTechStacks()));
-        }
-
-        //  결과 조회
-        List<JobPosting> results = queryFactory
-                .selectDistinct(job)
+        // 🔥 Projection → JobRaw 로 직접 조회
+        List<PublicJobPostingDto.JobRaw> results = queryFactory
+                .select(Projections.constructor(
+                        PublicJobPostingDto.JobRaw.class,
+                        job.id,
+                        job.title,
+                        job.summary,
+                        job.careerType,
+                        job.location,
+                        job.applyEndDate,
+                        departmentName
+                ))
                 .from(job)
-                .leftJoin(job.skills, skill)
                 .where(where)
+                .orderBy(job.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(job.createdAt.desc())
                 .fetch();
 
-        //  count
+        // 🔥 countQuery (필요한 조건만)
         Long total = queryFactory
-                .select(job.countDistinct())
+                .select(job.count())
                 .from(job)
-                .leftJoin(job.skills, skill)
                 .where(where)
                 .fetchOne();
 

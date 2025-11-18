@@ -5,6 +5,7 @@ import com.halo.core_bridge.api.jobposting.model.entity.JobPosting;
 import com.halo.core_bridge.api.jobposting.model.entity.TechStack;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -31,9 +32,23 @@ public class PublicJobPostingDto {
             return size == null ? 12 : size;
         }
     }
+    @Getter
+    @AllArgsConstructor
+    public static class JobRaw {
+        private Long id;
+        private String title;
+        private String summary;
+        private CareerType careerType;
+        private String location;
+        private LocalDateTime applyEndDate;
+        private String departmentName;
+    }
+
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Job {
         private Long id;
         private String title;
@@ -44,36 +59,27 @@ public class PublicJobPostingDto {
         private String department;
         private int views;
 
-        public static Job from (JobPosting entity) {
-            long days = ChronoUnit.DAYS.between(LocalDateTime.now().toLocalDate(), entity.getApplyEndDate().toLocalDate());
-            String dDay = days < 0 ? "마감" : "D-" + days;
+        public static Job fromRaw(JobRaw raw) {
 
-            String requireExp;
+            // 🔥 D-Day 계산
+            long days = ChronoUnit.DAYS.between(
+                    LocalDate.now(),
+                    raw.getApplyEndDate().toLocalDate()
+            );
+            String dDay = (days < 0) ? "마감" : "D-" + days;
 
-            if (entity.getCareerType().equals(CareerType.EXPERIENCED)) {
-
-                requireExp = CareerType.EXPERIENCED.getLabel() + " ";
-
-                if (entity.getMinExperience() != null) {
-                    requireExp = requireExp + entity.getMinExperience() + "년차 ~ ";
-                }
-
-                if (entity.getMaxExperience() != null) {
-                    requireExp = requireExp + entity.getMaxExperience() + "년차";
-                }
-
-            } else {
-                requireExp = entity.getCareerType().getLabel();
-            }
+            // 🔥 경력 문자열 (label 그대로 사용)
+            String exp = raw.getCareerType().getLabel();
+            // (신입 / 경력 / 경력무관 그대로 표시됨)
 
             return Job.builder()
-                    .id(entity.getId())
-                    .title(entity.getTitle())
-                    .summary(entity.getSummary())
-                    .experience(requireExp)
-                    .location(entity.getLocation())
+                    .id(raw.getId())
+                    .title(raw.getTitle())
+                    .summary(raw.getSummary())
+                    .experience(exp)
+                    .location(raw.getLocation())
                     .deadline(dDay)
-                    .department(entity.getDepartment().getDuty().getJobGroup().getName())
+                    .department(raw.getDepartmentName())
                     .views(1)
                     .build();
         }
@@ -86,9 +92,9 @@ public class PublicJobPostingDto {
         private Long totalElements;
         private boolean last;
 
-        public static Jobs from (List<JobPosting> entities, Long totalElements, boolean last) {
+        public static Jobs from (List<JobRaw> raws, Long totalElements, boolean last) {
             return Jobs.builder()
-                    .jobs(entities.stream().map(Job::from).toList())
+                    .jobs(raws.stream().map(Job::fromRaw).toList())
                     .last(last)
                     .totalElements(totalElements)
                     .build();

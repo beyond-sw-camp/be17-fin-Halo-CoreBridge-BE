@@ -19,7 +19,7 @@ public class JobPostingPublicService {
     // 지원자 입장 채용공고 전체조회(QueryDsl 기반)
     public PublicJobPostingDto.Jobs searchPublicJobs(PublicJobPostingDto.PublicJobSearchRequest req, Pageable pageable) {
 
-        Page<JobPosting> pageResult =
+        Page<PublicJobPostingDto.JobRaw> pageResult =
                 publicJobPostingQueryRepository.searchPublicJobs(req, pageable);
 
         return PublicJobPostingDto.Jobs.from(
