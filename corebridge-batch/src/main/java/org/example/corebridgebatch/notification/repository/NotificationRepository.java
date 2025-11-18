@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "WHERE n.status IN :statuses " +
             "AND n.retryCount < 5 " +
             "ORDER BY n.timestamp ASC")
-    Page<org.example.corebridgebatch.notification.model.entity.Notification> findForRetry(@Param("statuses") List<org.example.corebridgebatch.notification.model.enums.DeliveryStatus> statuses,
+    Page<Notification> findForRetry(@Param("statuses") List<DeliveryStatus> statuses,
                                                                                           Pageable pageable);
 
     /**
@@ -35,19 +36,19 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "AND n.status = 'UNSENT' " +
             "AND n.timestamp > :since " +
             "ORDER BY n.timestamp ASC")
-    List<org.example.corebridgebatch.notification.model.entity.Notification> findUnsentByUserId(
+    List<Notification> findUnsentByUserId(
             @Param("userId") Long userId,
             @Param("since") Long since
     );
 
     @Query("SELECT n FROM Notification n WHERE (n.status = 'UNSENT' OR n.status = 'SENT') AND n.status <> 'EMAIL_SENT' AND n.status <> 'READ'")
-    List<org.example.corebridgebatch.notification.model.entity.Notification> findEmailTargets();
+    List<Notification> findEmailTargets();
 
 
     /**
      * 편의 메서드: 최근 24시간 미전송 알림 조회
      */
-    default List<org.example.corebridgebatch.notification.model.entity.Notification> findUnsentByUserId(Long userId) {
+    default List<Notification> findUnsentByUserId(Long userId) {
         long oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000L);
         return findUnsentByUserId(userId, oneDayAgo);
     }
@@ -56,7 +57,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      * 특정 유저의 모든 알림 조회 (최신순)
      */
     @Query("SELECT n FROM Notification n WHERE n.userId = :userId ORDER BY n.timestamp DESC")
-    List<org.example.corebridgebatch.notification.model.entity.Notification> findByUserIdOrderByTimestampDesc(@Param("userId") Long userId);
+    List<Notification> findByUserIdOrderByTimestampDesc(@Param("userId") Long userId);
 
     /**
      * 특정 유저의 읽지 않은 알림 수 조회
@@ -65,7 +66,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long countUnreadByUserId(Long userId);
 
 
-    List<org.example.corebridgebatch.notification.model.entity.Notification> findByStatus(DeliveryStatus status);
+    List<Notification> findByStatus(DeliveryStatus status);
 
     /**
      * 오래된 SENT 알림 삭제 (30일 이상)
@@ -81,4 +82,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      */
     @Query("SELECT n FROM Notification n WHERE n.status = 'UNSENT' AND n.retryCount >= :maxRetry")
     List<org.example.corebridgebatch.notification.model.entity.Notification> findFailedNotifications(@Param("maxRetry") int maxRetry);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Notification n WHERE n.status = 'SENT' AND n.timestamp < :threshold")
+    int deleteOldSentNotifications(long threshold);
+
 }
