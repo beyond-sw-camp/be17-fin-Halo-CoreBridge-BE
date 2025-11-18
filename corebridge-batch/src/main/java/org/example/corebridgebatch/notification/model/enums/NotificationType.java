@@ -1,0 +1,22 @@
+package org.example.corebridgebatch.notification.model.enums;
+
+public enum NotificationType {
+    SYSTEM,
+    JOB_POSTING,
+    PROCESS,
+    MESSAGE,
+
+    JOB_SCHEDULE_CREATED,
+    JOB_SCHEDULE_UPDATED,
+    JOB_SCHEDULE_DELETED,
+    PROCESS_SCHEDULE_CREATED,
+    PROCESS_SCHEDULE_UPDATED,
+    PROCESS_SCHEDULE_DELETED,
+
+    JOB_PROCESS_CREATED,
+    JOB_PROCESS_UPDATED,
+    JOB_PROCESS_DELETED,
+
+    JOB_PROCESS_SHARED
+
+}
