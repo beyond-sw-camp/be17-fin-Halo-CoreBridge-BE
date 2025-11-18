@@ -26,6 +26,7 @@ public class BatchConfig {
     private Gauge durationGauge;
     private Gauge processedGauge;
     private Gauge failedGauge;
+    private Gauge startTimeGauge;
 
     @PostConstruct
     public void init() {
@@ -33,6 +34,13 @@ public class BatchConfig {
 
         this.pushGateway =
                 new PushGateway("175.197.41.64:33388");
+
+        this.startTimeGauge = Gauge.build()
+                .name("corebridge_batch_start_timestamp")
+                .help("Batch Start Time Before Separation (epoch millis)")
+                .labelNames("module")
+                .register();
+
 
         this.durationGauge = Gauge.build()
                 .name("corebridge_batch_last_duration_ms")
@@ -65,6 +73,7 @@ public class BatchConfig {
             double processed = 50 + Math.random() * 30;    // 50~80건
             double failed = Math.random() * 3;             // 0~3건
 
+            startTimeGauge.labels("corebridge-core").set(System.currentTimeMillis());
             durationGauge.labels("corebridge-core").set(duration);
             processedGauge.labels("corebridge-core").set(processed);
             failedGauge.labels("corebridge-core").set(failed);

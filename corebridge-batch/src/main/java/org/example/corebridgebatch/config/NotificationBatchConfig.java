@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -178,6 +179,12 @@ public class NotificationBatchConfig {
 
         return new JobExecutionListener() {
 
+            Gauge startTimeGauge = Gauge.build()
+                    .name("corebridge_batch_start_timestamp")
+                    .help("Batch Start Time After Separation (epoch millis)")
+                    .labelNames("module")
+                    .register();
+
             Gauge durationGauge = Gauge.build()
                     .name("corebridge_batch_last_duration_ms")
                     .help("Batch Duration (After Separation)")
@@ -204,6 +211,10 @@ public class NotificationBatchConfig {
 
             @Override
             public void beforeJob(JobExecution jobExecution) {
+                long start = jobExecution.getStartTime()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant().toEpochMilli();
+                startTimeGauge.labels("corebridge-batch").set(start);
                 log.info("🎬 배치 작업 시작");
             }
 
