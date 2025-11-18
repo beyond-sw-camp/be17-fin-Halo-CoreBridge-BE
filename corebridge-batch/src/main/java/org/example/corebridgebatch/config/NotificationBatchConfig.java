@@ -222,7 +222,7 @@ public class NotificationBatchConfig {
             @Override
             public void afterJob(JobExecution jobExecution) {
 
-                log.info("📌 [AfterJob Listener] 실행됨. (성공/실패 무조건)");
+                log.info("📌 [AfterJob Listener] 실행됨! (성공/실패 무조건)");
 
                 try {
                     PushGateway pg =
