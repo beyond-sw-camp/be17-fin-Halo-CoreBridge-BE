@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: core-bridge-batch
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+  config:
+    import:
+      - "classpath:application-token.yml"
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  batch:
+    jdbc:
+      initialize-schema: never
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          timeout: 5000
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1GB
+      max-request-size: 1GB
+  web:
+    resources:
+      static-locations: file:${upload.path}/PDF/
+
+  jpa:
+    properties:
+      hibernate.hibernate.default_batch_fetch_size: 100
+
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+
+upload:
+  path: ${UPLOAD_PATH}
+
+password:
+  reset:
+    redirect:
+      url: ${PWD_RESET_REDIRECT_URL}
+
+
+
+ai:
+  base-url: "http://175.197.41.64:33398"
+
+n8n:
+  base-url: "http://localhost:5678/webhook-test"
