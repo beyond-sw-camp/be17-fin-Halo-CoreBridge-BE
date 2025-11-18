@@ -3,7 +3,6 @@ package org.example.corebridgebatch.config;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.exporter.PushGateway;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.corebridgebatch.notification.model.entity.Notification;
@@ -13,6 +12,7 @@ import org.example.corebridgebatch.notification.service.NotificationService;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -22,8 +22,8 @@ import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.List;
@@ -37,6 +37,7 @@ public class NotificationBatchConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager txManager;
+    private final JobLauncher jobLauncher;
 
     private final NotificationRepository repository;
     private final NotificationService service;
@@ -45,30 +46,70 @@ public class NotificationBatchConfig {
     private static final long OLD_THRESHOLD_DAYS = 30;
     private static final int MAX_RETRY_COUNT = 5;
 
-    @PostConstruct
-    public void init() {
-        log.info("🔧 NotificationBatchConfig 초기화 완료");
+    @Bean
+    public RepositoryItemReader<Notification> resendReader() {
+        return new RepositoryItemReaderBuilder<Notification>()
+                .repository(repository)
+                .methodName("findForRetry")       // Page<Notification> findForRetry(List<DeliveryStatus> statuses, Pageable pageable)
+                .arguments(List.of(List.of(DeliveryStatus.UNSENT)))
+                .pageSize(CHUNK_SIZE)
+                .sorts(Map.of("timestamp", Sort.Direction.ASC))
+                .name("resendReader")
+                .build();
     }
 
-    // ========================================================================
-    // 1) 재전송 Step
-    // ========================================================================
+    /**
+     * ✅ Processor에서는 절대 DB 저장을 하지 않는다.
+     *    - service.tryDeliver(item)는 "알림 전송 + 엔티티 필드 변경"까지만 수행
+     *    - repository.save(...) 는 여기서 호출 금지
+     */
+    @Bean
+    public ItemProcessor<Notification, Notification> resendProcessor() {
+        return item -> {
+            try {
+                // 🔥 여기에서는 엔티티 필드만 수정하도록 구현해야 함 (DB save 금지)
+                service.tryDeliver(item);
+                return item;
+            } catch (Exception e) {
+                log.error("❌ 재전송 실패 - id={}, err={}", item.getId(), e.getMessage());
+                // 실패 시 retryCount 증가, status 변경 등도 item에 반영
+                return item;
+            }
+        };
+    }
+
+    /**
+     * ✅ Writer 에서만 실제 DB UPDATE 수행
+     *    - chunk 단위로 한 번에 saveAll
+     *    - 멀티 스레드 없이 순차 실행이라 락 충돌이 훨씬 줄어듦
+     */
+    @Bean
+    public ItemWriter<Notification> resendWriter() {
+        return items -> {
+            if (items.isEmpty()) return;
+
+            repository.saveAll(items);
+            log.info("💾 재전송 {}건 저장 완료", items.size());
+        };
+    }
+
+    /**
+     * ✅ resendStep: 단일 스레드 chunk 기반
+     *    - taskExecutor 제거 → RepositoryItemReader + Paging과 안전하게 사용
+     */
     @Bean
     public Step resendStep() {
-        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("resend-task-");
-        executor.setConcurrencyLimit(4);
-
         return new StepBuilder("resendStep", jobRepository)
                 .<Notification, Notification>chunk(CHUNK_SIZE, txManager)
                 .reader(resendReader())
                 .processor(resendProcessor())
                 .writer(resendWriter())
-                .taskExecutor(executor)
                 .listener(new StepExecutionListener() {
                     @Override
                     public void beforeStep(StepExecution stepExecution) {
                         log.info("📥 resendStep 시작");
                     }
+
                     @Override
                     public ExitStatus afterStep(StepExecution stepExecution) {
                         log.info("📤 resendStep 완료 - Read={}, Write={}, Skip={}",
@@ -82,58 +123,19 @@ public class NotificationBatchConfig {
     }
 
     @Bean
-    public RepositoryItemReader<Notification> resendReader() {
-        return new RepositoryItemReaderBuilder<Notification>()
-                .repository(repository)
-                .methodName("findForRetry")
-                .arguments(List.of(List.of(DeliveryStatus.UNSENT)))
-                .pageSize(CHUNK_SIZE)
-                .sorts(Map.of("timestamp", Sort.Direction.ASC))
-                .name("resendReader")
-                .build();
-    }
-
-    @Bean
-    public ItemProcessor<Notification, Notification> resendProcessor() {
-        return item -> {
-            try {
-                service.tryDeliver(item);
-                return item;
-            } catch (Exception e) {
-                log.error("❌ 재전송 실패 - id={}, err={}", item.getId(), e.getMessage());
-                return item;
-            }
-        };
-    }
-
-    @Bean
-    public ItemWriter<Notification> resendWriter() {
-        return items -> {
-            repository.saveAll(items);
-            log.info("💾 재전송 {}건 완료", items.size());
-        };
-    }
-
-    // ========================================================================
-    // 2) 오래된 알림 정리 Step
-    // ========================================================================
-    @Bean
     public Step cleanupStep() {
         return new StepBuilder("cleanupStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     long threshold = System.currentTimeMillis()
                             - (OLD_THRESHOLD_DAYS * 24 * 60 * 60 * 1000L);
 
-                    repository.deleteOldSentNotifications(threshold);
-                    log.info("🧹 오래된 알림 정리 완료");
+                    int deleted = repository.deleteOldSentNotifications(threshold);
+                    log.info("🧹 오래된 알림 정리 완료 - deleted={}, 기준일 {}일", deleted, OLD_THRESHOLD_DAYS);
                     return RepeatStatus.FINISHED;
                 }, txManager)
                 .build();
     }
 
-    // ========================================================================
-    // 3) 재시도 초과 삭제 Step
-    // ========================================================================
     @Bean
     public Step failedCleanupStep() {
         return new StepBuilder("failedCleanupStep", jobRepository)
@@ -145,6 +147,9 @@ public class NotificationBatchConfig {
                                 log.warn("⚠️ 재시도 초과 삭제 → id={}, retry={}", n.getId(), n.getRetryCount())
                         );
                         repository.deleteAll(failed);
+                        log.info("🧾 재시도 초과 알림 삭제 완료 - count={}", failed.size());
+                    } else {
+                        log.info("🧾 재시도 초과 알림 없음");
                     }
 
                     return RepeatStatus.FINISHED;
@@ -152,22 +157,22 @@ public class NotificationBatchConfig {
                 .build();
     }
 
-    // ========================================================================
-    // 4) JOB 구성 + After Metrics Listener
-    // ========================================================================
+    /**
+     * ✅ 통합 Job + After Metrics Listener
+     */
     @Bean
     public Job notificationMaintenanceJob() {
         return new JobBuilder("notificationMaintenanceJob", jobRepository)
                 .start(resendStep())
                 .next(cleanupStep())
                 .next(failedCleanupStep())
-                .listener(pushAfterMetricsListener()) // metrics push
+                .listener(pushAfterMetricsListener())
                 .build();
     }
 
-    // ========================================================================
-    // 5) AFTER Metrics Push (corebridge-batch)
-    // ========================================================================
+    /**
+     * ✅ After Metrics: 성공/실패 상관없이 항상 실행
+     */
     @Bean
     public JobExecutionListener pushAfterMetricsListener() {
 
@@ -205,11 +210,11 @@ public class NotificationBatchConfig {
             @Override
             public void afterJob(JobExecution jobExecution) {
 
-                // 💥 TRY/CATCH 밖에서 실행 → 실패해도 반드시 실행됨
                 log.info("📌 [AfterJob Listener] 실행됨. (성공/실패 무조건)");
 
                 try {
-                    PushGateway pg = new PushGateway("pushgateway-prometheus-pushgateway.monitor.svc.cluster.local:9091");
+                    PushGateway pg =
+                            new PushGateway("175.197.41.64:33388");
 
                     long start = jobExecution.getStartTime().atZone(java.time.ZoneId.systemDefault())
                             .toInstant().toEpochMilli();
@@ -228,23 +233,32 @@ public class NotificationBatchConfig {
                     durationGauge.labels("corebridge-batch").set(duration);
                     processedGauge.labels("corebridge-batch").set(processed);
                     failedGauge.labels("corebridge-batch").set(failed);
-
-                    // 🔥 성공 = 1, 실패 = 0 으로 기록
                     jobStatusGauge.labels("corebridge-batch").set(isSuccess ? 1 : 0);
 
                     log.info("📊 AFTER metrics: duration={}ms, processed={}, failed={}, success={}",
                             duration, processed, failed, isSuccess);
 
-                    // 🔥 Job 성공/실패와 상관없이 pushAdd 실행
                     pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_after_job");
 
                 } catch (Exception e) {
                     log.error("❌ After metrics push 실패", e);
                 }
-
             }
         };
     }
 
+    /**
+     * ✅ 5분마다 배치 Job 실행 (corebridge-batch 애플리케이션에서만)
+     *    - corebridge-core에서는 이 스케줄러 없음
+     */
+    @Scheduled(fixedDelay = 300_000)
+    public void runNotificationJob() throws Exception {
+        log.info("🚀 [Spring Batch] Notification Maintenance Job 실행 시작");
 
+        JobParameters params = new JobParametersBuilder()
+                .addLong("timestamp", System.currentTimeMillis())
+                .toJobParameters();
+
+        jobLauncher.run(notificationMaintenanceJob(), params);
+    }
 }
