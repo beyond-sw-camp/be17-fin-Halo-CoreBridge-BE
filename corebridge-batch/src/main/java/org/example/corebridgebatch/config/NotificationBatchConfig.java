@@ -1,6 +1,8 @@
 package org.example.corebridgebatch.config;
 
-
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.exporter.PushGateway;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,8 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.*;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -81,26 +84,18 @@ public class NotificationBatchConfig {
                 .build();
     }
 
-    /**
-     * 알림 재전송 Reader
-     * Pageable은 자동으로 주입되므로 arguments()에는 도메인 인자만 전달.
-     */
     @Bean
     public RepositoryItemReader<Notification> resendReader() {
         return new RepositoryItemReaderBuilder<Notification>()
                 .repository(repository)
-                .methodName("findForRetry") // Repository 메서드 이름
-                .arguments(List.of(List.of(DeliveryStatus.UNSENT))) // ✅ Pageable 제외
+                .methodName("findForRetry")
+                .arguments(List.of(List.of(DeliveryStatus.UNSENT)))
                 .pageSize(CHUNK_SIZE)
                 .sorts(Map.of("timestamp", Sort.Direction.ASC))
                 .name("resendReader")
                 .build();
     }
 
-    /**
-     * 알림 재전송 Processor
-     * 실패 시 retryCount 증가 로직은 NotificationService 내부에 포함되어야 함.
-     */
     @Bean
     public ItemProcessor<Notification, Notification> resendProcessor() {
         return item -> {
@@ -112,14 +107,11 @@ public class NotificationBatchConfig {
             } catch (Exception e) {
                 log.error("❌ [Processor] 알림 재전송 실패 - id: {}, error: {}",
                         item.getId(), e.getMessage());
-                return item; // 실패해도 Writer로 전달하여 상태 저장
+                return item;
             }
         };
     }
 
-    /**
-     * 알림 재전송 Writer
-     */
     @Bean
     public ItemWriter<Notification> resendWriter() {
         return items -> {
@@ -129,7 +121,7 @@ public class NotificationBatchConfig {
     }
 
     // ===================================================
-    // 2️⃣ 오래된 알림 정리 Step (단일 스레드)
+    // 2️⃣ 오래된 알림 정리 Step
     // ===================================================
     @Bean
     public Step cleanupStep() {
@@ -182,7 +174,7 @@ public class NotificationBatchConfig {
     }
 
     // ===================================================
-    // 4️⃣ 통합 Job 구성
+    // 4️⃣ 통합 Job 구성 (After Metrics Listener 연결)
     // ===================================================
     @Bean
     public Job notificationMaintenanceJob() {
@@ -190,19 +182,89 @@ public class NotificationBatchConfig {
                 .start(resendStep())
                 .next(cleanupStep())
                 .next(failedCleanupStep())
-                .listener(new JobExecutionListener() {
-                    @Override
-                    public void beforeJob(JobExecution jobExecution) {
-                        log.info("🎬 [Job] notificationMaintenanceJob 시작 - JobId: {}",
-                                jobExecution.getJobId());
-                    }
-
-                    @Override
-                    public void afterJob(JobExecution jobExecution) {
-                        log.info("🎬 [Job] notificationMaintenanceJob 완료 - Status: {}, ExitStatus: {}",
-                                jobExecution.getStatus(), jobExecution.getExitStatus());
-                    }
-                })
+                .listener(pushAfterMetricsListener())   // 🔥 After metrics + 로그
                 .build();
     }
+
+    // ===================================================
+    // 7️⃣ AFTER Metrics Push (corebridge-batch)
+    // ===================================================
+    @Bean
+    public JobExecutionListener pushAfterMetricsListener() {
+
+        return new JobExecutionListener() {
+
+            Gauge durationGauge = Gauge.build()
+                    .name("corebridge_batch_last_duration_ms")
+                    .help("Batch Duration (After Separation)")
+                    .labelNames("module")
+                    .register();
+
+            Gauge processedGauge = Gauge.build()
+                    .name("corebridge_batch_processed_count")
+                    .help("Processed Count (After Separation)")
+                    .labelNames("module")
+                    .register();
+
+            Gauge failedGauge = Gauge.build()
+                    .name("corebridge_batch_failed_count")
+                    .help("Failed Count (After Separation)")
+                    .labelNames("module")
+                    .register();
+
+            PushGateway pg =
+                    new PushGateway("pushgateway-prometheus-pushgateway.monitor.svc.cluster.local:9091");
+
+            @Override
+            public void beforeJob(JobExecution jobExecution) {
+                log.info("🎬 [Job] notificationMaintenanceJob 시작 - JobId: {}",
+                        jobExecution.getJobId());
+            }
+
+            @Override
+            public void afterJob(JobExecution jobExecution) {
+
+                try {
+                    // LocalDateTime → epochMilli 변환
+                    long startMillis = jobExecution.getStartTime()
+                            .atZone(java.time.ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli();
+
+                    long endMillis = jobExecution.getEndTime()
+                            .atZone(java.time.ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli();
+
+                    long duration = endMillis - startMillis;
+
+                    long processed = jobExecution.getStepExecutions()
+                            .stream()
+                            .mapToLong(StepExecution::getWriteCount)
+                            .sum();
+
+                    long failed = jobExecution.getStepExecutions()
+                            .stream()
+                            .mapToLong(StepExecution::getSkipCount)
+                            .sum();
+
+                    durationGauge.labels("corebridge-batch").set(duration);
+                    processedGauge.labels("corebridge-batch").set(processed);
+                    failedGauge.labels("corebridge-batch").set(failed);
+
+                    log.info("📊 [After Metrics] duration={}ms, processed={}, failed={}",
+                            duration, processed, failed);
+                    log.info("🎬 [Job] notificationMaintenanceJob 완료 - Status: {}, ExitStatus: {}",
+                            jobExecution.getStatus(), jobExecution.getExitStatus());
+
+                    pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_after_job");
+
+                } catch (Exception e) {
+                    log.error("❌ Error pushing AFTER metrics", e);
+                }
+            }
+
+        };
+    }
+
 }
