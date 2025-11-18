@@ -6,6 +6,8 @@ import com.halo.core_bridge.api.coverLetterTitle.model.dto.CoverLetterTitleDto;
 import com.halo.core_bridge.api.coverLetterTitle.service.CoverLetterTitleService;
 import com.halo.core_bridge.api.resume.contents.SwaggerResumeContents;
 import com.halo.core_bridge.api.resume.model.dto.ResumeDto;
+import com.halo.core_bridge.api.resume.model.dto.ResumeSearchDto;
+import com.halo.core_bridge.api.resume.service.ResumeSearchService;
 import com.halo.core_bridge.api.resume.service.ResumeService;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
@@ -37,6 +39,7 @@ public class ResumeController {
     private final ResumeService resumeService;
     private final CoverLetterDescriptionService coverLetterDescriptionService;
     private final CoverLetterTitleService coverLetterTitleService;
+    private final ResumeSearchService resumeSearchService;
 
     @PostMapping
     public ResponseEntity<Long> createResume(
@@ -46,6 +49,19 @@ public class ResumeController {
         Long userId = auth.getId();
         Long resumeId = resumeService.create(dto, userId, file);
         return ResponseEntity.ok(resumeId);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<BaseResponse<ResumeSearchDto.PageResponse>> searchResumes(
+            @PathVariable Long jobpostId,
+            @RequestBody ResumeSearchDto.SearchRequest request) {
+        log.info("Resume search request for jobpost {}: {}", jobpostId, request);
+
+        // jobpostId를 request에 자동으로 설정
+        request.setJobPostingId(jobpostId);
+
+        ResumeSearchDto.PageResponse response = resumeSearchService.search(request);
+        return ResponseEntity.ok(BaseResponse.success(response));
     }
 
 
@@ -74,6 +90,8 @@ public class ResumeController {
         resumeService.delete(resumeId);
         return ResponseEntity.ok().build();
     }
+
+
 
     //-------------------------------------------------------------------------------------------------------------------
 
