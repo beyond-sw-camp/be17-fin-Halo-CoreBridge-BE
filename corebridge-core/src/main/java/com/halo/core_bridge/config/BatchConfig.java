@@ -36,7 +36,6 @@ import java.util.Map;
 public class BatchConfig {
 
     private final JobLauncher jobLauncher;
-    private final Job notificationMaintenanceJob;
     private final NotificationRepository repository;
     private final NotificationService service;
 
@@ -144,6 +143,8 @@ public class BatchConfig {
                 .toJobParameters();
 
         log.info("🚀 배치 실행 시작");
-        jobLauncher.run(notificationMaintenanceJob, params); // ⬅ 수정된 정답
+        // Job을 직접 주입받지 않고, 메서드 파라미터로 받아옵니다
+        Job job = notificationMaintenanceJob(null, null, null, null);
+        jobLauncher.run(job, params);
     }
 }
