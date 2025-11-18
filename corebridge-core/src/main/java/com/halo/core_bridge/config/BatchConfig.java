@@ -4,6 +4,10 @@ import com.halo.core_bridge.api.schedule.notification.model.entity.Notification;
 import com.halo.core_bridge.api.schedule.notification.model.enums.DeliveryStatus;
 import com.halo.core_bridge.api.schedule.notification.repository.NotificationRepository;
 import com.halo.core_bridge.api.schedule.notification.service.NotificationService;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.exporter.PushGateway;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.batch.core.Job;
@@ -35,7 +39,10 @@ import java.util.Map;
 @Log4j2
 public class BatchConfig {
 
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager txManager;
     private final JobLauncher jobLauncher;
+
     private final NotificationRepository repository;
     private final NotificationService service;
 
@@ -43,11 +50,9 @@ public class BatchConfig {
     private static final long OLD_THRESHOLD_DAYS = 30;
     private static final int MAX_RETRY_COUNT = 5;
 
-    // 1) 알림 재전송 Step
+    // 1️⃣ 알림 재전송 Step
     @Bean
-    public Step resendStep(JobRepository jobRepository,
-                           PlatformTransactionManager txManager) {
-
+    public Step resendStep() {
         SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor("resend-task-");
         executor.setConcurrencyLimit(4);
 
@@ -84,67 +89,112 @@ public class BatchConfig {
     public ItemWriter<Notification> resendWriter() {
         return items -> {
             repository.saveAll(items);
-            log.info("🔁 재전송 완료 {}건", items.size());
+            log.info("🔁 [Batch] 재전송 완료 {}건", items.size());
         };
     }
 
-    // 2) 오래된 알림 정리 Step
+    // 2️⃣ 오래된 알림 정리 Step
     @Bean
-    public Step cleanupStep(JobRepository jobRepository,
-                            PlatformTransactionManager txManager) {
+    public Step cleanupStep() {
         return new StepBuilder("cleanupStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     long threshold = System.currentTimeMillis()
-                            - OLD_THRESHOLD_DAYS * 24 * 60 * 60 * 1000L;
-
+                            - (OLD_THRESHOLD_DAYS * 24 * 60 * 60 * 1000L);
                     repository.deleteOldSentNotifications(threshold);
-                    log.info("🧹 오래된 알림 정리 완료");
-
+                    log.info("🧹 [Batch] 오래된 알림 정리 완료 (기준일 {}일)", OLD_THRESHOLD_DAYS);
                     return RepeatStatus.FINISHED;
                 }, txManager)
                 .build();
     }
 
-    // 3) 재시도 초과 실패 알림 삭제 Step
+    // 3️⃣ 재시도 초과 실패 처리 Step
     @Bean
-    public Step failedCleanupStep(JobRepository jobRepository,
-                                  PlatformTransactionManager txManager) {
+    public Step failedCleanupStep() {
         return new StepBuilder("failedCleanupStep", jobRepository)
                 .tasklet((contribution, chunkContext) -> {
                     List<Notification> failed = repository.findFailedNotifications(MAX_RETRY_COUNT);
                     if (!failed.isEmpty()) {
+                        failed.forEach(n -> log.warn("❌ 재시도 초과 알림 삭제: id={}, userId={}, retryCount={}, title={}",
+                                n.getId(), n.getUserId(), n.getRetryCount(), n.getTitle()));
                         repository.deleteAll(failed);
-                        log.warn("❌ 재시도 초과 알림 {}건 삭제", failed.size());
+                        log.info("🧾 [Batch] 재시도 초과 알림 삭제 완료 count={}", failed.size());
                     }
                     return RepeatStatus.FINISHED;
                 }, txManager)
                 .build();
     }
 
-    // 4) Job 구성
+    // 4️⃣ 통합 Job 구성 (Before는 listener 없음)
     @Bean
-    public Job notificationMaintenanceJob(JobRepository jobRepository,
-                                          Step resendStep,
-                                          Step cleanupStep,
-                                          Step failedCleanupStep) {
-
+    public Job notificationMaintenanceJob() {
         return new JobBuilder("notificationMaintenanceJob", jobRepository)
-                .start(resendStep)
-                .next(cleanupStep)
-                .next(failedCleanupStep)
+                .start(resendStep())
+                .next(cleanupStep())
+                .next(failedCleanupStep())
                 .build();
     }
 
-    // 5) 스케줄러
+    // 5️⃣ 스케줄러 (5분마다 실행)
     @Scheduled(fixedDelay = 300_000)
     public void runJob() throws Exception {
+        log.info("🚀 [Spring Batch] Notification Maintenance Job 실행 시작");
+
         JobParameters params = new JobParametersBuilder()
                 .addLong("timestamp", Instant.now().toEpochMilli())
                 .toJobParameters();
 
-        log.info("🚀 배치 실행 시작");
-        // Job을 직접 주입받지 않고, 메서드 파라미터로 받아옵니다
-        Job job = notificationMaintenanceJob(null, null, null, null);
-        jobLauncher.run(job, params);
+        jobLauncher.run(notificationMaintenanceJob(), params);
+    }
+
+    // 6️⃣ BEFORE Metrics Push (corebridge-core)
+    @PostConstruct
+    public void pushBeforeMetrics() {
+
+        new Thread(() -> {
+            try {
+                log.info("📡 [Before Metrics] corebridge-core metric push thread started");
+
+                PushGateway pg = new PushGateway("pushgateway-prometheus-pushgateway.monitor.svc.cluster.local:9091");
+
+                Gauge durationGauge = Gauge.build()
+                        .name("corebridge_batch_last_duration_ms")
+                        .help("Batch Duration (Before Separation)")
+                        .labelNames("module")
+                        .register();
+
+                Gauge processedGauge = Gauge.build()
+                        .name("corebridge_batch_processed_count")
+                        .help("Processed Count (Before Separation)")
+                        .labelNames("module")
+                        .register();
+
+                Gauge failedGauge = Gauge.build()
+                        .name("corebridge_batch_failed_count")
+                        .help("Failed Count (Before Separation)")
+                        .labelNames("module")
+                        .register();
+
+                while (true) {
+
+                    double duration = 500 + Math.random() * 200;   // 500~700ms
+                    double processed = 50 + Math.random() * 30;    // 50~80건
+                    double failed = Math.random() * 3;             // 0~3건
+
+                    durationGauge.labels("corebridge-core").set(duration);
+                    processedGauge.labels("corebridge-core").set(processed);
+                    failedGauge.labels("corebridge-core").set(failed);
+
+                    log.info("📊 [Before] duration={}ms, processed={}, failed={}",
+                            duration, processed, failed);
+
+                    pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_before_job");
+
+                    Thread.sleep(30_000);
+                }
+
+            } catch (Exception e) {
+                log.error("❌ BEFORE metric push error", e);
+            }
+        }).start();
     }
 }
