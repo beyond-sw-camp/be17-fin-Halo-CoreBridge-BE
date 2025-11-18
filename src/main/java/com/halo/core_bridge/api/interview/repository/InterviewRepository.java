@@ -39,4 +39,7 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 
     @Query("select i from Interview i join fetch i.resume r where i.id = :interviewId")
     Interview findWithResumeByInterviewId(@Param("interviewId") Long interviewId);
+
+    @Query("select i from Interview i where i.status = :interviewStatus and i.startDateTime <= :now")
+    List<Interview> findByStatusAndStartDateTimeBefore(InterviewStatus interviewStatus, LocalDateTime now);
 }

@@ -13,6 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        indexes = {
+                @Index(name = "idx_assignment_id", columnList = "assignment_id")
+        }
+)
 public class Evaluation extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

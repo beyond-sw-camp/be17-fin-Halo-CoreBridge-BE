@@ -13,6 +13,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        indexes = {
+                @Index(name = "idx_interview_id", columnList = "interview_id")
+        }
+)
 public class InterviewAssignment extends BaseEntity {
 
     @Id

@@ -5,10 +5,9 @@ import com.halo.core_bridge.api.evaluation.model.entity.Evaluation;
 import com.halo.core_bridge.api.evaluation.model.entity.EvaluationCriteriaScore;
 import com.halo.core_bridge.api.evaluation.repository.EvaluationCriteriaScoreRepository;
 import com.halo.core_bridge.api.evaluation.repository.EvaluationRepository;
-import com.halo.core_bridge.api.interview.model.entity.Interview;
 import com.halo.core_bridge.api.interview.model.entity.InterviewAssignment;
 import com.halo.core_bridge.api.interview.repository.InterviewAssignmentRepository;
-import com.halo.core_bridge.api.users.model.entity.User;
+import com.halo.core_bridge.api.interview.service.InterviewService;
 import com.halo.core_bridge.common.exception.BaseException;
 import com.halo.core_bridge.common.model.BaseResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +23,7 @@ public class EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final EvaluationCriteriaScoreRepository criteriaScoreRepository;
     private final InterviewAssignmentRepository interviewAssignmentRepository;
+    private final InterviewService interviewService;
 
     @Transactional
     public void save(EvaluationDto.Create createEvaluation, Long userId) {
@@ -53,6 +53,8 @@ public class EvaluationService {
             EvaluationCriteriaScore evaluationCriteriaScore = c.toEvaluationCriteriaScore(savedEvaluation);
             criteriaScoreRepository.save(evaluationCriteriaScore);
         }
+
+        interviewService.checkAutoEnd(createEvaluation.getInterviewId());
     }
 
     // -------------------------------------------------------------------------------------

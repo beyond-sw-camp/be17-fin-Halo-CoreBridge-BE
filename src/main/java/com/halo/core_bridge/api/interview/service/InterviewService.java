@@ -1,11 +1,15 @@
 package com.halo.core_bridge.api.interview.service;
 
+import com.halo.core_bridge.api.evaluation.model.entity.Evaluation;
+import com.halo.core_bridge.api.evaluation.repository.EvaluationRepository;
 import com.halo.core_bridge.api.interview.model.dto.InterviewChatDto;
 import com.halo.core_bridge.api.interview.model.dto.InterviewDto;
 import com.halo.core_bridge.api.interview.model.dto.InterviewerDto;
 import com.halo.core_bridge.api.interview.model.entity.Interview;
+import com.halo.core_bridge.api.interview.model.entity.InterviewAssignment;
 import com.halo.core_bridge.api.interview.model.entity.Interviewer;
 import com.halo.core_bridge.api.interview.model.enums.InterviewStatus;
+import com.halo.core_bridge.api.interview.repository.InterviewAssignmentRepository;
 import com.halo.core_bridge.api.interview.repository.InterviewQueryRepository;
 import com.halo.core_bridge.api.interview.repository.InterviewRepository;
 import com.halo.core_bridge.api.interview.repository.InterviewerRepository;
@@ -46,6 +50,9 @@ public class InterviewService {
 
     private final InterviewCancelMailService interviewCancelMailService;
     private final InterviewAssignmentService interviewAssignmentService;
+
+    private final InterviewAssignmentRepository interviewAssignmentRepository;
+    private final EvaluationRepository evaluationRepository;
 
     @Transactional
     public Long save(Create create) {
@@ -161,4 +168,26 @@ public class InterviewService {
                 findInterview.getResume().getJobPosting().getId(), findInterview.getResume().getId()
         );
     }
+
+    /**
+     * 인터뷰 종료 여부 체크
+     * @param interviewId 인터뷰 Id
+     */
+    @Transactional
+    public void checkAutoEnd(Long interviewId) {
+
+        Interview interview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> BaseException.from(BaseResponseStatus.INTERVIEW_NOT_FOUND));
+
+        List<InterviewAssignment> assignments =
+                interviewAssignmentRepository.findByInterview_Id(interviewId);
+
+        boolean allCompleted = assignments.stream()
+                .allMatch(a -> evaluationRepository.existsEvaluationByAssignment_Id(a.getId()));
+
+        if (allCompleted && interview.getStatus() != InterviewStatus.COMPLETED) {
+            interview.completeInterview();
+        }
+    }
+
 }
