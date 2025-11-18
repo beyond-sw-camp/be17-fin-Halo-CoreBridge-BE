@@ -23,7 +23,6 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.ZoneId;
@@ -173,6 +172,8 @@ public class NotificationBatchConfig {
 
     /**
      * ✅ After Metrics: 성공/실패 상관없이 항상 실행
+     *    - CorebridgeBatchApplication.java의 메트릭과 함께 사용
+     *    - 이 Listener는 추가적인 모듈별 메트릭 제공
      */
     @Bean
     public JobExecutionListener pushAfterMetricsListener() {
@@ -251,6 +252,8 @@ public class NotificationBatchConfig {
 
                     pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_after_job");
 
+                    log.info("✅ PushGateway로 모듈별 메트릭 전송 완료");
+
                 } catch (Exception e) {
                     log.error("❌ After metrics push 실패", e);
                 }
@@ -259,17 +262,21 @@ public class NotificationBatchConfig {
     }
 
     /**
-     * ✅ 5분마다 배치 Job 실행 (corebridge-batch 애플리케이션에서만)
-     *    - corebridge-core에서는 이 스케줄러 없음
+     * ⚠️ @Scheduled 메서드 삭제됨
+     *
+     * 이유:
+     * - CorebridgeBatchApplication.java의 CommandLineRunner가 이미 배치 실행 담당
+     * - CronJob 환경에서는 @Scheduled가 작동하지 않음 (Pod가 즉시 종료되므로)
+     * - 중복 실행 방지
+     *
+     * 배치 실행 흐름:
+     * 1. CronJob이 5분마다 새 Pod 생성
+     * 2. CorebridgeBatchApplication.main() 실행
+     * 3. CommandLineRunner runBatch() 자동 실행
+     * 4. notificationMaintenanceJob() 실행
+     * 5. 모든 Step 완료
+     * 6. pushAfterMetricsListener() 메트릭 전송
+     * 7. CorebridgeBatchApplication의 메트릭 전송
+     * 8. System.exit() → Pod 종료
      */
-    @Scheduled(fixedDelay = 300_000)
-    public void runNotificationJob() throws Exception {
-        log.info("🚀 [Spring Batch] Notification Maintenance Job 실행 시작");
-
-        JobParameters params = new JobParametersBuilder()
-                .addLong("timestamp", System.currentTimeMillis())
-                .toJobParameters();
-
-        jobLauncher.run(notificationMaintenanceJob(), params);
-    }
 }
