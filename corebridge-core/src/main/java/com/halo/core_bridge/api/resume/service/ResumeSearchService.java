@@ -1,5 +1,6 @@
 package com.halo.core_bridge.api.resume.service;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.halo.core_bridge.api.resume.document.ResumeDocument;
@@ -159,15 +160,13 @@ public class ResumeSearchService {
 
         // 4. skills 필터
         if (skills != null && !skills.isEmpty()) {
-            log.info("✅ skills 필터 추가: {}", skills);
-            for (String skill : skills) {
-                filterQueries.add(Query.of(q -> q
-                        .match(m -> m
-                                .field("skills")
-                                .query(skill)
-                        )
-                ));
-            }
+            log.info("skills 필터 추가: {}", skills);
+            filterQueries.add(Query.of(q -> q
+                    .terms(t -> t
+                            .field("skills_exact")        // ← 여기만 skills → skills_exact 로 변경!!!
+                            .terms(terms -> terms.value(skills.stream().map(FieldValue::of).toList()))
+                    )
+            ));
         }
 
         // 5. companyName 필터
