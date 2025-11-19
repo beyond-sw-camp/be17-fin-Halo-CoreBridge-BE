@@ -1,0 +1,39 @@
+# Root build & Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Multi-module builds
+**/build/
+**/.gradle/
+
+# Java & IDE
+out/
+**/out/
+bin/
+**/bin/
+
+# IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# VS Code
+.vscode/
+
+# Generated logs / binaries
+*.class
+*.log
+
+# Env
+**/src/main/resources/.env
