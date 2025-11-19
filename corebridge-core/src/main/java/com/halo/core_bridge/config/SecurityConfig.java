@@ -8,6 +8,7 @@ import com.halo.core_bridge.api.token.refresh.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,10 +50,141 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(
                 (auth) -> auth
-//                        .requestMatchers("/login", "/logout", "/auth/**").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-//                        .anyRequest().permitAll()
-                        .requestMatchers("/**").permitAll()
+                        /* ===========================
+                         * permitAll()
+                         * =========================== */
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/users"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/users/info",
+                                "/api/users/resume-info",
+                                "/api/job-postings/header/**",
+                                "/api/job-postings/{id}",
+                                "/api/jobs/search",
+                                "/api/tech-stacks"
+                        ).permitAll()
+
+
+                        /* ===========================
+                         * APPLICANT ONLY
+                         * =========================== */
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/pdf", "/api/image",
+                                "/api/jobposts/*/applies",
+                                "/api/jobposts/*/applies/*/cover-letter-descriptions"
+                        ).hasRole("APPLICANT")
+
+                        .requestMatchers(
+                                HttpMethod.PATCH, "/api/jobposts/*/applies/*"
+                        ).hasRole("APPLICANT")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/pdf/{idx}",
+                                "/api/image/{idx}",
+                                "/api/jobposts/*/applies/*"
+                        ).hasRole("APPLICANT")
+
+
+                        /* ===========================
+                         * AUTHENTICATED (모든 로그인 사용자)
+                         * =========================== */
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/pdf/download/**",
+                                "/api/pdf/find/**",
+                                "/api/pdf/view/**",
+                                "/api/image/{idx}",
+                                "/api/jobposts/*/applies/*",
+                                "/api/jobposts/*/applies/*/cover-letter-descriptions",
+                                "/api/jobposts/*/applies/cover-letter-titles"
+                        ).authenticated()
+
+
+                        /* ===========================
+                         * INTERVIEWER ONLY
+                         * =========================== */
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/interview/chat/*/applicant"
+                        ).hasRole("INTERVIEWER")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/interviewer/evaluation"
+                        ).hasRole("INTERVIEWER")
+
+
+                        /* ===========================
+                         * INTERVIEWER + RECRUITER + ADMIN
+                         * =========================== */
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/recruiter/interviews",
+                                "/api/recruiter/interviews/*"
+                        ).hasAnyRole("INTERVIEWER", "RECRUITER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/interviewer/evaluation-criteria"
+                        ).hasAnyRole("INTERVIEWER", "RECRUITER", "ADMIN")
+
+
+                        /* ===========================
+                         * RECRUITER + ADMIN
+                         * =========================== */
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/jobposts/*/applies",
+                                "/api/job-postings",
+                                "/api/job-postings/search",
+                                "/api/job-postings/*/edit",
+                                "/api/recruiter/processes",
+                                "/api/jobs/*/management",
+                                "/api/department",
+                                "/api/schedules/**",
+                                "/api/recruiter/jobs/**",
+                                "/api/interviewers",
+                                "/api/interviewers/jobPosting"
+                        ).hasAnyRole("RECRUITER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/recruiter/interviews",
+                                "/api/recruiter/interviews/*/cancel",
+                                "/api/recruiter/processes",
+                                "/api/jobposts/*/applies/search",
+                                "/api/schedules/**",
+                                "/api/recruiter/jobs/**"
+                        ).hasAnyRole("RECRUITER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/job-postings/*",
+                                "/api/recruiter/processes",
+                                "/api/recruiter/processes/*",
+                                "/api/jobs/*/management/*/process/*"
+                        ).hasAnyRole("RECRUITER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/schedules/**",
+                                "/api/recruiter/jobs/**"
+                        ).hasAnyRole("RECRUITER", "ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/job-postings/*",
+                                "/api/recruiter/processes/*",
+                                "/api/schedules/**",
+                                "/api/recruiter/jobs/**"
+                        ).hasAnyRole("RECRUITER", "ADMIN")
+
+
+                        .anyRequest().permitAll()
         );
 
         http.csrf(AbstractHttpConfigurer::disable);
