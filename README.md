@@ -409,9 +409,7 @@
 
 ## 🔧 1. 시스템 아키텍처
 
-![시스템아키텍쳐.png]([./docs/시스템아키텍쳐.png](https://github.com/user-attachments/assets/24c50bc7-25c7-4624-8076-2a2473938190))
-
-![시스템아키텍쳐.png](./docs/시스템아키텍쳐.png)
+![시스템아키텍쳐.png](https://github.com/user-attachments/assets/e9ad8969-c477-4766-a3a9-4d0b924fd160)
 
 ## 🔗 2. ERD
 
