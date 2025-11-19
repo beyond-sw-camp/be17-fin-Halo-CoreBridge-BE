@@ -1,0 +1,10 @@
+app:
+  token:
+    access:
+      name: ${ACCESS_TOKEN_NAME}
+      expiration: ${ACCESS_TOKEN_EXPIRATION}
+      secretKey: ${ACCESS_TOKEN_SECRET_KEY}
+
+    refresh:
+      name: ${REFRESH_TOKEN_NAME}
+      expiration: ${REFRESH_TOKEN_EXPIRATION}

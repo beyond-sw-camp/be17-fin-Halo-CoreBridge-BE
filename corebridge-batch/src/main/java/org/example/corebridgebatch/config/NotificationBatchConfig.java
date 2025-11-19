@@ -50,7 +50,7 @@ public class NotificationBatchConfig {
     public RepositoryItemReader<Notification> resendReader() {
         return new RepositoryItemReaderBuilder<Notification>()
                 .repository(repository)
-                .methodName("findForRetry")       // Page<Notification> findForRetry(List<DeliveryStatus> statuses, Pageable pageable)
+                .methodName("findForRetry")
                 .arguments(List.of(List.of(DeliveryStatus.UNSENT)))
                 .pageSize(CHUNK_SIZE)
                 .sorts(Map.of("timestamp", Sort.Direction.ASC))
@@ -67,12 +67,10 @@ public class NotificationBatchConfig {
     public ItemProcessor<Notification, Notification> resendProcessor() {
         return item -> {
             try {
-                // 🔥 여기에서는 엔티티 필드만 수정하도록 구현해야 함 (DB save 금지)
                 service.tryDeliver(item);
                 return item;
             } catch (Exception e) {
                 log.error("❌ 재전송 실패 - id={}, err={}", item.getId(), e.getMessage());
-                // 실패 시 retryCount 증가, status 변경 등도 item에 반영
                 return item;
             }
         };
@@ -178,81 +176,86 @@ public class NotificationBatchConfig {
     @Bean
     public JobExecutionListener pushAfterMetricsListener() {
 
+        // ------ Bean 메서드 스코프에서 한 번만 등록 ------
+        final Gauge startTimeGauge = Gauge.build()
+                .name("corebridge_batch_start_timestamp")
+                .help("After Batch Start Time (epoch millis)")
+                .register();
+
+        final Gauge durationGauge = Gauge.build()
+                .name("corebridge_batch_last_duration_ms")
+                .help("After Batch Duration (ms)")
+                .register();
+
+        final Gauge processedGauge = Gauge.build()
+                .name("corebridge_batch_processed_count")
+                .help("After Batch Processed Count")
+                .register();
+
+        final Gauge failedGauge = Gauge.build()
+                .name("corebridge_batch_failed_count")
+                .help("After Batch Failed Count")
+                .register();
+
+        final Gauge statusGauge = Gauge.build()
+                .name("corebridge_batch_status")
+                .help("After Batch Status (1=success, 0=fail)")
+                .register();
+
         return new JobExecutionListener() {
-
-            Gauge startTimeGauge = Gauge.build()
-                    .name("corebridge_batch_start_timestamp")
-                    .help("Batch Start Time After Separation (epoch millis)")
-                    .labelNames("module")
-                    .register();
-
-            Gauge durationGauge = Gauge.build()
-                    .name("corebridge_batch_last_duration_ms")
-                    .help("Batch Duration (After Separation)")
-                    .labelNames("module")
-                    .register();
-
-            Gauge processedGauge = Gauge.build()
-                    .name("corebridge_batch_processed_count")
-                    .help("Processed Count (After Separation)")
-                    .labelNames("module")
-                    .register();
-
-            Gauge failedGauge = Gauge.build()
-                    .name("corebridge_batch_failed_count")
-                    .help("Failed Count (After Separation)")
-                    .labelNames("module")
-                    .register();
-
-            Gauge jobStatusGauge = Gauge.build()
-                    .name("corebridge_batch_status")
-                    .help("Batch Job Status (0=FAILED, 1=COMPLETED)")
-                    .labelNames("module")
-                    .register();
-
             @Override
             public void beforeJob(JobExecution jobExecution) {
                 long start = jobExecution.getStartTime()
                         .atZone(ZoneId.systemDefault())
                         .toInstant().toEpochMilli();
-                startTimeGauge.labels("corebridge-batch").set(start);
-                log.info("🎬 배치 작업 시작");
+
+                startTimeGauge.set(start);
+                log.info("🎬 After Batch Job 시작 (timestamp={})", start);
             }
 
             @Override
             public void afterJob(JobExecution jobExecution) {
 
-                log.info("📌 [AfterJob Listener] 실행됨! (성공/실패 무조건)");
+                log.info("📌 [AfterJob Listener] 실행됨");
 
                 try {
-                    PushGateway pg =
-                            new PushGateway("175.197.41.64:33388");
+                    PushGateway pg = new PushGateway("175.197.41.64:33388");
 
-                    long start = jobExecution.getStartTime().atZone(java.time.ZoneId.systemDefault())
-                            .toInstant().toEpochMilli();
-                    long end = jobExecution.getEndTime().atZone(java.time.ZoneId.systemDefault())
-                            .toInstant().toEpochMilli();
+                    long start = jobExecution.getStartTime()
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli();
+
+                    long end = jobExecution.getEndTime()
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli();
+
                     long duration = end - start;
 
                     long processed = jobExecution.getStepExecutions().stream()
-                            .mapToLong(StepExecution::getWriteCount).sum();
+                            .mapToLong(StepExecution::getWriteCount)
+                            .sum();
 
                     long failed = jobExecution.getStepExecutions().stream()
-                            .mapToLong(StepExecution::getSkipCount).sum();
+                            .mapToLong(StepExecution::getSkipCount)
+                            .sum();
 
-                    boolean isSuccess = jobExecution.getStatus() == BatchStatus.COMPLETED;
+                    boolean success = jobExecution.getStatus() == BatchStatus.COMPLETED;
 
-                    durationGauge.labels("corebridge-batch").set(duration);
-                    processedGauge.labels("corebridge-batch").set(processed);
-                    failedGauge.labels("corebridge-batch").set(failed);
-                    jobStatusGauge.labels("corebridge-batch").set(isSuccess ? 1 : 0);
+                    // ---- 메트릭 값 주입 ----
+                    durationGauge.set(duration);
+                    processedGauge.set(processed);
+                    failedGauge.set(failed);
+                    statusGauge.set(success ? 1 : 0);
 
-                    log.info("📊 AFTER metrics: duration={}ms, processed={}, failed={}, success={}",
-                            duration, processed, failed, isSuccess);
+                    log.info("📊 AFTER metrics: duration={} ms, processed={}, failed={}, success={}",
+                            duration, processed, failed, success);
 
-                    pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_after_job");
+                    // ---- PushGateway 전송 ----
+                    pg.pushAdd(CollectorRegistry.defaultRegistry, "corebridge_batch_job");
 
-                    log.info("✅ PushGateway로 모듈별 메트릭 전송 완료");
+                    log.info("✅ PushGateway After 메트릭 Push 완료");
 
                 } catch (Exception e) {
                     log.error("❌ After metrics push 실패", e);

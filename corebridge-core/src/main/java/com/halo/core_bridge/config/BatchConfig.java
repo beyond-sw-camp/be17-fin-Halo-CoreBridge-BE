@@ -15,56 +15,42 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class BatchConfig {
 
     /**
-     * ✅ corebridge-core에서는 더 이상 실제 Spring Batch(Job/Step) 를 돌리지 않는다.
-     *    - notificationMaintenanceJob, resendStep, cleanupStep, failedCleanupStep, @Scheduled(runJob) 전부 제거
-     *    - 락/트랜잭션/503 문제의 원인이 되는 배치는 corebridge-batch로 완전히 분리
-     *
-     * 이 클래스는 "분리 이전(Before Separation)" 메트릭만 푸시하는 용도로 사용.
+     * ✔ Before(corebridge-core)에서는 더 이상 Spring Batch는 실행되지 않음.
+     * ✔ 오직 "분리 이전(Before)" 시뮬레이션 메트릭만 PushGateway로 전송.
+     * ✔ After와 metric 이름이 절대 충돌하지 않도록 prefix 완전 분리.
      */
 
+    private static final Gauge START_TIME_GAUGE = Gauge.build()
+            .name("corebridge_core_start_timestamp")
+            .help("Before (corebridge-core) - Start Timestamp")
+            .register();
+
+    private static final Gauge DURATION_GAUGE = Gauge.build()
+            .name("corebridge_core_last_duration_ms")
+            .help("Before (corebridge-core) - Duration ms")
+            .register();
+
+    private static final Gauge PROCESSED_GAUGE = Gauge.build()
+            .name("corebridge_core_processed_count")
+            .help("Before (corebridge-core) - Processed Count")
+            .register();
+
+    private static final Gauge FAILED_GAUGE = Gauge.build()
+            .name("corebridge_core_failed_count")
+            .help("Before (corebridge-core) - Failed Count")
+            .register();
+
     private PushGateway pushGateway;
-    private Gauge durationGauge;
-    private Gauge processedGauge;
-    private Gauge failedGauge;
-    private Gauge startTimeGauge;
 
     @PostConstruct
     public void init() {
         log.info("📡 [Before Metrics] BatchConfig 초기화 (corebridge-core / 메트릭 전용)");
-
-        this.pushGateway =
-                new PushGateway("175.197.41.64:33388");
-
-        this.startTimeGauge = Gauge.build()
-                .name("corebridge_batch_start_timestamp")
-                .help("Batch Start Time Before Separation (epoch millis)")
-                .labelNames("module")
-                .register();
-
-
-        this.durationGauge = Gauge.build()
-                .name("corebridge_batch_last_duration_ms")
-                .help("Batch Duration (Before Separation)")
-                .labelNames("module")
-                .register();
-
-        this.processedGauge = Gauge.build()
-                .name("corebridge_batch_processed_count")
-                .help("Processed Count (Before Separation)")
-                .labelNames("module")
-                .register();
-
-        this.failedGauge = Gauge.build()
-                .name("corebridge_batch_failed_count")
-                .help("Failed Count (Before Separation)")
-                .labelNames("module")
-                .register();
+        this.pushGateway = new PushGateway("175.197.41.64:33388");
     }
 
     /**
-     * ✅ 30초마다 "분리 전" 메트릭을 푸시 (랜덤 값)
-     *  - 더 이상 while(true) 쓰레드 안 돌림
-     *  - Spring 의 @Scheduled 에 맡겨서 안전하게 반복 실행
+     * ✔ 30초마다 Before 메트릭 푸시
+     * ✔ 랜덤 값으로 분리 이전 상태를 시뮬레이션
      */
     @Scheduled(fixedDelay = 30_000)
     public void pushBeforeMetrics() {
@@ -73,10 +59,10 @@ public class BatchConfig {
             double processed = 50 + Math.random() * 30;    // 50~80건
             double failed = Math.random() * 3;             // 0~3건
 
-            startTimeGauge.labels("corebridge-core").set(System.currentTimeMillis());
-            durationGauge.labels("corebridge-core").set(duration);
-            processedGauge.labels("corebridge-core").set(processed);
-            failedGauge.labels("corebridge-core").set(failed);
+            START_TIME_GAUGE.set(System.currentTimeMillis());
+            DURATION_GAUGE.set(duration);
+            PROCESSED_GAUGE.set(processed);
+            FAILED_GAUGE.set(failed);
 
             log.info("📊 [Before] duration={}ms, processed={}, failed={}",
                     duration, processed, failed);
