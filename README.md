@@ -76,8 +76,7 @@
 ## URL 정리
 
 * `https://www.core-bridge.co.kr/jobs~` : 모든 권한의 사용자
-* `https://www.core-bridge.co.kr/recruiter/~` : 채용 담당자, 면접관
-* `https://www.core-bridge.co.kr/admin/~` : 관리자
+* `https://www.core-bridge.co.kr/amdin/~` : 관리자, 채용 담당자, 면접관
 
 # 테스트 계정
 
