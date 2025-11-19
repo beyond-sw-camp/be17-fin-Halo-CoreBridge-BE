@@ -18,11 +18,6 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(
-        indexes = {
-                @Index(name = "idx_status_startDateTime", columnList = "status, start_date_time")
-        }
-)
 public class Interview extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,13 +57,5 @@ public class Interview extends BaseEntity {
 
     public void cancelInterview() {
         this.status = InterviewStatus.CANCELLED;
-    }
-
-    public void startInterview() {
-        this.status = InterviewStatus.ONGOING;
-    }
-
-    public void completeInterview() {
-        this.status = InterviewStatus.COMPLETED;
     }
 }

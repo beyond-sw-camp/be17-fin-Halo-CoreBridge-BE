@@ -1,7 +1,6 @@
 package com.halo.core_bridge.api.interview.model.entity;
 
 import com.halo.core_bridge.api.users.model.entity.User;
-import com.halo.core_bridge.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,12 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(
-        indexes = {
-                @Index(name = "idx_interview_id", columnList = "interview_id")
-        }
-)
-public class InterviewAssignment extends BaseEntity {
+public class InterviewAssignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
