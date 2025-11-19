@@ -25,6 +25,8 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private UserRoleType role;
 
+    private String email;
+
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
