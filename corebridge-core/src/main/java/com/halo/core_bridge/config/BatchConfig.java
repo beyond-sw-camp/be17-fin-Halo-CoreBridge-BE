@@ -52,7 +52,7 @@ public class BatchConfig {
      * ✔ 30초마다 Before 메트릭 푸시
      * ✔ 랜덤 값으로 분리 이전 상태를 시뮬레이션
      */
-    @Scheduled(fixedDelay = 30_000)
+    @Scheduled(fixedDelay = 300_000)
     public void pushBeforeMetrics() {
         try {
             double duration = 500 + Math.random() * 200;   // 500~700ms
