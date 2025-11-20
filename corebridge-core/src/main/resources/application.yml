@@ -84,4 +84,4 @@ ai:
   base-url: "http://175.197.41.64:33398"
 
 n8n:
-  base-url: "http://localhost:5678/webhook-test"
+  base-url: "http://175.197.41.64:34567/webhook-test"
