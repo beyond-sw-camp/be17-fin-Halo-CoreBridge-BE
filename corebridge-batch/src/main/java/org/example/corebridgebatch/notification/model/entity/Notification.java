@@ -25,6 +25,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private UserRoleType role;
 
+    @Transient
     private String email;
 
     @Enumerated(EnumType.STRING)
