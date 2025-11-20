@@ -10,7 +10,6 @@ import com.halo.core_bridge.api.resume.service.ResumeSearchService;
 import com.halo.core_bridge.api.resume.service.ResumeService;
 import com.halo.core_bridge.api.users.model.dto.UserDto;
 import com.halo.core_bridge.common.model.BaseResponse;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +92,7 @@ public class ResumeController {
     @PostMapping("/{resumeId}/cover-letter-descriptions")
     public ResponseEntity<List<Long>> createDescriptions(
             @PathVariable Long resumeId,
-            @org.springframework.web.bind.annotation.RequestBody List<CoverLetterDescriptionDto.CoverLetterDescriptionRequest> dtoList) {
+            @RequestBody List<CoverLetterDescriptionDto.CoverLetterDescriptionRequest> dtoList) {
 
         List<Long> descriptionIds = dtoList.stream()
                 .map(dto -> coverLetterDescriptionService.create(dto))
@@ -122,4 +121,3 @@ public class ResumeController {
 
 
 }
-
