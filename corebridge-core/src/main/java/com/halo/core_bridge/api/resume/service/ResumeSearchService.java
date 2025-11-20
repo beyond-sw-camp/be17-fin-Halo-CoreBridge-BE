@@ -1,6 +1,5 @@
 package com.halo.core_bridge.api.resume.service;
 
-import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.halo.core_bridge.api.resume.document.ResumeDocument;
@@ -19,6 +18,8 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -110,11 +111,11 @@ public class ResumeSearchService {
                     )
             ));
 
-            // skills 검색
+            // skills 검색 (keyword 타입이므로 term 쿼리 사용)
             shouldQueries.add(Query.of(q -> q
-                    .match(m -> m
+                    .term(t -> t
                             .field("skills")
-                            .query(keyword)
+                            .value(keyword)
                     )
             ));
 
@@ -158,15 +159,17 @@ public class ResumeSearchService {
             ));
         }
 
-        // 4. skills 필터
+        // 4. skills 필터 (keyword 타입이므로 term 쿼리 사용)
         if (skills != null && !skills.isEmpty()) {
-            log.info("skills 필터 추가: {}", skills);
-            filterQueries.add(Query.of(q -> q
-                    .terms(t -> t
-                            .field("skills_exact")        // ← 여기만 skills → skills_exact 로 변경!!!
-                            .terms(terms -> terms.value(skills.stream().map(FieldValue::of).toList()))
-                    )
-            ));
+            log.info("✅ skills 필터 추가: {}", skills);
+            for (String skill : skills) {
+                filterQueries.add(Query.of(q -> q
+                        .term(t -> t
+                                .field("skills")
+                                .value(skill)
+                        )
+                ));
+            }
         }
 
         // 5. companyName 필터
@@ -250,23 +253,28 @@ public class ResumeSearchService {
         return new PageImpl<>(documents, pageable, searchHits.getTotalHits());
     }
 
-    // ✅ PageResponse 변환 헬퍼 메서드
+    // ✅ PageResponse 변환 헬퍼 메서드 (String을 OffsetDateTime으로 파싱)
     private ResumeSearchDto.PageResponse convertToPageResponse(Page<ResumeDocument> page) {
         List<ResumeSearchDto.SearchResponse> content = page.getContent().stream()
-                .map(doc -> ResumeSearchDto.SearchResponse.builder()
-                        .id(Long.valueOf(doc.getId()))
-                        .appliedAt(doc.getAppliedAt())
-                        .description(doc.getDescription())
-                        .userName(doc.getUserName())
-                        .userEmail(doc.getUserEmail())
-                        .userPhone(doc.getUserPhone())
-                        .jobPostingId(doc.getJobPostingId())
-                        .jobPostingTitle(doc.getJobPostingTitle())
-                        .careers(convertCareers(doc.getCareers()))
-                        .educations(convertEducations(doc.getEducations()))
-                        .skills(doc.getSkills())
-                        .certificateCount(doc.getCertificates() != null ? doc.getCertificates().size() : 0)
-                        .build())
+                .map(doc -> {
+                    // String을 OffsetDateTime으로 변환
+                    OffsetDateTime appliedAtOffset = parseToOffsetDateTime(doc.getAppliedAt());
+
+                    return ResumeSearchDto.SearchResponse.builder()
+                            .id(Long.valueOf(doc.getId()))
+                            .appliedAt(appliedAtOffset)
+                            .description(doc.getDescription())
+                            .userName(doc.getUserName())
+                            .userEmail(doc.getUserEmail())
+                            .userPhone(doc.getUserPhone())
+                            .jobPostingId(doc.getJobPostingId())
+                            .jobPostingTitle(doc.getJobPostingTitle())
+                            .careers(convertCareers(doc.getCareers()))
+                            .educations(convertEducations(doc.getEducations()))
+                            .skills(doc.getSkills())
+                            .certificateCount(doc.getCertificates() != null ? doc.getCertificates().size() : 0)
+                            .build();
+                })
                 .collect(Collectors.toList());
 
         return ResumeSearchDto.PageResponse.builder()
@@ -283,12 +291,18 @@ public class ResumeSearchService {
         if (careers == null) return new ArrayList<>();
 
         return careers.stream()
-                .map(c -> ResumeSearchDto.CareerSummary.builder()
-                        .companyName(c.getCompanyName())
-                        .position(c.getPosition())
-                        .startDate(c.getStartDate())
-                        .endDate(c.getEndDate())
-                        .build())
+                .map(c -> {
+                    // String을 OffsetDateTime으로 변환
+                    OffsetDateTime startDateOffset = parseToOffsetDateTime(c.getStartDate());
+                    OffsetDateTime endDateOffset = parseToOffsetDateTime(c.getEndDate());
+
+                    return ResumeSearchDto.CareerSummary.builder()
+                            .companyName(c.getCompanyName())
+                            .position(c.getPosition())
+                            .startDate(startDateOffset)
+                            .endDate(endDateOffset)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -302,5 +316,27 @@ public class ResumeSearchService {
                         .degree(e.getDegree())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    // ✅ String을 OffsetDateTime으로 파싱하는 헬퍼 메서드
+    private OffsetDateTime parseToOffsetDateTime(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // ISO 8601 형식 파싱 시도 (2023-07-22T00:00:00)
+            if (dateStr.contains("T")) {
+                java.time.LocalDateTime localDateTime = java.time.LocalDateTime.parse(dateStr);
+                return localDateTime.atOffset(ZoneOffset.UTC);
+            } else {
+                // 날짜만 있는 경우 (2023-07-22)
+                java.time.LocalDate localDate = java.time.LocalDate.parse(dateStr);
+                return localDate.atStartOfDay().atOffset(ZoneOffset.UTC);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse date: {}", dateStr, e);
+            return null;
+        }
     }
 }

@@ -5,12 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+
 import java.util.List;
 
 @Document(indexName = "resumes")
@@ -24,8 +22,8 @@ public class ResumeDocument {
     @Field(type = FieldType.Keyword)
     private String id;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_optional_time)
-    private OffsetDateTime appliedAt;
+    @Field(type = FieldType.Date)
+    private String appliedAt;
 
     @Field(type = FieldType.Text, analyzer = "nori")
     private String description;
@@ -80,11 +78,11 @@ public class ResumeDocument {
         @Field(type = FieldType.Text, analyzer = "nori")
         private String position;
 
-        @Field(type = FieldType.Date, format = DateFormat.date_optional_time)
-        private OffsetDateTime startDate;
+        @Field(type = FieldType.Date)
+        private String startDate;
 
-        @Field(type = FieldType.Date, format = DateFormat.date_optional_time)
-        private OffsetDateTime endDate;
+        @Field(type = FieldType.Date)
+        private String endDate;
     }
 
     @Getter
