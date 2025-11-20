@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class ResumeSearchDto {
@@ -45,7 +46,7 @@ public class ResumeSearchDto {
     @AllArgsConstructor
     public static class SearchResponse {
         private Long id;
-        private LocalDateTime appliedAt;
+        private OffsetDateTime appliedAt;
         private String description;
         private String userName;
         private String userEmail;
@@ -67,8 +68,8 @@ public class ResumeSearchDto {
     public static class CareerSummary {
         private String companyName;
         private String position;
-        private LocalDateTime startDate;
-        private LocalDateTime endDate;
+        private OffsetDateTime startDate;
+        private OffsetDateTime endDate;
     }
 
     @Getter
