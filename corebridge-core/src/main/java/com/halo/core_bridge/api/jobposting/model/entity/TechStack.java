@@ -25,6 +25,8 @@ public enum TechStack {
     HTML("HTML5"),
     CSS("CSS3"),
     TAILWIND("Tailwind CSS"),
+    HTML_CSS("HTML/CSS"),
+    WEBPACK("Webpack"),
 
     // Database
     MYSQL("MySQL"),
@@ -33,6 +35,7 @@ public enum TechStack {
     MONGODB("MongoDB"),
     REDIS("Redis"),
     ELASTICSEARCH("Elasticsearch"),
+    SQL("SQL"),
 
     // DevOps / Infra
     AWS("AWS"),
@@ -43,10 +46,20 @@ public enum TechStack {
     NGINX("Nginx"),
     APACHE("Apache HTTP Server"),
     LINUX("Linux"),
+    GIT("Git"),
 
     // Messaging / Streaming
     KAFKA("Kafka"),
     RABBITMQ("RabbitMQ"),
+
+    // Data / Analytics
+    SPARK("Apache Spark"),
+    AIRFLOW("Apache Airflow"),
+    ETL("ETL"),
+    GOOGLE_ADS("Google Ads"),
+    FACEBOOK_ADS("Facebook Ads"),
+    GOOGLE_ANALYTICS("Google Analytics"),
+    EXCEL("Excel"),
 
     // Testing
     JUNIT("JUnit5"),
@@ -57,11 +70,17 @@ public enum TechStack {
     // Mobile / Cross Platform
     FLUTTER("Flutter"),
     REACT_NATIVE("React Native"),
+    ANDROID_STUDIO("Android Studio"),
+    JETPACK("Jetpack"),
 
     // Collaboration / Tools
     FIGMA("Figma"),
     POSTMAN("Postman"),
-    SWAGGER("Swagger / OpenAPI");
+    SWAGGER("Swagger / OpenAPI"),
+    SKETCH("Sketch"),
+    PHOTOSHOP("Photoshop"),
+    ILLUSTRATOR("Illustrator"),
+    PROTOTYPING("Prototyping");
 
     private final String label;
 }
